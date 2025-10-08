@@ -3,6 +3,7 @@ import sanitizeHtml from 'sanitize-html'
 export default defineEventHandler(async (event) => {
   const storyId = event.context.params?.storyId as string
   const chapterNumber = parseInt(event.context.params?.chapterNumber as string, 10)
+  console.log('Fetching chapter', { storyId, chapterNumber })
 
   if (!storyId || isNaN(chapterNumber)) {
     throw createError({ statusCode: 400, statusMessage: 'Yêu cầu không hợp lệ' })

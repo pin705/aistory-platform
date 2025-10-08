@@ -55,7 +55,7 @@
     </div>
 
     <div class="flex justify-end mt-6 gap-3">
-      <UButton color="red" variant="ghost" @click="deleteChapter">Xóa chương</UButton>
+      <UButton color="error" variant="ghost" @click="deleteChapter">Xóa chương</UButton>
       <UButton :loading="isSaving && autoSaveStatus !== 'saving'" @click="saveChapter(false)" size="lg">Lưu chương</UButton>
     </div>
   </UContainer>
@@ -134,7 +134,7 @@ async function deleteChapter() {
     toast.add({ title: 'Xóa chương thành công' });
     navigateTo(`/author/stories/${storyId}`);
   } catch (e: any) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   }
 }
 
@@ -166,7 +166,7 @@ async function saveChapter(isSilent = false) {
     }
   } catch (e: any) {
     if (!isSilent) {
-      toast.add({ title: 'Lỗi khi lưu!', description: e.data?.statusMessage, color: 'red' })
+      toast.add({ title: 'Lỗi khi lưu!', description: e.data?.statusMessage, color: 'error' })
     }
   } finally {
     isSaving.value = false;
