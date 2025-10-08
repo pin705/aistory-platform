@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
         genres: body.genres,
         tags: body.tags,
         prompt: body.prompt,
+        coverImage: body.coverImage || '',
       },
     },
     { new: true } // Trả về document sau khi đã cập nhật

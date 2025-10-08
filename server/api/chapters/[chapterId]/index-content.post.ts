@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     storyId: chapter.storyId,
     chapterId: chapter._id,
     chunkText,
-    contentEmbedding: embeddings?.[index].values,
+    contentEmbedding: embeddings?.[index]?.values,
   }));
 
   // 4. Xóa các chunk cũ và thêm chunk mới (Upsert)

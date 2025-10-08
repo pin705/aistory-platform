@@ -40,11 +40,26 @@ import type { Row } from '@tanstack/vue-table'
 // Resolve các component UI sẽ dùng trong hàm `h()`
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
+const USelectMenu = resolveComponent('USelectMenu')
+const UBadge = resolveComponent('UBadge')
 
 const route = useRoute()
 const toast = useToast()
 const storyId = route.params.id as string
 const isCreating = ref(false)
+
+const chapterStatusOptions = [
+  { key: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
+  { key: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-check-circle-20-solid' },
+]
+const chapterStatusColors: Record<string, any> = {
+  draft: 'orange',
+  published: 'green',
+}
+const chapterStatusLabels: Record<string, string> = {
+  draft: 'Bản nháp',
+  published: 'Đã xuất bản',
+}
 
 // (MỚI) Định nghĩa các Tab cho giao diện
 const tabs = [
@@ -67,11 +82,43 @@ const { data: chapters, refresh: refreshChapters } = await useFetch<ChapterRow[]
   default: () => []
 })
 
-// Đổi tên biến `columns` thành `chapterColumns` để rõ ràng hơn
+
+async function handleChapterStatusChange(chapterId: string, newStatus: string) {
+  try {
+    await $fetch(`/api/chapters/${chapterId}/status`, {
+      method: 'PATCH',
+      body: { status: newStatus }
+    })
+    toast.add({ title: 'Cập nhật trạng thái thành công!' })
+    // Làm mới lại bảng để cập nhật `updatedAt`
+    await refreshChapters()
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể cập nhật', color: 'red' })
+  }
+}
+
+// (CẬP NHẬT) Định nghĩa cột cho bảng chương
 const chapterColumns: TableColumn<ChapterRow>[] = [
   { accessorKey: 'chapterNumber', header: 'Chương số' },
   { accessorKey: 'title', header: 'Tiêu đề' },
-  { accessorKey: 'status', header: 'Trạng thái' },
+  // (CẬP NHẬT) Cột Trạng thái tương tác
+  {
+    accessorKey: 'status',
+    header: 'Trạng thái',
+    cell: ({ row }) => h(USelectMenu, {
+        modelValue: row.original.status,
+        by: 'key',
+        items: chapterStatusOptions,
+        class: 'w-36',
+        'onUpdate:modelValue': (newStatus) => handleChapterStatusChange(row.original._id, newStatus.key)
+      }, {
+        label: () => h(UBadge, {
+          color: chapterStatusColors[row.original.status] || 'gray',
+          variant: 'soft',
+          size: 'xs'
+        }, () => chapterStatusLabels[row.original.status] || row.original.status)
+      })
+  },
   { accessorKey: 'updatedAt', header: 'Cập nhật', cell: ({ row }) => new Date(row.getValue('updatedAt')).toLocaleString('vi-VN') },
   {
     id: 'actions',

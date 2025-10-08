@@ -36,7 +36,7 @@ const { loggedIn, clear, session } = useUserSession();
 const userMenuItems = [
   [
     {
-      label: "Bảng điều khiển",
+      label: "Bắt đầu sáng tác",
       icon: "i-heroicons-squares-2x2",
       to: "/author/dashboard",
     },

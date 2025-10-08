@@ -1,7 +1,6 @@
 import CryptoJS from 'crypto-js'
 // (MỚI) Import thư viện mới
 import { GoogleGenAI } from '@google/genai'
-const ai = new GoogleGenAI({});
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)

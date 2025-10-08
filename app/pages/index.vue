@@ -1,32 +1,42 @@
 <template>
-  <UContainer>
-    <h1 class="text-3xl font-bold my-8">Khám phá truyện mới</h1>
+  <div>
+    <section class="bg-gray-900 text-white">
+      <UContainer class="py-12 md:py-20 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">Chào mừng đến với LoreWeaver AI</h1>
+        <p class="mt-4 text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
+          Nơi những ý tưởng của bạn được chắp cánh bởi trí tuệ nhân tạo, tạo nên những thế giới truyện kỳ vĩ.
+        </p>
+        <UButton size="xl" class="mt-8" to="/author/dashboard">Bắt đầu Sáng tác</UButton>
+      </UContainer>
+    </section>
 
-    {{ error }}
-    <div v-if="pending" class="text-center">Đang tải...</div>
-    <div v-else-if="error" class="text-center text-red-500">Không thể tải danh sách truyện.</div>
+    <UContainer class="py-10">
+      <section v-if="homeData?.hotStories?.length" class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2">
+          <UIcon name="i-heroicons-fire-20-solid" class="text-red-500" />
+          Truyện Hot
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+          <StoryCard v-for="story in homeData.hotStories" :key="story._id" :story="story" />
+        </div>
+      </section>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <NuxtLink v-for="story in stories" :key="story._id" :to="`/story/${story._id}`">
-        <StoryCard :story="story" />
-      </NuxtLink>
-    </div>
-  </UContainer>
+      <section v-if="homeData?.newStories?.length">
+        <h2 class="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-2">
+          <UIcon name="i-heroicons-sparkles-20-solid" class="text-yellow-500" />
+          Mới Cập Nhật
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+          <StoryCard v-for="story in homeData.newStories" :key="story._id" :story="story" />
+        </div>
+      </section>
+    </UContainer>
+  </div>
 </template>
 
 <script setup lang="ts">
-// Fetch dữ liệu từ API khi component được tạo
-const { data: stories, pending, error } = await useFetch('/api/stories')
+// (CẬP NHẬT) Chỉ cần một lệnh useFetch
+const { data: homeData } = useFetch('/api/stories')
 
-// Đặt tiêu đề cho trang
-useHead({
-  title: 'Trang chủ - Nền tảng truyện AI',
-})
-
-definePageMeta({
-  middleware: () => {
-    const { loggedIn } = useUserSession();
-    if (!loggedIn.value) return navigateTo("/login");
-  },
-});
+useHead({ title: 'Trang chủ - LoreWeaver AI' })
 </script>

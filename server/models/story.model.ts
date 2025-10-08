@@ -7,7 +7,7 @@ export const Story = defineMongooseModel('Story', {
   coverImage: { type: String, default: '' },
   status: {
     type: String,
-    enum: ['draft', 'published', 'on-hold'],
+    enum: ['draft', 'published', 'on-hold', 'finished'],
     default: 'draft'
   },
   genres: [{ type: String }], // Lưu tên thể loại trực tiếp

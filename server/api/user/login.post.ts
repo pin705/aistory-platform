@@ -3,7 +3,6 @@ export default defineEventHandler(async (event) => {
 
   // 2. 🧠 Kiểm tra tài khoản (ẩn lỗi cụ thể)
   const user = await User.findOne({ email }).lean()
-  console.log('user', user)
   const isValid = user && (await verifyPassword(user.password, password))
 
   if (!isValid) {

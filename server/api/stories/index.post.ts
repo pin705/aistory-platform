@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
 
   // Lấy dữ liệu từ body
-  const { title, description, genres, tags, prompt } = await readBody(event)
+  const { title, description, genres, tags, prompt, coverImage } = await readBody(event)
 
   // Validation cơ bản
   if (!title || title.length < 5) {
@@ -20,7 +20,8 @@ export default defineEventHandler(async (event) => {
     tags: tags || [],
     author: session.user.id, // Gán tác giả là người dùng đang đăng nhập
     status: 'draft', // Mặc định là bản nháp
-    prompt
+    prompt,
+    coverImage: coverImage || '', // Mặc định chưa có ảnh bìa
   })
 
   // Trả về truyện vừa tạo để frontend có thể lấy ID và chuyển hướng
