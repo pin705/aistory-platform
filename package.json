@@ -17,13 +17,17 @@
     "nuxt": "^4.1.2"
   },
   "devDependencies": {
+    "@google/genai": "^1.22.0",
+    "@google/generative-ai": "^0.24.1",
     "@nuxt/eslint": "^1.9.0",
+    "@tiptap/starter-kit": "^3.6.5",
+    "@tiptap/vue-3": "^3.6.5",
+    "@types/crypto-js": "^4.2.2",
+    "crypto-js": "^4.2.0",
     "eslint": "^9.37.0",
+    "nuxt-auth-utils": "^0.5.25",
+    "nuxt-mongoose": "^1.0.6",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.1.0"
-  },
-  "resolutions": {
-    "unimport": "4.1.1"
-  },
-  "packageManager": "pnpm@10.18.0"
+  }
 }

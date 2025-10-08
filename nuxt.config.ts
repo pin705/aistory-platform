@@ -1,13 +1,20 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    'nuxt-mongoose',
+    'nuxt-auth-utils'
   ],
 
   devtools: {
-    enabled: true
+    enabled: false
   },
+
+  // mongoose: {
+  //   uri: process.env.MONGODB_URI, // Chúng ta sẽ tạo file .env ngay sau đây
+  //   options: {},
+  //   modelsDir: 'models',
+  // },
 
   css: ['~/assets/css/main.css'],
 
