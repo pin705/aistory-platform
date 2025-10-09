@@ -60,14 +60,6 @@
           :ui="{ body: { padding: '' } }"
         >
           <div class="p-4">
-            <!-- <UButton
-            to="/author/dashboard"
-            icon="i-heroicons-squares-2x2"
-            variant="ghost"
-            class="w-full justify-start mb-2"
-          >
-            Dashboard
-          </UButton> -->
             <USeparator label="Lorebook" />
             <div class="mt-4">
               <StoryLorebookManager title="chapterData.title" :story-id="storyId" />

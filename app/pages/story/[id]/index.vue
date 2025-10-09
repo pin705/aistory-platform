@@ -298,11 +298,12 @@
                 size="xl"
               />
               <div class="flex-1">
-                <p class="font-bold text-lg">
-                  {{ story.author.username }}
-                </p>
+                <NuxtLink
+                  :to="`/author/${story.author.slug}`"
+                  class="font-bold text-lg hover:text-primary"
+                >{{ story.author.username }}</NuxtLink>
                 <p class="text-sm text-gray-500">
-                  128k người theo dõi
+                  {{ story.author.followerCount }} người theo dõi
                 </p>
               </div>
               <UButton
@@ -326,7 +327,6 @@
                 v-for="tag in story.tags"
                 :key="tag"
                 :label="`#${tag}`"
-                color="gray"
                 variant="outline"
                 size="xs"
               />

@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-6">
       <div>
         <NuxtLink
-          to="/author/dashboard"
+          to="/dashboard"
           class="text-sm text-gray-500 hover:underline"
         >‹ Quay lại Dashboard</NuxtLink>
         <h1 class="text-3xl font-bold">

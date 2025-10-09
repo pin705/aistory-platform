@@ -11,7 +11,7 @@ const userMenuItems = [
     {
       label: 'Sáng tác',
       icon: 'i-heroicons-squares-2x2',
-      to: '/author/dashboard',
+      to: '/dashboard',
       disable: !loggedIn.value
     },
     {
