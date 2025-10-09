@@ -23,12 +23,15 @@
       :items="tabs"
       class="w-full"
       color="neutral"
+      variant="link"
     >
       <template #chapters="{ item }">
-        <UTable
-          :data="chapters"
-          :columns="chapterColumns"
-        />
+        <UCard>
+          <UTable
+            :data="chapters"
+            :columns="chapterColumns"
+          />
+        </UCard>
       </template>
 
       <template #lorebook="{ item }">

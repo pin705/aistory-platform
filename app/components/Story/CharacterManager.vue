@@ -1,7 +1,7 @@
 <template>
   <UCard>
-     <h3 class="text-lg font-semibold">
-      Hệ thống nhân vật trong: {{ title }}
+    <h3 class="text-lg font-semibold">
+      Hệ thống trong: {{ title }}
     </h3>
 
     <template #header>
@@ -78,7 +78,9 @@ watchDebounced(searchQuery, () => refreshCharacters(), { debounce: 300 })
 const columns: TableColumn<any>[] = [
   { accessorKey: 'name', header: 'Tên' },
   { accessorKey: 'role', header: 'Vai trò' },
-  { accessorKey: 'description', header: 'Mô tả', cell: ({ row }) => h('div', { class: 'max-w-[100px] truncate' }, row.getValue('description')) },
+  { accessorKey: 'description', header: 'Mô tả', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('description')) },
+  { accessorKey: 'backstory', header: 'Tiểu sử', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('backstory')) },
+  { accessorKey: 'abilities', header: 'Khả năng', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('abilities')) },
   {
     id: 'actions',
     header: () => h('div', { class: 'text-right' }, 'Hành động'),
@@ -105,8 +107,8 @@ async function deleteCharacter(characterId: string) {
     await $fetch(`/api/characters/${characterId}`, { method: 'DELETE' })
     toast.add({ title: 'Xóa nhân vật thành công!' })
     await refreshCharacters()
-  } catch (e: any) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   }
 }
 

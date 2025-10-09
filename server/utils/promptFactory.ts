@@ -1,7 +1,7 @@
 // Hàm tạo prompt cho việc gợi ý thông tin truyện
 async function createStoryDetailsPrompt(job: any): Promise<string> {
-  const allGenres = await Genre.find().select('name');
-  const genreListString = allGenres.map(g => g.name).join(', ');
+  const allGenres = await Genre.find().select('name')
+  const genreListString = allGenres.map(g => g.name).join(', ')
 
   return `
     QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
@@ -14,19 +14,19 @@ async function createStoryDetailsPrompt(job: any): Promise<string> {
     Bối cảnh của người dùng: "${job.prompt}"
 
     Chỉ trả về một đối tượng JSON hợp lệ, không chứa bất kỳ văn bản nào khác ngoài JSON (không có markdown \`\`\`json).
-  `;
+  `
 }
 
 async function createSceneGenerationPrompt(job: any): Promise<string> {
-  const { storyId, currentContent } = job.context;
-  const userPrompt = job.prompt;
+  const { storyId, currentContent } = job.context
+  const userPrompt = job.prompt
 
   const [ragContext, lorebookContext, story] = await Promise.all([
-      retrieveSimilarContext(storyId, userPrompt),
-      retrieveLorebookContext(storyId, userPrompt),
-      Story.findById(storyId).select('prompt')
-  ]);
-  const originalStoryPrompt = story?.prompt;
+    retrieveSimilarContext(storyId, userPrompt),
+    retrieveLorebookContext(storyId, userPrompt),
+    Story.findById(storyId).select('prompt')
+  ])
+  const originalStoryPrompt = story?.prompt
 
   return `
     QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT VÀ CÓ ĐỊNH DẠNG HTML.
@@ -37,18 +37,17 @@ async function createSceneGenerationPrompt(job: any): Promise<string> {
     **4. Vài dòng cuối của nội dung đang viết:** ...${(currentContent || '').slice(-2000)}
     **Yêu cầu của tác giả:** "${userPrompt}"
     Nhiệm vụ: ... Chỉ trả về phần truyện được viết tiếp dưới dạng HTML...
-  `;
+  `
 }
-
 
 export async function getMetaPrompt(job: any): Promise<string> {
   switch (job.jobType) {
     case 'generate_story_details':
-      return await createStoryDetailsPrompt(job);
+      return await createStoryDetailsPrompt(job)
     case 'generate_scene':
       // (CẬP NHẬT) Kích hoạt lại
-      return await createSceneGenerationPrompt(job);
+      return await createSceneGenerationPrompt(job)
     default:
-      throw new Error(`Unknown job type: ${job.jobType}`);
+      throw new Error(`Unknown job type: ${job.jobType}`)
   }
 }
