@@ -1,11 +1,9 @@
 <template>
-  <div class="flex justify-between items-center mb-6">
-    <h3 class="text-lg font-semibold">
+  <UCard>
+     <h3 class="text-lg font-semibold">
       Hệ thống nhân vật trong: {{ title }}
     </h3>
-  </div>
 
-  <UCard>
     <template #header>
       <div class="flex gap-4">
         <UInput

@@ -304,18 +304,6 @@ watchDebounced(
   { debounce: 2500, deep: true } // Kích hoạt sau 2.5s không có thay đổi
 )
 
-async function deleteChapter() {
-  if (chapterId === 'new') return
-  if (!confirm('Bạn có chắc chắn muốn xóa chương này?')) return
-  try {
-    await $fetch(`/api/chapters/${chapterId}`, { method: 'DELETE' })
-    toast.add({ title: 'Xóa chương thành công' })
-    navigateTo(`/author/stories/${storyId}`)
-  } catch (e: any) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
-  }
-}
-
 // (CẬP NHẬT) Hàm lưu chương để hỗ trợ chế độ "im lặng"
 async function saveChapter(isSilent = false) {
   isSaving.value = true

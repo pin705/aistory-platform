@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { loggedIn, clear, session } = useUserSession()
 
-console.log('Session in Navbar:', session.value)
 const userMenuItems = [
   [
     {
@@ -12,7 +11,14 @@ const userMenuItems = [
     {
       label: 'Sáng tác',
       icon: 'i-heroicons-squares-2x2',
-      to: '/author/dashboard'
+      to: '/author/dashboard',
+      disable: !loggedIn.value
+    },
+    {
+      label: 'Đăng nhập',
+      icon: 'i-heroicons-arrow-right-on-rectangle',
+      to: '/login',
+      class: loggedIn.value ? 'hidden' : ''
     },
     {
       label: '',

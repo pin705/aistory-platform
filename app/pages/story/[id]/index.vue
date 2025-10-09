@@ -45,7 +45,7 @@
             <UBadge
               v-for="genre in story.genres"
               :key="genre"
-              color="gray"
+              color="neutral"
               variant="outline"
             >
               {{ genre }}
@@ -56,7 +56,6 @@
             <UButton
               :to="firstChapterLink"
               icon="i-heroicons-book-open"
-              size="xl"
               class="flex-1 sm:flex-none justify-center"
               color="neutral"
             >
@@ -65,7 +64,6 @@
             <UButton
               :to="latestChapterLink"
               icon="i-heroicons-sparkles"
-              size="xl"
               class="flex-1 sm:flex-none justify-center"
             >
               Chương mới nhất
@@ -139,48 +137,235 @@
       </UContainer>
     </section>
 
-    <UContainer class="py-10">
-      <UTabs
-        :items="tabs"
-        class="w-full"
-        color="neutral"
-        variant="link"
-      >
-        <template #description="{ item }">
-          <!-- <template #header>
-              <h2 class="text-xl font-semibold">
-                {{ item.label }}
+    <div class="py-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-8">
+          <UTabs
+            :items="tabs"
+            class="w-full"
+          >
+            <template #description="{ item }">
+              <UCard>
+                <template #header>
+                  <h2 class="text-xl font-semibold">
+                    {{ item.label }}
+                  </h2>
+                </template>
+                <p class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-7">
+                  {{ story.description }}
+                </p>
+              </UCard>
+            </template>
+
+            <template #chapters="{ item }">
+              <UCard>
+                <template #header>
+                  <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-semibold">
+                      {{ item.label }}
+                    </h2>
+                    <div class="flex items-center gap-2">
+                      <UInput
+                        v-model="chapterSearchQuery"
+                        icon="i-heroicons-magnifying-glass"
+                        placeholder="Tìm chương..."
+                        size="sm"
+                      />
+                      <USelectMenu
+                        v-model="chapterSortOrder"
+                        :items="sortOptions"
+                        size="sm"
+                        class="w-32"
+                      />
+                    </div>
+                  </div>
+                </template>
+                <div class="max-h-[80vh] overflow-y-auto space-y-1 -m-3">
+                  <NuxtLink
+                    v-for="chapter in filteredChapters"
+                    :key="chapter._id"
+                    :to="`/story/${story._id}/chapters/${chapter.chapterNumber}`"
+                    class="flex justify-between items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    <span>Chương {{ chapter.chapterNumber }}: {{ chapter.title }}</span>
+                    <span class="text-xs text-gray-400 flex-shrink-0 ml-4">{{ formatDistanceToNow(new Date(chapter.updatedAt), { addSuffix: true, locale: vi }) }}</span>
+                  </NuxtLink>
+                </div>
+              </UCard>
+            </template>
+
+            <template #reviews="{ item }">
+              <h2 class="text-2xl font-bold mb-6">
+                {{ item.label }} ({{ reviews.length }})
               </h2>
-            </template> -->
-          <p class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-            {{ story.description }}
-          </p>
-        </template>
-        <template #chapters="{ item }">
-          <div class="max-h-[60vh] overflow-y-auto space-y-1 -m-3">
-            <NuxtLink
-              v-for="chapter in chapters"
-              :key="chapter._id"
-              :to="`/story/${story._id}/chapters/${chapter.chapterNumber}`"
-              class="flex justify-between p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <span>Chương {{ chapter.chapterNumber }}: {{ chapter.title }}</span>
-              <span class="text-sm text-gray-400 flex-shrink-0 ml-4">{{
-                formatDistanceToNow(new Date(chapter.updatedAt), {
-                  addSuffix: true,
-                  locale: vi
-                })
-              }}</span>
-            </NuxtLink>
-          </div>
-        </template>
-        <template #reviews="{ item }">
-          <h2 class="text-xl font-semibold">
-            {{ item.label }} ({{ reviews.length }})
-          </h2>
-        </template>
-      </UTabs>
-    </UContainer>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="md:col-span-1">
+                  <h3 class="font-semibold mb-4">
+                    Viết đánh giá của bạn
+                  </h3>
+                  <div v-if="loggedIn">
+                    <UForm
+                      :state="newReviewState"
+                      :schema="reviewSchema"
+                      @submit="submitReview"
+                    >
+                      <UFieldGroup
+                        label="Đánh giá của bạn"
+                        name="rating"
+                        class="mb-4"
+                      >
+                        <StarInput v-model="newReviewState.rating" />
+                      </UFieldGroup>
+                      <UFieldGroup
+                        label="Bình luận"
+                        name="comment"
+                      >
+                        <UTextarea
+                          v-model="newReviewState.comment"
+                          placeholder="Chia sẻ cảm nhận của bạn về câu truyện..."
+                        />
+                      </UFieldGroup>
+                      <UButton
+                        type="submit"
+                        :loading="isSubmittingReview"
+                        class="mt-4"
+                      >
+                        Gửi đánh giá
+                      </UButton>
+                    </UForm>
+                  </div>
+                  <div v-else>
+                    <p class="text-sm text-gray-500">
+                      Vui lòng <NuxtLink
+                        to="/login"
+                        class="text-primary font-medium"
+                      >đăng nhập</NuxtLink> để để lại đánh giá.
+                    </p>
+                  </div>
+                </div>
+                <div class="md:col-span-2">
+                  <div
+                    v-if="reviews.length > 0"
+                    class="space-y-6"
+                  >
+                    <div
+                      v-for="review in reviews"
+                      :key="review._id"
+                    >
+                      <div class="flex items-center gap-3">
+                        <UAvatar
+                          :src="review.userId.avatar"
+                          :alt="review.userId.username"
+                        />
+                        <div>
+                          <p class="font-semibold">
+                            {{ review.userId.username }}
+                          </p>
+                          <StarRating :rating="review.rating" />
+                        </div>
+                      </div>
+                      <p class="mt-3 text-gray-700 dark:text-gray-300">
+                        {{ review.comment }}
+                      </p>
+                      <p class="text-xs text-gray-400 mt-2">
+                        {{ formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: vi }) }}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    v-else
+                    class="text-center py-10"
+                  >
+                    <p>Chưa có đánh giá nào cho truyện này.</p>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </UTabs>
+        </div>
+
+        <div class="lg:col-span-4 space-y-8">
+          <UCard>
+            <template #header>
+              <h3 class="font-semibold">
+                Về tác giả
+              </h3>
+            </template>
+            <div class="flex items-center gap-4">
+              <UAvatar
+                :src="story.author.avatar"
+                :alt="story.author.username"
+                size="xl"
+              />
+              <div class="flex-1">
+                <p class="font-bold text-lg">
+                  {{ story.author.username }}
+                </p>
+                <p class="text-sm text-gray-500">
+                  128k người theo dõi
+                </p>
+              </div>
+              <UButton
+                :variant="isFollowing ? 'soft' : 'solid'"
+                icon="i-heroicons-user-plus"
+                @click="toggleFollow"
+              >
+                {{ isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
+              </UButton>
+            </div>
+          </UCard>
+
+          <UCard>
+            <template #header>
+              <h3 class="font-semibold">
+                Tags
+              </h3>
+            </template>
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="tag in story.tags"
+                :key="tag"
+                :label="`#${tag}`"
+                color="gray"
+                variant="outline"
+                size="xs"
+              />
+            </div>
+          </UCard>
+
+          <UCard v-if="latestReviews.length">
+            <template #header>
+              <h3 class="font-semibold">
+                Đánh giá mới nhất
+              </h3>
+            </template>
+            <div class="space-y-6">
+              <div
+                v-for="review in latestReviews"
+                :key="review._id"
+              >
+                <div class="flex items-center gap-3">
+                  <UAvatar
+                    :src="review.userId.avatar"
+                    :alt="review.userId.username"
+                    size="md"
+                  />
+                  <div>
+                    <p class="font-semibold">
+                      {{ review.userId.username }}
+                    </p>
+                    <StarRating :rating="review.rating" />
+                  </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+                  {{ review.comment }}
+                </p>
+              </div>
+            </div>
+          </UCard>
+        </div>
+      </div>
+    </div>
   </div>
   <div
     v-else
@@ -291,6 +476,29 @@ async function submitReview() {
     isSubmittingReview.value = false
   }
 }
+
+const chapterSearchQuery = ref('')
+const sortOptions = [{ label: 'Mới nhất', value: 'desc' }, { label: 'Cũ nhất', value: 'asc' }]
+const chapterSortOrder = ref(sortOptions[0])
+const filteredChapters = computed(() => {
+  const sortedChapters = [...chapters.value]
+  if (chapterSortOrder.value.value === 'desc') {
+    sortedChapters.reverse()
+  }
+  if (!chapterSearchQuery.value) {
+    return sortedChapters
+  }
+  return sortedChapters.filter(chapter =>
+    chapter.title.toLowerCase().includes(chapterSearchQuery.value.toLowerCase())
+    || `chương ${chapter.chapterNumber}`.includes(chapterSearchQuery.value.toLowerCase())
+  )
+})
+
+// Logic cho sidebar
+const isFollowing = ref(false)
+function toggleFollow() { isFollowing.value = !isFollowing.value }
+
+const latestReviews = computed(() => reviews.value.slice(0, 3)) // Lấy 3 đánh giá mới nhất
 
 const config = useRuntimeConfig()
 // 1. Tạo các biến SEO cơ bản một cách động

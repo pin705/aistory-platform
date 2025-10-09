@@ -32,8 +32,10 @@
       </template>
 
       <template #lorebook="{ item }">
-
-        <StoryCharacterManager :story-id="storyId" :title="story?.title" />
+        <StoryCharacterManager
+          :story-id="storyId"
+          :title="story?.title"
+        />
       </template>
     </UTabs>
   </UContainer>

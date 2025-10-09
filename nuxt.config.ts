@@ -17,8 +17,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Thay thế bằng URL của website bạn khi deploy
-      baseURL: process.env.BASE_URL || 'http://localhost:3000'
-    },
+      baseURL: process.env.NUXT_SEO_BASE_URL || 'http://localhost:3000'
+    }
     // session: {
     //   cookie: {
     //     secure: false, // Chỉ dùng secure cookie trong production (HTTPS)

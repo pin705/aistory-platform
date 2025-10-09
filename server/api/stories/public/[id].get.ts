@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       $addFields: {
         reviewCount: { $size: '$reviews' },
         averageRating: { $avg: '$reviews.rating' },
-        author: { $arrayElemAt: ['$authorInfo', 0] }
+        author: { $arrayElemAt: ['$authorInfo', 0] },
       }
     },
     {
