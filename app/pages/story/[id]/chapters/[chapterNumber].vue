@@ -389,6 +389,80 @@ useEventListener(document, 'keydown', (e) => {
 })
 
 onBeforeRouteLeave(() => { stop() })
+
+// -------------------------------------------------------------------
+// ----- (CẬP NHẬT) TỐI ƯU SEO & SOCIAL SHARE CHO TRANG CHƯƠNG -----
+// -------------------------------------------------------------------
+const config = useRuntimeConfig()
+// 1. Chuẩn bị các biến nội dung cho SEO
+const pageTitle = computed(() =>
+  data.value ? `${data.value.story.title} - Chương ${data.value.currentChapter.chapterNumber}` : 'Đang tải chương...'
+)
+
+const pageDescription = computed(() => plainContent.value.substring(0, 160) + '...')
+const canonicalUrl = computed(() => `${config.public.baseURL}${route.fullPath}`)
+const ogImageUrl = computed(() => data.value?.story.coverImage || `${config.public.baseURL}/og-image.png`)
+
+// 2. Sử dụng useSeoMeta để chèn các thẻ meta
+useSeoMeta({
+  title: pageTitle,
+  description: pageDescription,
+
+  // Open Graph
+  ogTitle: pageTitle,
+  ogDescription: pageDescription,
+  ogImage: ogImageUrl,
+  ogUrl: canonicalUrl,
+  ogType: 'article',
+  ogLocale: 'vi_VN',
+
+  // Article specific tags
+  articleAuthor: () => data.value?.story.author.username,
+  articlePublishedTime: () => data.value ? new Date(data.value.currentChapter.createdAt).toISOString() : '',
+  articleModifiedTime: () => data.value ? new Date(data.value.currentChapter.updatedAt).toISOString() : '',
+
+  // Twitter Card
+  twitterCard: 'summary_large_image',
+  twitterTitle: pageTitle,
+  twitterDescription: pageDescription,
+  twitterImage: ogImageUrl
+})
+
+// 3. (NÂNG CAO) Thêm Structured Data (JSON-LD) cho trang chương
+const jsonLd = computed(() => {
+  if (!data.value) return {}
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage', // Trang này là một WebPage...
+    'name': pageTitle.value,
+    'url': canonicalUrl.value,
+    'description': pageDescription.value,
+    // ... là một phần của (isPartOf) một cuốn sách (Book)
+    'isPartOf': {
+      '@type': 'Book',
+      'name': data.value.story.title,
+      'author': {
+        '@type': 'Person',
+        'name': data.value.story.author.username
+      },
+      'url': `${config.public.baseURL}/story/${storyId}`
+    }
+  }
+})
+
+// Sử dụng useHead để chèn JSON-LD và link canonical
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: () => JSON.stringify(jsonLd.value, null, 2)
+    }
+  ],
+  link: [
+    { rel: 'canonical', href: canonicalUrl }
+  ]
+})
 </script>
 
 <style>
