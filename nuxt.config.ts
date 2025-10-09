@@ -18,6 +18,12 @@ export default defineNuxtConfig({
     public: {
       // Thay thế bằng URL của website bạn khi deploy
       baseURL: process.env.BASE_URL || 'http://localhost:3000'
+    },
+    session: {
+      cookie: {
+        secure: false, // Chỉ dùng secure cookie trong production (HTTPS)
+        sameSite: 'none' // Hoặc 'none' nếu cần truy cập cross-site
+      }
     }
   },
   routeRules: {
