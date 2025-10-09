@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const storyId = event.context.params?.id as string
-  const { name, description, role } = await readBody(event)
+  const { name, description, role, backstory, abilities } = await readBody(event)
 
   if (!name) {
     throw createError({ statusCode: 400, statusMessage: 'Tên nhân vật là bắt buộc.' })
@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Bạn không có quyền thêm nhân vật vào truyện này.' })
   }
 
-  const newCharacter = await Character.create({ storyId, name, description, role })
+  const newCharacter = await Character.create({ storyId, name, description, role, backstory, abilities })
   return newCharacter
 })

@@ -15,7 +15,7 @@
         :loading="isCreating"
         @click="createNewChapter"
       >
-        Viết chương mới
+        Chương mới
       </UButton>
     </div>
 

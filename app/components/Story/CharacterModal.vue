@@ -2,7 +2,7 @@
   <UModal v-model:open="isOpen">
     <template #header>
       <h2 class="text-xl font-bold">
-        {{ isEditing ? 'Chỉnh sửa Nhân vật' : 'Thêm Nhân vật mới' }}
+        {{ isEditing ? 'Chỉnh sửa Bối Cảnh' : 'Thêm Bối Cảnh mới' }}
       </h2>
     </template>
     <template #body>
