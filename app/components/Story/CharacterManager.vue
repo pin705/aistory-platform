@@ -1,23 +1,49 @@
 <template>
-  <UContainer class="py-8">
-    <div class="flex justify-between items-center mb-6">
-      <UButton icon="i-heroicons-plus-circle" size="lg" @click="openModal(null)">Thêm Nhân vật</UButton>
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-lg font-semibold">
+      Hệ thống nhân vật trong: {{ title }}
+    </h3>
+
+    <UButton
+      icon="i-heroicons-plus-circle"
+      size="lg"
+      @click="openModal(null)"
+    >
+      Thêm Nhân vật
+    </UButton>
+  </div>
+
+  <UCard>
+    <template #header>
+      <div class="flex gap-4">
+        <UInput
+          v-model="searchQuery"
+          icon="i-heroicons-magnifying-glass"
+          placeholder="Tìm kiếm tên, mô tả..."
+          class="flex-1"
+        />
+      </div>
+    </template>
+
+    <UTable
+      :data="characters"
+      :columns="columns"
+    />
+
+    <div
+      v-if="pending"
+      class="text-center p-4"
+    >
+      Đang tải...
     </div>
+  </UCard>
 
-    <UCard>
-      <template #header>
-        <div class="flex gap-4">
-          <UInput v-model="searchQuery" icon="i-heroicons-magnifying-glass" placeholder="Tìm kiếm tên, mô tả..." class="flex-1" />
-          </div>
-      </template>
-
-      <UTable :data="characters" :columns="columns" />
-
-      <div v-if="pending" class="text-center p-4">Đang tải...</div>
-    </UCard>
-
-    <StoryCharacterModal v-model="isModalOpen" :story-id="storyId" :character-data="selectedCharacter" @success="refreshCharacters" />
-  </UContainer>
+  <StoryCharacterModal
+    v-model="isModalOpen"
+    :story-id="storyId"
+    :character-data="selectedCharacter"
+    @success="refreshCharacters"
+  />
 </template>
 
 <script setup lang="ts">
@@ -28,6 +54,7 @@ import { watchDebounced } from '@vueuse/core'
 
 const props = defineProps<{
   storyId: string
+  title: string
 }>()
 
 const UButton = resolveComponent('UButton')
@@ -63,7 +90,7 @@ const columns: TableColumn<any>[] = [
   }
 ]
 
-function getActionItems (row: Row<any>) {
+function getActionItems(row: Row<any>) {
   return [
     { label: 'Sửa', icon: 'i-heroicons-pencil-square-20-solid', onSelect: () => openModal(row.original) },
     { type: 'separator' },

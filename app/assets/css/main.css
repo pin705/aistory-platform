@@ -4,7 +4,7 @@
 @theme static {
   --font-sans: 'Public Sans', sans-serif;
 
-  --color-black-50: #EFFDF5;
+  /* --color-black-50: #EFFDF5;
   --color-black-100: #D9FBE8;
   --color-black-200: #B3F5D1;
   --color-black-300: #75EDAE;
@@ -13,6 +13,6 @@
   --color-black-600: #00A155;
   --color-black-700: #007F45;
   --color-black-800: #016538;
-  --color-black-900: #0A5331;
-  --color-black-950: #052E16;
+  --color-black-900: #0A5331; */
+  /* --color-black-950: #052E16; */
 }

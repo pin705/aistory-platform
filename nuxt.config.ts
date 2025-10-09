@@ -4,7 +4,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     'nuxt-mongoose',
     'nuxt-auth-utils',
-      '@vueuse/nuxt',
+    '@vueuse/nuxt'
   ],
 
   devtools: {
@@ -20,7 +20,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/dashboard/**': { ssr: false },
+    '/author/**': { ssr: false }
   },
 
   compatibilityDate: '2025-01-15',

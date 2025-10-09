@@ -1,44 +1,45 @@
 <script setup>
-// (THAY ĐỔI) Đặt các biến title và description ở đây để dễ quản lý
-const title = "LoreWeaver AI - Trợ lý Sáng tác truyện bằng AI";
-const description =
-  "Sử dụng sức mạnh của AI (Gemini, ChatGPT) để xây dựng thế giới, phát triển nhân vật và viết nên những chương truyện hấp dẫn. LoreWeaver AI là người bạn đồng hành sáng tạo, giúp bạn biến ý tưởng thành tiểu thuyết hoàn chỉnh.";
+// (CẬP NHẬT) Đặt tên và mô tả mới theo thương hiệu "Bút Thần Giới"
+const title = 'Bút Thần Giới - Nền tảng Sáng tác truyện với Trợ lý AI'
+const description
+  = 'Bước vào Bút Thần Giới, nơi ngòi bút của bạn kết hợp với sức mạnh của AI để tạo nên những thế giới kỳ vĩ và những câu chuyện bất hủ. Xây dựng nhân vật, phát triển cốt truyện, và sáng tác tiểu thuyết của riêng bạn một cách dễ dàng và đầy cảm hứng.'
 
 useHead({
-  // (THAY ĐỔI) Đặt title template để các trang con có tiêu đề đẹp hơn
+  // (CẬP NHẬT) Cập nhật title template với tên mới
   titleTemplate: (titleChunk) => {
-    return titleChunk ? `${titleChunk} | LoreWeaver AI` : title;
+    return titleChunk ? `${titleChunk} | Bút Thần Giới` : title
   },
-  meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
-  link: [{ rel: "icon", href: "/favicon.ico" }],
+  meta: [
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    // (CẬP NHẬT) Thêm các thẻ meta tốt cho SEO
+    { name: 'author', content: 'Bút Thần Giới' },
+    { name: 'copyright', content: `Bút Thần Giới © ${new Date().getFullYear()}` }
+  ],
+  link: [{ rel: 'icon', href: '/favicon.ico' }],
   htmlAttrs: {
-    // (QUAN TRỌNG) Chuyển ngôn ngữ chính sang Tiếng Việt
-    lang: "vi",
-  },
-});
+    lang: 'vi'
+  }
+})
 
 useSeoMeta({
-  // title và description sẽ được lấy từ biến đã khai báo ở trên
   title,
   description,
-  // (MỚI) Thêm keywords để hỗ trợ SEO
-  keywords: 'viết truyện, sáng tác, tiểu thuyết, AI, trợ lý AI, viết truyện AI, Gemini, Lorebook, phát triển nhân vật, cốt truyện',
+  // (CẬP NHẬT) Thêm tên thương hiệu vào keywords
+  keywords: 'Bút Thần Giới, sáng tác truyện, viết truyện, trợ lý AI, AI viết truyện, sáng tác tiểu thuyết, công cụ viết lách, xây dựng thế giới, phát triển nhân vật, cốt truyện, Gemini, ChatGPT',
 
-  // Open Graph (dùng khi chia sẻ trên Facebook, Zalo...)
+  // Open Graph (Facebook, Zalo...)
   ogTitle: title,
   ogDescription: description,
-  // (QUAN TRỌNG) Thay thế bằng ảnh đại diện của nền tảng bạn
-  ogImage: "/og-image.png", // Tạo một ảnh kích thước 1200x630px và đặt vào thư mục /public
+  ogImage: '/og-image.png', // Nhớ tạo ảnh đại diện thương hiệu
   ogType: 'website',
   ogLocale: 'vi_VN',
 
-  // Twitter Card (dùng khi chia sẻ trên Twitter/X)
-  twitterCard: "summary_large_image",
+  // Twitter Card (Twitter/X)
+  twitterCard: 'summary_large_image',
   twitterTitle: title,
   twitterDescription: description,
-  // (QUAN TRỌNG) Thay thế bằng ảnh đại diện của nền tảng bạn
-  twitterImage: "/og-image.png",
-});
+  twitterImage: '/og-image.png'
+})
 </script>
 
 <template>

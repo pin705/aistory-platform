@@ -23,7 +23,7 @@
           </UButton>
         </div>
       </div>
-      <UDivider v-if="!isEditing" class="mb-6" />
+      <USeparator v-if="!isEditing" class="mb-6" />
       <UForm :state="formState" :schema="schema" @submit="save">
         <UFormField label="Tên nhân vật" name="name" class="mb-4">
           <UInput v-model="formState.name" />

@@ -2,32 +2,41 @@
   <UContainer class="py-8">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <NuxtLink to="/author/dashboard" class="text-sm text-gray-500 hover:underline">‹ Quay lại Dashboard</NuxtLink>
-        <h1 class="text-3xl font-bold">{{ story?.title }}</h1>
+        <NuxtLink
+          to="/author/dashboard"
+          class="text-sm text-gray-500 hover:underline"
+        >‹ Quay lại Dashboard</NuxtLink>
+        <h1 class="text-3xl font-bold">
+          {{ story?.title }}
+        </h1>
       </div>
-      <UButton icon="i-heroicons-plus-circle" size="lg" @click="createNewChapter" :loading="isCreating">Viết chương mới</UButton>
+      <UButton
+        icon="i-heroicons-plus-circle"
+        size="lg"
+        :loading="isCreating"
+        @click="createNewChapter"
+      >
+        Viết chương mới
+      </UButton>
     </div>
 
-    <UTabs :items="tabs" class="w-full">
+    <UTabs
+      :items="tabs"
+      class="w-full"
+      color="neutral"
+    >
       <template #chapters="{ item }">
-        <UCard class="mt-4">
-          <template #header>
-            <h3 class="text-lg font-semibold">{{ item.label }}</h3>
-          </template>
-          <UTable :data="chapters" :columns="chapterColumns" />
-        </UCard>
+        <UTable
+          :data="chapters"
+          :columns="chapterColumns"
+        />
       </template>
 
       <template #lorebook="{ item }">
-        <UCard class="mt-4">
-          <template #header>
-             <h3 class="text-lg font-semibold">Hệ thống nhân vật trong: {{ story?.title }}</h3>
-          </template>
-          <StoryCharacterManager :story-id="storyId" />
-        </UCard>
+
+        <StoryCharacterManager :story-id="storyId" :title="story?.title" />
       </template>
     </UTabs>
-
   </UContainer>
 </template>
 
@@ -49,22 +58,22 @@ const storyId = route.params.id as string
 const isCreating = ref(false)
 
 const chapterStatusOptions = [
-  { key: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
-  { key: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-check-circle-20-solid' },
+  { id: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
+  { id: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-check-circle-20-solid' }
 ]
 const chapterStatusColors: Record<string, any> = {
   draft: 'orange',
-  published: 'green',
+  published: 'green'
 }
 const chapterStatusLabels: Record<string, string> = {
   draft: 'Bản nháp',
-  published: 'Đã xuất bản',
+  published: 'Đã xuất bản'
 }
 
 // (MỚI) Định nghĩa các Tab cho giao diện
 const tabs = [
   { slot: 'chapters', label: 'Danh sách chương' },
-  { slot: 'lorebook', label: 'Lorebook' },
+  { slot: 'lorebook', label: 'Lorebook' }
 ]
 
 type ChapterRow = {
@@ -81,7 +90,6 @@ const { data: story } = await useFetch(`/api/stories/${storyId}`)
 const { data: chapters, refresh: refreshChapters } = await useFetch<ChapterRow[]>(`/api/stories/${storyId}/chapters`, {
   default: () => []
 })
-
 
 async function handleChapterStatusChange(chapterId: string, newStatus: string) {
   try {
@@ -106,18 +114,18 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
     accessorKey: 'status',
     header: 'Trạng thái',
     cell: ({ row }) => h(USelectMenu, {
-        modelValue: row.original.status,
-        by: 'key',
-        items: chapterStatusOptions,
-        class: 'w-36',
-        'onUpdate:modelValue': (newStatus) => handleChapterStatusChange(row.original._id, newStatus.key)
-      }, {
-        label: () => h(UBadge, {
-          color: chapterStatusColors[row.original.status] || 'gray',
-          variant: 'soft',
-          size: 'xs'
-        }, () => chapterStatusLabels[row.original.status] || row.original.status)
-      })
+      'modelValue': row.original.status,
+      'by': 'key',
+      'items': chapterStatusOptions,
+      'class': 'w-36',
+      'onUpdate:modelValue': newStatus => handleChapterStatusChange(row.original._id, newStatus.key)
+    }, {
+      label: () => h(UBadge, {
+        color: chapterStatusColors[row.original.status] || 'gray',
+        variant: 'soft',
+        size: 'xs'
+      }, () => chapterStatusLabels[row.original.status] || row.original.status)
+    })
   },
   { accessorKey: 'updatedAt', header: 'Cập nhật', cell: ({ row }) => new Date(row.getValue('updatedAt')).toLocaleString('vi-VN') },
   {
@@ -128,7 +136,7 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
 ]
 
 // Hàm tạo các item cho dropdown menu
-function getActionItems (row: Row<ChapterRow>) {
+function getActionItems(row: Row<ChapterRow>) {
   return [
     {
       label: 'Chỉnh sửa',

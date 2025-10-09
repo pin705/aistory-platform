@@ -1,41 +1,77 @@
 <template>
   <UContainer>
     <div class="flex justify-between items-center my-8">
-      <h1 class="text-3xl font-bold">Quản lý truyện</h1>
+      <h1 class="text-3xl font-bold">
+        Tác phẩm của tôi
+      </h1>
       <UButton
         icon="i-heroicons-plus-circle"
         size="lg"
         @click="isAddStoryModalOpen = true"
-        >Viết truyện mới</UButton
       >
+        Sáng tác truyện mới
+      </UButton>
     </div>
 
-    <UCard>
-      <UTable :data="stories" :columns="columns" />
-    </UCard>
-
-    <UModal v-model:open="isAddStoryModalOpen">
-      <template #header
-        ><h2 class="text-xl font-bold">Tạo truyện mới</h2></template
+    <div
+      v-if="stories && stories.length > 0"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6"
+    >
+      <AuthorStoryCard
+        v-for="story in stories"
+        :key="story._id"
+        :story="story"
+        :status-colors="statusColors"
+        :status-labels="statusLabels"
+        :get-action-items="getActionItems"
+      />
+    </div>
+    <div
+      v-else
+      class="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-lg"
+    >
+      <p class="text-gray-500">
+        Bạn chưa có tác phẩm nào.
+      </p>
+      <UButton
+        size="lg"
+        class="mt-4"
+        @click="isAddStoryModalOpen = true"
       >
+        Bắt đầu sáng tác ngay
+      </UButton>
+    </div>
+
+    <UModal
+      v-model:open="isAddStoryModalOpen"
+      :ui="{ footer: 'justify-end' }"
+    >
+      <template #header>
+        <h2 class="text-xl font-bold">
+          Khởi tạo Tác phẩm
+        </h2>
+      </template>
       <template #body>
         <UForm
+          ref="createFormRef"
           :state="addStoryState"
           :schema="storySchema"
           @submit="handleAddStory"
         >
-          <ImageUploader v-model="addStoryState.coverImage" class="mb-4" />
-
+          <ImageUploader
+            v-model="addStoryState.coverImage"
+            class="mb-4"
+          />
           <UFormField
-            label="Bối cảnh / Ý tưởng chính của truyện"
+            label="Ý tưởng Cốt lõi (Prompt)"
             name="prompt"
             class="mb-4"
           >
             <UTextarea
               v-model="addStoryState.prompt"
-              class="w-full"
               :rows="8"
               :placeholder="promptPlaceholder"
+              class="w-full"
             />
           </UFormField>
           <div class="flex justify-end mb-6">
@@ -44,31 +80,44 @@
               icon="i-heroicons-sparkles"
               :loading="isGenerating"
               @click="handleGenerateDetails"
-              >Gợi ý bằng Gemini</UButton
             >
+              AI Phác thảo
+            </UButton>
           </div>
-          <UFormField label="Tiêu đề truyện" name="title" class="mb-4">
+          <UFormField
+            label="Tên Tác phẩm"
+            name="title"
+            class="mb-4"
+          >
             <UInput
               v-model="addStoryState.title"
-              class="w-full"
               placeholder="AI sẽ gợi ý tên ở đây..."
+              class="w-full"
             />
           </UFormField>
-          <UFormField label="Mô tả ngắn" name="description" class="mb-4">
+          <UFormField
+            label="Mô tả ngắn"
+            name="description"
+            class="mb-4"
+          >
             <UTextarea
               v-model="addStoryState.description"
-              class="w-full"
               :rows="5"
               placeholder="AI sẽ gợi ý mô tả ở đây..."
+              class="w-full"
             />
           </UFormField>
-          <UFormField label="Thể loại" name="genres" class="mb-4">
+          <UFormField
+            label="Thể loại"
+            name="genres"
+            class="mb-4"
+          >
             <USelectMenu
               v-model="addStoryState.genres"
-              class="w-full"
               :items="genresFromAPI"
               multiple
               placeholder="Chọn thể loại"
+              class="w-full"
             />
           </UFormField>
           <UFormField
@@ -78,62 +127,99 @@
           >
             <UInput
               v-model="addStoryState.tags"
-              class="w-full"
               placeholder="AI sẽ gợi ý tags ở đây..."
+              class="w-full"
             />
           </UFormField>
-          <div class="flex justify-end gap-3 mt-8">
-            <UButton
-              color="gray"
-              variant="ghost"
-              @click="isAddStoryModalOpen = false"
-              >Hủy</UButton
-            >
-            <UButton type="submit" :loading="isLoading">Tạo truyện</UButton>
-          </div>
         </UForm>
+      </template>
+      <template #footer>
+        <UButton
+          color="gray"
+          variant="ghost"
+          @click="isAddStoryModalOpen = false"
+        >
+          Hủy
+        </UButton>
+        <UButton
+          type="submit"
+          :loading="isLoading"
+          @click="createFormRef?.submit()"
+        >
+          Tạo Tác phẩm
+        </UButton>
       </template>
     </UModal>
 
-    <UModal v-model:open="isEditStoryModalOpen">
-      <template #header
-        ><h2 class="text-xl font-bold">Chỉnh sửa thông tin truyện</h2></template
-      >
+    <UModal
+      v-model:open="isEditStoryModalOpen"
+      :ui="{ footer: 'justify-end' }"
+    >
+      <template #header>
+        <h2 class="text-xl font-bold">
+          Chỉnh sửa Tác phẩm
+        </h2>
+      </template>
       <template #body>
-        <div v-if="isFetchingDetails" class="text-center p-4">
+        <div
+          v-if="isFetchingDetails"
+          class="text-center p-4"
+        >
           Đang tải dữ liệu...
         </div>
         <UForm
           v-else
+          ref="editFormRef"
           :state="editStoryState"
           :schema="storySchema"
           @submit="handleUpdateStory"
         >
-          <ImageUploader v-model="editStoryState.coverImage" class="mb-4" />
-
-          <UFormField label="Tiêu đề truyện" name="title" class="mb-4">
-            <UInput v-model="editStoryState.title" class="w-full" />
+          <ImageUploader
+            v-model="editStoryState.coverImage"
+            class="mb-4"
+          />
+          <UFormField
+            label="Tên Tác phẩm"
+            name="title"
+            class="mb-4"
+          >
+            <UInput
+              v-model="editStoryState.title"
+              class="w-full"
+            />
           </UFormField>
-          <UFormField label="Mô tả ngắn" name="description" class="mb-4">
+          <UFormField
+            label="Mô tả ngắn"
+            name="description"
+            class="mb-4"
+          >
             <UTextarea
               v-model="editStoryState.description"
               :rows="5"
               class="w-full"
             />
           </UFormField>
-          <UFormField label="Bối cảnh / Prompt gốc" name="prompt" class="mb-4">
+          <UFormField
+            label="Ý tưởng Cốt lõi (Prompt)"
+            name="prompt"
+            class="mb-4"
+          >
             <UTextarea
               v-model="editStoryState.prompt"
               :rows="8"
               class="w-full"
             />
           </UFormField>
-          <UFormField label="Thể loại" name="genres" class="mb-4">
+          <UFormField
+            label="Thể loại"
+            name="genres"
+            class="mb-4"
+          >
             <USelectMenu
-              class="w-full"
               v-model="editStoryState.genres"
               :items="genresFromAPI"
               multiple
+              class="w-full"
             />
           </UFormField>
           <UFormField
@@ -141,355 +227,193 @@
             name="tags"
             class="mb-4"
           >
-            <UInput v-model="editStoryState.tags" class="w-full" />
+            <UInput
+              v-model="editStoryState.tags"
+              class="w-full"
+            />
           </UFormField>
-          <div class="flex justify-end gap-3 mt-8">
-            <UButton
-              color="gray"
-              variant="ghost"
-              @click="isEditStoryModalOpen = false"
-              >Hủy</UButton
-            >
-            <UButton type="submit" :loading="isLoading">Lưu thay đổi</UButton>
-          </div>
+          <UFormField
+            label="Trạng thái"
+            name="status"
+            class="mb-4"
+          >
+            <USelect
+              v-model="editStoryState.status"
+              :items="statusOptionsForSelect"
+
+              class="w-full"
+            />
+          </UFormField>
         </UForm>
+      </template>
+      <template #footer>
+        <UButton
+          color="gray"
+          variant="ghost"
+          @click="isEditStoryModalOpen = false"
+        >
+          Hủy
+        </UButton>
+        <UButton
+          type="submit"
+          :loading="isLoading"
+          @click="editFormRef?.submit()"
+        >
+          Cập nhật Tác phẩm
+        </UButton>
       </template>
     </UModal>
   </UContainer>
 </template>
 
 <script setup lang="ts">
-import { h, resolveComponent } from "vue";
-import { z } from "zod";
-import type { FormSubmitEvent } from "#ui/types";
-import type { TableColumn } from "@nuxt/ui";
-import type { Row } from "@tanstack/vue-table";
+import { z } from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
 
-useHead({ title: "Bảng điều khiển" });
-
-const UButton = resolveComponent("UButton");
-const UDropdownMenu = resolveComponent("UDropdownMenu");
-const UAvatar = resolveComponent('UAvatar')
-const USelectMenu = resolveComponent('USelectMenu')
-const UBadge = resolveComponent('UBadge')
-
-const toast = useToast();
-const isLoading = ref(false);
-const isGenerating = ref(false);
+useHead({ title: 'Tác phẩm của tôi' })
+const toast = useToast()
+const isLoading = ref(false)
+const isGenerating = ref(false)
+const editFormRef = ref(null)
+const createFormRef = ref(null)
 
 // ----- STATE QUẢN LÝ CÁC MODAL -----
-const isAddStoryModalOpen = ref(false);
-const isEditStoryModalOpen = ref(false);
-const isFetchingDetails = ref(false); // State loading cho việc lấy chi tiết truyện
-const selectedStoryId = ref<string | null>(null); // Lưu ID của truyện đang được sửa
+const isAddStoryModalOpen = ref(false)
+const isEditStoryModalOpen = ref(false)
+const isFetchingDetails = ref(false)
+const selectedStoryId = ref<string | null>(null)
 
 // ----- LẤY DỮ LIỆU CHUNG -----
 type StoryRow = {
-  _id: string;
-  title: string;
-  status: "draft" | "published" | "on-hold";
-  views: number;
-  updatedAt: string;
-};
-const { data: stories, refresh: refreshStories } = await useFetch<StoryRow[]>(
-  "/api/author/stories"
-);
-const { data: genresFromAPI } = await useFetch<string[]>("/api/genres", {
-  default: () => [],
-});
-// const { data: chapters, refresh: refreshChapters } = await useFetch(`/api/stories/${storyId}/chapters`)
-
-
-// (MỚI) Các tùy chọn và màu sắc cho trạng thái
-const statusOptions = ['draft', 'published', 'on-hold']
-const statusColors: Record<string, any> = {
-  draft: 'orange',
-  published: 'green',
-  'on-hold': 'gray',
-  finished: 'blue',
+  _id: string; title: string; coverImage: string; status: string; chapterCount: number; views: number; updatedAt: string
 }
-const statusLabels: Record<string, string> = {
-  draft: 'Bản nháp',
-  published: 'Đã xuất bản',
-  'on-hold': 'Tạm ngưng',
-  finished: 'Hoàn thành',
-}
+const { data: stories, refresh: refreshStories } = await useFetch<StoryRow[]>('/api/author/stories')
+const { data: genresFromAPI } = await useFetch<string[]>('/api/genres', { default: () => [] })
 
+// ----- CÁC HẰNG SỐ VỀ TRẠNG THÁI (STATUS) -----
+const statusColors: Record<string, any> = { 'draft': 'orange', 'published': 'green', 'on-hold': 'gray', 'finished': 'blue' }
+const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
+const statusOptionsForSelect = [
+  { value: 'draft', label: 'Bản nháp' }, { value: 'published', label: 'Đã xuất bản' }, { value: 'on-hold', label: 'Tạm ngưng' }, { value: 'finished', label: 'Hoàn thành' }
+]
 
-// ----- LOGIC BẢNG HIỂN THỊ TRUYỆN -----
-const columns: TableColumn<StoryRow>[] = [
-  {
-    accessorKey: 'storyInfo', // Đặt key mới
-    header: 'Truyện',
-    cell: ({ row }) => h('div', { class: 'flex items-center gap-3' }, [
-      h(UAvatar, {
-        src: row.original.coverImage,
-        alt: row.original.title,
-        size: 'lg',
-        imgClass: 'object-cover'
-      }),
-      h('span', { class: 'font-semibold' }, row.original.title)
-    ])
-  },
-  // (MỚI) Cột Trạng thái tương tác
-  {
-    accessorKey: 'status',
-    header: 'Trạng thái',
-    cell: ({ row }) => h(USelectMenu, {
-        modelValue: row.original.status,
-         by: 'key',
-        items: [
-          {
-            key: 'draft',
-            label: 'Bản nháp',
-            icon: 'i-heroicons-pencil-square-20-solid',
-          },
-          {
-            key: 'published',
-            label: 'Đã xuất bản',
-            icon: 'i-heroicons-globe-americas-20-solid',
-          },
-          {
-            key: 'on-hold',
-            label: 'Tạm ngưng',
-            icon: 'i-heroicons-pause-circle-20-solid',
-          },
-          {
-            key: 'finished',
-            label: 'Hoàn thành',
-            icon: 'i-heroicons-check-circle-20-solid',
-          }
-        ],
-        class: 'w-36',
-        'onUpdate:modelValue': (newStatus) => handleStatusChange(row.original._id, newStatus.key)
-      })
-  },
-  { accessorKey: 'chapterCount', header: 'Số chương' },
-  { accessorKey: 'views', header: 'Lượt xem' },
-  {
-    accessorKey: "updatedAt",
-    header: "Cập nhật",
-    cell: ({ row }) =>
-      new Date(row.getValue("updatedAt")).toLocaleDateString("vi-VN"),
-  },
-  {
-    id: "actions",
-    header: () => h("div", { class: "text-right" }, "Hành động"),
-    cell: ({ row }) =>
-      h(
-        "div",
-        { class: "text-right" },
-        h(
-          UDropdownMenu,
-          { items: getActionItems(row), content: { align: "end" } },
-          () =>
-            h(UButton, {
-              icon: "i-heroicons-ellipsis-horizontal-20-solid",
-              color: "gray",
-              variant: "ghost",
-            })
-        )
-      ),
-  },
-];
-
-const promptPlaceholder = `Ví dụ: Nhân vật chính tên Khải, một người bình thường sống sót sau thảm họa tận thế. Thế giới giờ đây là những thành phố đổ nát, bị bao phủ bởi cây cối hoang dại và đầy rẫy những con quái vật đột biến nguy hiểm. Con người phải sống trong những khu định cư được bảo vệ nghiêm ngặt.
-
-Trong một lần ra ngoài tìm kiếm nhu yếu phẩm, Khải vô tình rơi vào một di tích của thế giới cũ và tìm thấy một khối lập phương kim loại kỳ lạ. Khi chạm vào, khối lập phương hợp nhất với hắn và một giao diện hệ thống hiện ra trong đầu.
-
-Hệ thống này không cho điểm kinh nghiệm hay cấp độ, mà cho phép Khải "khai phá di sản" từ các vật phẩm của nền văn minh cũ. Ví dụ: đọc một cuốn sách dạy nấu ăn có thể mở khóa kỹ năng "Đầu Bếp Sinh Tồn", sửa một chiếc radio cũ có thể mở khóa kỹ năng "Kỹ Sư Tín Hiệu". Mục tiêu của Khải là sống sót, tìm hiểu nguyên nhân của thảm họa và xây dựng lại một nơi an toàn cho mọi người.`;
-
-function getActionItems(row: Row<StoryRow>) {
+// ----- LOGIC CHO DROPDOWN HÀNH ĐỘNG CỦA CARD -----
+function getActionItems(story: StoryRow) {
   return [
-    {
-      label: "Quản lý chương",
-      icon: "i-heroicons-book-open",
-      onSelect: () => navigateTo(`/author/stories/${row.original._id}`),
-    },
-    // (THAY ĐỔI) Gọi hàm mở Modal thay vì chuyển trang
-    {
-      label: "Chỉnh sửa thông tin",
-      icon: "i-heroicons-pencil-square-20-solid",
-      onSelect: () => openEditModal(row.original),
-    },
-  ];
+    [{ label: 'Quản lý chương', icon: 'i-heroicons-book-open', click: () => navigateTo(`/author/stories/${story._id}`) }],
+    [{ label: 'Chỉnh sửa thông tin', icon: 'i-heroicons-pencil-square-20-solid', click: () => openEditModal(story) }],
+    [{ label: 'Xoá truyện', icon: 'i-heroicons-trash-20-solid', labelClass: 'text-red-500 dark:text-red-400', click: () => handleDeleteStory(story) }]
+  ]
+}
+
+async function handleDeleteStory(story: StoryRow) {
+  if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tác phẩm "${story.title}"?`)) return
+  try {
+    await $fetch(`/api/stories/${story._id}`, { method: 'DELETE' })
+    toast.add({ title: 'Xóa tác phẩm thành công!', color: 'green' })
+    await refreshStories()
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể xóa.', color: 'error' })
+  }
 }
 
 // ----- LOGIC FORM CHUNG (VALIDATION) -----
 const storySchema = z.object({
-  prompt: z.string().min(50, "Bối cảnh cần chi tiết hơn"),
-  title: z.string().min(5, "Tiêu đề quá ngắn"),
-  description: z.string().min(20, "Mô tả quá ngắn"),
+  prompt: z.string().min(50, 'Ý tưởng cốt lõi cần chi tiết hơn'),
+  title: z.string().min(5, 'Tên tác phẩm quá ngắn'),
+  description: z.string().min(20, 'Mô tả quá ngắn'),
   genres: z.array(z.string()).optional(),
   tags: z.string().optional(),
   coverImage: z.string().optional(),
-});
-type StorySchema = z.output<typeof storySchema>;
+  status: z.string().optional()
+})
+type StorySchema = z.output<typeof storySchema>
 
-// ----- LOGIC FORM THÊM TRUYỆN MỚI -----
-const addStoryState = reactive({
-  prompt: "",
-  title: "",
-  description: "",
-  genres: [],
-  tags: "",
-  coverImage: "",
-});
-
-// (MỚI) Hàm xử lý khi thay đổi trạng thái
-async function handleStatusChange(storyId: string, newStatus: string) {
-  try {
-    await $fetch(`/api/stories/${storyId}/status`, {
-      method: 'PATCH',
-      body: { status: newStatus }
-    })
-    toast.add({ title: 'Cập nhật trạng thái thành công!' })
-    // Không cần refreshStories() vì USelectMenu đã cập nhật v-model,
-    // nhưng nếu bạn muốn cập nhật `updatedAt`, hãy gọi nó.
-    await refreshStories()
-  } catch (e: any) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể cập nhật', color: 'error' })
-  }
-}
+// ----- LOGIC FORM THÊM MỚI -----
+const addStoryState = reactive({ prompt: '', title: '', description: '', genres: [], tags: '', coverImage: '', status: 'draft' })
+const promptPlaceholder = `Ví dụ: Nhân vật chính tên Khải, một người bình thường sống sót sau thảm họa tận thế...`
 
 async function handleGenerateDetails() {
-  /* ... Giữ nguyên như cũ ... */
   if (addStoryState.prompt.length < 50) {
-    return toast.add({
-      title: "Lỗi",
-      description: "Vui lòng nhập bối cảnh chi tiết hơn.",
-      color: "warning",
-    });
+    return toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
   }
-  isGenerating.value = true;
+  isGenerating.value = true
   try {
-    const result = await $fetch("/api/stories/generate-details", {
-      method: "POST",
-      body: { prompt: addStoryState.prompt },
-    });
-    addStoryState.title = result.title;
-    addStoryState.description = result.description;
-    addStoryState.tags = result.tags.join(", ");
-    addStoryState.genres = result.genres;
-    toast.add({
-      title: "Gemini đã tạo gợi ý thành công!",
-      icon: "i-heroicons-sparkles",
-    });
-  } catch (e: any) {
-    toast.add({
-      title: "Lỗi!",
-      description: e.data?.statusMessage || "Không thể tạo gợi ý",
-      color: "error",
-    });
+    const result = await $fetch('/api/stories/generate-details', { method: 'POST', body: { prompt: addStoryState.prompt } })
+    addStoryState.title = result.title
+    addStoryState.description = result.description
+    addStoryState.tags = result.tags.join(', ')
+    addStoryState.genres = result.genres
+    toast.add({ title: 'AI đã phác thảo thành công!', icon: 'i-heroicons-sparkles' })
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   } finally {
-    isGenerating.value = false;
+    isGenerating.value = false
   }
 }
 
 async function handleAddStory(event: FormSubmitEvent<StorySchema>) {
-  /* ... Giữ nguyên như cũ ... */
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    const tagsArray = event.data.tags
-      ? event.data.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean)
-      : [];
-    const newStory = await $fetch("/api/stories", {
-      method: "POST",
-      body: { ...event.data, tags: tagsArray },
-    });
-    toast.add({ title: "Tạo truyện thành công!", color: "success" });
-    isAddStoryModalOpen.value = false;
-    Object.assign(addStoryState, {
-      prompt: "",
-      title: "",
-      description: "",
-      genres: [],
-      tags: "",
-    });
-    await refreshStories();
-    await navigateTo(`/author/stories/${newStory._id}`);
-  } catch (e: any) {
-    toast.add({
-      title: "Lỗi!",
-      description: e.data?.statusMessage || "Đã xảy ra lỗi",
-      color: "error",
-    });
+    const tagsArray = event.data.tags ? event.data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
+    const newStory = await $fetch('/api/stories', { method: 'POST', body: { ...event.data, tags: tagsArray } })
+    toast.add({ title: 'Khởi tạo tác phẩm thành công!', color: 'success' })
+    isAddStoryModalOpen.value = false
+    Object.assign(addStoryState, { prompt: '', title: '', description: '', genres: [], tags: '', coverImage: '' })
+    await refreshStories()
+    await navigateTo(`/author/stories/${newStory._id}`)
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
-// ----- (MỚI) LOGIC FORM CHỈNH SỬA TRUYỆN -----
+// ----- LOGIC FORM CHỈNH SỬA -----
 const editStoryState = reactive({
-  coverImage: "",
-  title: "",
-  description: "",
-  prompt: "",
-  genres: [] as string[],
-  tags: "",
-});
+  coverImage: '', title: '', description: '', prompt: '', genres: [] as string[], tags: '', status: 'draft'
+})
 
 async function openEditModal(story: StoryRow) {
-  isFetchingDetails.value = true;
-  isEditStoryModalOpen.value = true;
-  selectedStoryId.value = story._id;
-
+  isFetchingDetails.value = true
+  isEditStoryModalOpen.value = true
+  selectedStoryId.value = story._id
   try {
-    // Gọi API để lấy dữ liệu đầy đủ của truyện được chọn
-    const fullStoryData = await $fetch(`/api/stories/${story._id}`);
-
-    // Điền dữ liệu vào form
+    const fullStoryData = await $fetch(`/api/stories/${story._id}`)
     if (fullStoryData) {
-      editStoryState.coverImage = fullStoryData.coverImage;
-      editStoryState.title = fullStoryData.title;
-      editStoryState.description = fullStoryData.description;
-      editStoryState.prompt = fullStoryData.prompt;
-      editStoryState.genres = fullStoryData.genres || [];
-      editStoryState.tags = (fullStoryData.tags || []).join(", ");
+      editStoryState.coverImage = fullStoryData.coverImage
+      editStoryState.title = fullStoryData.title
+      editStoryState.description = fullStoryData.description
+      editStoryState.prompt = fullStoryData.prompt
+      editStoryState.genres = fullStoryData.genres || []
+      editStoryState.tags = (fullStoryData.tags || []).join(', ')
+      editStoryState.status = fullStoryData.status
     }
-  } catch (e: any) {
-    toast.add({
-      title: "Lỗi!",
-      description: "Không thể lấy chi tiết truyện.",
-      color: "error",
-    });
-    isEditStoryModalOpen.value = false; // Đóng modal nếu lỗi
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: 'Không thể lấy chi tiết truyện.', color: 'error' })
+    isEditStoryModalOpen.value = false
   } finally {
-    isFetchingDetails.value = false;
+    isFetchingDetails.value = false
   }
 }
 
 async function handleUpdateStory(event: FormSubmitEvent<StorySchema>) {
-  if (!selectedStoryId.value) return;
-  isLoading.value = true;
+  console.log('Updating story with data:', event.data)
+  if (!selectedStoryId.value) return
+  isLoading.value = true
   try {
-    const tagsArray = event.data.tags
-      ? event.data.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean)
-      : [];
-
-    console.log("event.data", event.data);
+    const tagsArray = event.data.tags ? event.data.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
     await $fetch(`/api/stories/${selectedStoryId.value}`, {
-      method: "PUT",
-      body: { ...event.data, tags: tagsArray },
-    });
-
-    toast.add({ title: "Cập nhật truyện thành công!", color: "success" });
-    isEditStoryModalOpen.value = false;
-    await refreshStories(); // Làm mới bảng
-  } catch (e: any) {
-    toast.add({
-      title: "Lỗi!",
-      description: e.data?.statusMessage || "Không thể cập nhật",
-      color: "error",
-    });
+      method: 'PUT',
+      body: { ...event.data, tags: tagsArray }
+    })
+    toast.add({ title: 'Cập nhật tác phẩm thành công!', color: 'success' })
+    isEditStoryModalOpen.value = false
+    await refreshStories()
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 </script>
