@@ -1,8 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 
-// Hàm này sẽ trả về một phiên bản "giả" (stub) của composable trên server
-// để tránh lỗi "window is not defined".
 const createSsrStub = () => ({
+  isAvailable: ref(false),
   isPlaying: ref(false),
   isPaused: ref(false),
   voices: ref<SpeechSynthesisVoice[]>([]),
@@ -10,16 +9,13 @@ const createSsrStub = () => ({
   speak: () => console.warn('TTS is only available on the client-side.'),
   togglePauseResume: () => {},
   stop: () => {},
-  isAvailable: ref(false) // Thêm cờ để biết TTS có sẵn hay không
 })
 
 export function useTTS() {
-  // Nếu đang ở môi trường server, trả về phiên bản giả và dừng lại
   if (import.meta.server) {
     return createSsrStub()
   }
 
-  // Code phía dưới chỉ chạy ở client
   const isAvailable = ref(typeof window !== 'undefined' && 'speechSynthesis' in window)
   const isPlaying = ref(false)
   const isPaused = ref(false)
@@ -35,13 +31,13 @@ export function useTTS() {
   }
 
   const loadVoices = () => {
-    // Lấy các giọng đọc tiếng Việt
+    console.log('Loading voices...', isAvailable.value)
+    if (!isAvailable.value) return
     voices.value = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('vi'))
   }
 
   const speak = (text: string, voiceURI?: string, rate = 1) => {
     if (!isAvailable.value) return
-    // Dừng phát lại hiện tại trước khi bắt đầu cái mới
     if (window.speechSynthesis.speaking) {
       stop()
     }
@@ -51,7 +47,6 @@ export function useTTS() {
     utterance.rate = rate
 
     if (voiceURI) {
-      // Lấy danh sách giọng đọc "tươi" nhất từ trình duyệt
       const liveVoices = window.speechSynthesis.getVoices()
       const selectedVoice = liveVoices.find(v => v.voiceURI === voiceURI)
       if (selectedVoice) {
@@ -66,9 +61,14 @@ export function useTTS() {
     }
 
     utterance.onstart = () => { isPlaying.value = true; isPaused.value = false }
+    utterance.onpause = () => { isPaused.value = true }
+    utterance.onresume = () => { isPaused.value = false }
     utterance.onend = () => stop()
+
     utterance.onerror = (e) => {
-      console.error('SpeechSynthesis Error:', e)
+      if (e.error !== 'interrupted') {
+        console.error('SpeechSynthesis Error:', e.error)
+      }
       stop()
     }
 
@@ -82,21 +82,23 @@ export function useTTS() {
     } else {
       window.speechSynthesis.pause()
     }
-    isPaused.value = !isPaused.value
   }
 
-  // Chỉ thiết lập listener và dọn dẹp ở client
+  // (CẬP NHẬT) Sửa lại logic onMounted cho mạnh mẽ hơn
   onMounted(() => {
     if (isAvailable.value) {
-      // Đảm bảo voices được load khi component được mount
-      if (window.speechSynthesis.getVoices().length) {
-        loadVoices()
+      // 1. Gán sự kiện listener TRƯỚC. Điều này đảm bảo chúng ta không bỏ lỡ
+      //    sự kiện nếu nó xảy ra trong khi chúng ta đang xử lý.
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices
       }
-      window.speechSynthesis.onvoiceschanged = loadVoices
+
+      // 2. Thực hiện một lần gọi `loadVoices` ngay lập tức.
+      //    Điều này xử lý trường hợp các giọng đọc đã có sẵn trong cache của trình duyệt.
+      loadVoices()
     }
   })
 
-  // Dọn dẹp khi component bị hủy để tránh memory leak
   onUnmounted(stop)
 
   return {
