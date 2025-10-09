@@ -417,4 +417,11 @@ async function handleUpdateStory(event: FormSubmitEvent<StorySchema>) {
     isLoading.value = false
   }
 }
+
+definePageMeta({
+  middleware: () => {
+    const { loggedIn } = useUserSession()
+    if (!loggedIn.value) return navigateTo('/login')
+  }
+})
 </script>
