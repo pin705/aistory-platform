@@ -20,6 +20,7 @@ export default defineNuxtConfig({
       baseURL: process.env.BASE_URL || 'http://localhost:3000'
     },
     session: {
+      password: 'password-with-at-least-32-characters',
       cookie: {
         secure: false, // Chỉ dùng secure cookie trong production (HTTPS)
         sameSite: 'none' // Hoặc 'none' nếu cần truy cập cross-site

@@ -1,5 +1,27 @@
 <template>
   <UContainer class="py-8">
+    <UAlert
+      icon="i-heroicons-light-bulb"
+      color="primary"
+      variant="subtle"
+      title="Tại sao cần API Key?"
+      class="mb-8"
+    >
+      <template #description>
+        <p>
+          Để sử dụng các tính năng AI thông minh như "AI Phác thảo" hay "Trợ lý Sáng tác", nền tảng cần kết nối đến các dịch vụ AI như Gemini của Google.
+          <br>
+          Bằng cách sử dụng API Key của riêng bạn, bạn có toàn quyền kiểm soát và chi trả cho việc sử dụng AI của mình.
+          <br>
+          <a
+            href="https://aistudio.google.com/app/api-keys"
+            target="_blank"
+            class="underline font-semibold"
+          >Nhấn vào đây để lấy API Key miễn phí từ Google AI Studio.</a>
+        </p>
+      </template>
+    </UAlert>
+
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold">
         Quản lý API Key
