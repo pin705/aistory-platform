@@ -18,7 +18,6 @@
               :icon="action.icon"
               :color="action.label === 'Xoá truyện' ? 'red' : 'gray'"
               variant="ghost"
-              size="lg"
               class="bg-white/10 hover:bg-white/20 text-white"
               @click="action.click"
             />

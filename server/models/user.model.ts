@@ -5,6 +5,8 @@ export const User = defineMongooseModel('User', {
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }, // Luôn nhớ hash mật khẩu này!
+  avatar: { type: String }, // URL ảnh đại diện
+  bio: { type: String } // Tiểu sử người dùng
 }, {
   timestamps: true
 })

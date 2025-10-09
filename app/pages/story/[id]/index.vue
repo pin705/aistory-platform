@@ -292,5 +292,81 @@ async function submitReview() {
   }
 }
 
-useHead({ title: () => (story.value ? story.value.title : 'Đang tải...') })
+const config = useRuntimeConfig()
+// 1. Tạo các biến SEO cơ bản một cách động
+const pageTitle = computed(() => `${story.value.title} - ${story.value.author.username} | Bút Thần Giới`)
+const pageDescription = computed(() => (story.value.description || '').substring(0, 160) + '...')
+const canonicalUrl = computed(() => `${config.public.baseURL}${route.fullPath}`)
+const ogImageUrl = computed(() => story.value.coverImage || `${config.public.baseURL}/og-image.png`)
+
+// 2. Sử dụng useSeoMeta để chèn các thẻ meta
+useSeoMeta({
+  title: pageTitle,
+  description: pageDescription,
+  keywords: () => ['đọc truyện', 'tiểu thuyết', story.value.title, story.value.author.username, ...(story.value.tags || [])].join(', '),
+
+  // Open Graph (Facebook, Zalo, Messenger...)
+  ogTitle: pageTitle,
+  ogDescription: pageDescription,
+  ogImage: ogImageUrl,
+  ogUrl: canonicalUrl,
+  ogType: 'article', // 'article' tốt hơn 'website' cho trang chi tiết
+  ogLocale: 'vi_VN',
+
+  // Các thẻ meta Article chi tiết hơn
+  articleAuthor: () => story.value.author.username,
+  articlePublishedTime: () => new Date(story.value.createdAt).toISOString(),
+  articleModifiedTime: () => new Date(story.value.updatedAt).toISOString(),
+  articleTag: () => story.value.tags,
+
+  // Twitter Card (Khi chia sẻ trên Twitter/X)
+  twitterCard: 'summary_large_image',
+  twitterTitle: pageTitle,
+  twitterDescription: pageDescription,
+  twitterImage: ogImageUrl
+})
+
+// 3. (NÂNG CAO) Thêm Structured Data (JSON-LD) cho Google Rich Snippets
+// Giúp Google hiểu đây là một cuốn sách/truyện và có thể hiển thị xếp hạng sao
+const jsonLd = computed(() => {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Book',
+    'name': story.value.title,
+    'author': {
+      '@type': 'Person',
+      'name': story.value.author.username
+    },
+    'description': story.value.description,
+    'image': ogImageUrl.value,
+    'url': canonicalUrl.value,
+    'inLanguage': 'vi-VN',
+    'genre': story.value.genres,
+    'datePublished': new Date(story.value.createdAt).toISOString(),
+    'dateModified': new Date(story.value.updatedAt).toISOString(),
+    // Chỉ thêm xếp hạng nếu có
+    'aggregateRating': story.value.reviewCount > 0
+      ? {
+          '@type': 'AggregateRating',
+          'ratingValue': story.value.averageRating.toFixed(1),
+          'ratingCount': story.value.reviewCount
+        }
+      : undefined
+  }
+  return schema
+})
+
+// Sử dụng useHead để chèn JSON-LD
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: () => JSON.stringify(jsonLd.value, null, 2)
+    }
+  ],
+  // Thêm link canonical
+  link: [
+    { rel: 'canonical', href: canonicalUrl }
+  ]
+})
 </script>

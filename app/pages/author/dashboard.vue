@@ -6,7 +6,7 @@
       </h1>
       <UButton
         icon="i-heroicons-plus-circle"
-        size="lg"
+        color="neutral"
         @click="isAddStoryModalOpen = true"
       >
         Sáng tác truyện mới
@@ -34,7 +34,6 @@
         Bạn chưa có tác phẩm nào.
       </p>
       <UButton
-        size="lg"
         class="mt-4"
         @click="isAddStoryModalOpen = true"
       >
@@ -135,13 +134,14 @@
       </template>
       <template #footer>
         <UButton
-          color="gray"
+          color="error"
           variant="ghost"
           @click="isAddStoryModalOpen = false"
         >
           Hủy
         </UButton>
         <UButton
+          color="neutral"
           type="submit"
           :loading="isLoading"
           @click="createFormRef?.submit()"
@@ -248,13 +248,14 @@
       </template>
       <template #footer>
         <UButton
-          color="gray"
+          color="error"
           variant="ghost"
           @click="isEditStoryModalOpen = false"
         >
           Hủy
         </UButton>
         <UButton
+          color="neutral"
           type="submit"
           :loading="isLoading"
           @click="editFormRef?.submit()"

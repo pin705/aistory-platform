@@ -12,7 +12,6 @@
       </div>
       <UButton
         icon="i-heroicons-plus-circle"
-        size="lg"
         :loading="isCreating"
         @click="createNewChapter"
       >
@@ -49,7 +48,7 @@ import type { Row } from '@tanstack/vue-table'
 // Resolve các component UI sẽ dùng trong hàm `h()`
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
-const USelectMenu = resolveComponent('USelectMenu')
+const USelect = resolveComponent('USelect')
 const UBadge = resolveComponent('UBadge')
 
 const route = useRoute()
@@ -58,8 +57,8 @@ const storyId = route.params.id as string
 const isCreating = ref(false)
 
 const chapterStatusOptions = [
-  { id: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
-  { id: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-check-circle-20-solid' }
+  { value: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
+  { value: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-check-circle-20-solid' }
 ]
 const chapterStatusColors: Record<string, any> = {
   draft: 'orange',
@@ -100,8 +99,8 @@ async function handleChapterStatusChange(chapterId: string, newStatus: string) {
     toast.add({ title: 'Cập nhật trạng thái thành công!' })
     // Làm mới lại bảng để cập nhật `updatedAt`
     await refreshChapters()
-  } catch (e: any) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể cập nhật', color: 'red' })
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể cập nhật', color: 'error' })
   }
 }
 
@@ -113,12 +112,11 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
   {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => h(USelectMenu, {
+    cell: ({ row }) => h(USelect, {
       'modelValue': row.original.status,
-      'by': 'key',
       'items': chapterStatusOptions,
       'class': 'w-36',
-      'onUpdate:modelValue': newStatus => handleChapterStatusChange(row.original._id, newStatus.key)
+      'onUpdate:modelValue': newStatus => handleChapterStatusChange(row.original._id, newStatus)
     }, {
       label: () => h(UBadge, {
         color: chapterStatusColors[row.original.status] || 'gray',

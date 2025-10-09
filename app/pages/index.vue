@@ -45,5 +45,12 @@
 // (CẬP NHẬT) Chỉ cần một lệnh useFetch
 const { data: homeData } = useFetch('/api/stories')
 
-useHead({ title: 'Trang chủ - LoreWeaver AI' })
+useHead({ title: 'Trang chủ - Mực thần ký' })
+
+definePageMeta({
+  middleware: () => {
+    const { loggedIn } = useUserSession()
+    if (!loggedIn.value) return navigateTo('/login')
+  }
+})
 </script>

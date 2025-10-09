@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   if (!isValid) {
     throw createError({
       statusCode: 401,
-      message: 'Thông tin không chính xác',
+      message: 'Thông tin không chính xác'
     })
   }
 
@@ -17,8 +17,9 @@ export default defineEventHandler(async (event) => {
     user: {
       email,
       id: user._id,
+      ...user
     },
-    loggedInAt: Date.now(),
+    loggedInAt: Date.now()
   })
 
   return setResponseStatus(event, 201)

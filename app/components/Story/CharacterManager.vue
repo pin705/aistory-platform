@@ -3,14 +3,6 @@
     <h3 class="text-lg font-semibold">
       Hệ thống nhân vật trong: {{ title }}
     </h3>
-
-    <UButton
-      icon="i-heroicons-plus-circle"
-      size="lg"
-      @click="openModal(null)"
-    >
-      Thêm Nhân vật
-    </UButton>
   </div>
 
   <UCard>
@@ -22,6 +14,12 @@
           placeholder="Tìm kiếm tên, mô tả..."
           class="flex-1"
         />
+        <UButton
+          icon="i-heroicons-plus-circle"
+          @click="openModal(null)"
+        >
+          Thêm Nhân vật
+        </UButton>
       </div>
     </template>
 

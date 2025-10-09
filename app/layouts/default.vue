@@ -1,12 +1,8 @@
 <template>
   <div>
     <Navbar />
-    <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:grid gap-16 sm:gap-y-24 py-18 sm:py-24 lg:py-32">
+    <div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:grid gap-16 sm:gap-y-24 py-12 sm:py-16 lg:py-24">
       <slot />
     </div>
-    </div>
+  </div>
 </template>
-
-<script setup>
-// Layout này sẽ được áp dụng cho các trang không chỉ định layout khác
-</script>

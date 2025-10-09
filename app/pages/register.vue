@@ -41,6 +41,10 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
+definePageMeta({
+  layout: 'auth'
+})
+
 const toast = useToast()
 const isLoading = ref(false)
 

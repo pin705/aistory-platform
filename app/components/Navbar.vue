@@ -1,70 +1,7 @@
-<!-- <template>
-  <UHeader>
-    <template #left>
-      <UColorModeButton />
-
-      <NuxtLink
-        to="/"
-        class="text-xl font-bold"
-      >AI Story Platform</NuxtLink>
-    </template>
-
-    <template #right>
-      <div v-if="loggedIn">
-        <UDropdownMenu :items="userMenuItems">
-          <UButton
-            color="white"
-            trailing-icon="i-heroicons-chevron-down-20-solid"
-          >
-            <UAvatar
-              :alt="session?.user?.name || 'User'"
-              size="sm"
-            />
-            <span class="ml-2">{{ session?.user?.name }}</span>
-          </UButton>
-        </UDropdownMenu>
-      </div>
-      <div v-else>
-        <UButton to="/login">
-          Đăng nhập
-        </UButton>
-      </div>
-    </template>
-  </UHeader>
-</template>
-
 <script setup lang="ts">
 const { loggedIn, clear, session } = useUserSession()
 
-const userMenuItems = [
-  [
-    {
-      label: 'Sáng tác',
-      icon: 'i-heroicons-squares-2x2',
-      to: '/author/dashboard'
-    },
-    {
-      label: 'Cài đặt API Key',
-      icon: 'i-heroicons-key',
-      to: '/settings/keys'
-    }
-  ],
-  [
-    {
-      label: 'Đăng xuất',
-      icon: 'i-heroicons-arrow-left-on-rectangle',
-      click: () => clear()
-    }
-  ]
-]
-</script> -->
-
-<script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
-
-
-const { loggedIn, clear, session } = useUserSession()
-
+console.log('Session in Navbar:', session.value)
 const userMenuItems = [
   [
     {
@@ -78,18 +15,32 @@ const userMenuItems = [
       to: '/author/dashboard'
     },
     {
-      label: 'Cài đặt API Key',
-      icon: 'i-heroicons-key',
-      to: '/settings/keys'
-    }
-  ],
-  [
-    {
-      label: 'Đăng xuất',
-      icon: 'i-heroicons-arrow-left-on-rectangle',
-      click: () => clear()
+      label: '',
+      icon: 'i-heroicons-user-20-solid',
+      avatar: {
+        src: session?.value?.user?.avatar
+      },
+      class: !loggedIn.value ? 'hidden' : '',
+      children: [
+        {
+          label: 'Hồ sơ của tôi',
+          icon: 'i-heroicons-user-circle-20-solid',
+          to: '/profile'
+        },
+        {
+          label: 'Cài đặt API Key',
+          icon: 'i-heroicons-key',
+          to: '/settings/keys'
+        },
+        {
+          label: 'Đăng xuất',
+          icon: 'i-heroicons-arrow-left-on-rectangle',
+          to: '/login'
+        }
+      ]
     }
   ]
+
 ]
 </script>
 
@@ -106,7 +57,7 @@ const userMenuItems = [
       }"
     >
       <template #list-trailing>
-              <UColorModeButton />
+        <UColorModeButton />
       </template>
     </UNavigationMenu>
   </div>
