@@ -16,7 +16,7 @@
         <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between h-16">
           <NuxtLink
             :to="`/story/${storyId}`"
-            class="flex items-center gap-2 group w-1/3"
+            class="flex items-center gap-2 group w-2/3"
           >
             <Icon
               name="heroicons:arrow-left"
@@ -24,19 +24,8 @@
             />
             <span class="font-bold truncate group-hover:text-primary-500">{{ data.story.title }}</span>
           </NuxtLink>
-          <div class="text-center truncate px-4 hidden sm:block w-1/3">
+          <div class="text-center px-4 hidden sm:block w-1/3">
             Chương {{ data.currentChapter.chapterNumber }}: {{ data.currentChapter.title }}
-          </div>
-          <div class="w-1/3 flex justify-end">
-            <button
-              class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:hidden"
-              @click="isSettingsOpen = true"
-            >
-              <Icon
-                name="heroicons:cog-6-tooth"
-                class="w-6 h-6"
-              />
-            </button>
           </div>
         </div>
       </header>
@@ -69,11 +58,11 @@
                 name="heroicons:arrow-left-circle"
                 class="w-5 h-5"
               />
-              Chương trước
+              <span class="hidden sm:inline">Chương trước</span>
             </NuxtLink>
           </div>
 
-          <div class="hidden sm:flex justify-center items-center gap-1">
+          <div class="flex justify-center items-center gap-1">
             <template v-if="isTTSAvailable">
               <button
                 :disabled="!plainContent"
@@ -127,7 +116,7 @@
               :event="data.nextChapter ? 'click' : ''"
               @click="data.nextChapter && stop()"
             >
-              Chương sau
+              <span class="hidden sm:inline">Chương sau</span>
               <Icon
                 name="heroicons:arrow-right-circle"
                 class="w-5 h-5"
