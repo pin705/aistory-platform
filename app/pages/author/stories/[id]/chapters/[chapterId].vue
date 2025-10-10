@@ -6,11 +6,11 @@
     <header class="sticky top-0 z-20 bg-background/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
       <UContainer class="flex items-center justify-between h-16">
         <div class="flex items-center gap-4">
-          <UButton
+          <!-- <UButton
             icon="i-heroicons-queue-list"
             variant="ghost"
             @click="isNavOpen = true"
-          />
+          /> -->
           <div class="flex flex-col">
             <NuxtLink
               :to="`/author/stories/${storyId}`"
@@ -47,30 +47,6 @@
         </div>
       </UContainer>
     </header>
-
-    <USlideover v-model:open="isNavOpen">
-      <template #header>
-        <h2 class="font-bold">
-          Điều hướng
-        </h2>
-      </template>
-      <template #body>
-        <UCard
-          class="flex flex-col flex-1"
-          :ui="{ body: { padding: '' } }"
-        >
-          <div class="p-4">
-            <USeparator label="Lorebook" />
-            <div class="mt-4">
-              <StoryLorebookManager
-                title="chapterData.title"
-                :story-id="storyId"
-              />
-            </div>
-          </div>
-        </UCard>
-      </template>
-    </USlideover>
 
     <UContainer class="py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="lg:col-span-2">

@@ -1,9 +1,5 @@
 <template>
   <UCard>
-    <h3 class="text-lg font-semibold">
-      Hệ thống trong: {{ title }}
-    </h3>
-
     <template #header>
       <div class="flex gap-4">
         <UInput
@@ -15,6 +11,7 @@
         <UButton
           icon="i-heroicons-plus-circle"
           @click="openModal(null)"
+          color="neutral"
         >
           Thêm Nhân Vật
         </UButton>
@@ -79,8 +76,8 @@ const columns: TableColumn<any>[] = [
   { accessorKey: 'name', header: 'Tên' },
   { accessorKey: 'role', header: 'Vai trò' },
   { accessorKey: 'description', header: 'Mô tả', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('description')) },
-  { accessorKey: 'backstory', header: 'Tiểu sử', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('backstory')) },
-  { accessorKey: 'abilities', header: 'Khả năng', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('abilities')) },
+  // { accessorKey: 'backstory', header: 'Tiểu sử', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('backstory')) },
+  // { accessorKey: 'abilities', header: 'Khả năng', cell: ({ row }) => h('div', { class: 'max-w-[200px] truncate' }, row.getValue('abilities')) },
   {
     id: 'actions',
     header: () => h('div', { class: 'text-right' }, 'Hành động'),
@@ -92,7 +89,7 @@ function getActionItems(row: Row<any>) {
   return [
     { label: 'Sửa', icon: 'i-heroicons-pencil-square-20-solid', onSelect: () => openModal(row.original) },
     { type: 'separator' },
-    { label: 'Xoá', icon: 'i-heroicons-trash-20-solid', onSelect: () => deleteCharacter(row.original._id) }
+    { label: 'Xoá', color: 'error', icon: 'i-heroicons-trash-20-solid', onSelect: () => deleteCharacter(row.original._id) }
   ]
 }
 
