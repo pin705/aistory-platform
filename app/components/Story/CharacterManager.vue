@@ -10,8 +10,8 @@
         />
         <UButton
           icon="i-heroicons-plus-circle"
-          @click="openModal(null)"
           color="neutral"
+          @click="openModal(null)"
         >
           Thêm Nhân Vật
         </UButton>
@@ -47,13 +47,11 @@ import { watchDebounced } from '@vueuse/core'
 
 const props = defineProps<{
   storyId: string
-  title: string
 }>()
 
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 
-const route = useRoute()
 const toast = useToast()
 const storyId = props.storyId
 // State cho Modal
@@ -68,7 +66,7 @@ const { data: characters, refresh: refreshCharacters, pending } = await useFetch
   query: { q: searchQuery }, // query sẽ tự động cập nhật khi ref thay đổi
   default: () => []
 })
-
+console.log(characters.value)
 // Tự động fetch lại dữ liệu khi người dùng ngừng gõ vào ô tìm kiếm 300ms
 watchDebounced(searchQuery, () => refreshCharacters(), { debounce: 300 })
 
@@ -93,7 +91,7 @@ function getActionItems(row: Row<any>) {
   ]
 }
 
-function openModal(character: any | null) {
+function openModal(character) {
   selectedCharacter.value = character
   isModalOpen.value = true
 }

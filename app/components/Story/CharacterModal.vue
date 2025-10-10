@@ -79,7 +79,7 @@
           </div>
 
           <div class="md:col-span-3">
-            <UDivider label="Thông tin Mô tả" />
+            <USeparator label="Thông tin Mô tả" />
             <div class="space-y-4 pt-6">
               <UFormField
                 label="Mô tả"
@@ -105,7 +105,7 @@
               </UFormField>
             </div>
 
-            <UDivider
+            <USeparator
               label="Năng lực"
               class="mt-6"
             />

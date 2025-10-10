@@ -5,7 +5,7 @@
         <NuxtLink
           to="/dashboard"
           class="text-sm text-gray-500 hover:underline"
-        >‹ Quay lại Dashboard</NuxtLink>
+        >‹ Quay lại Tác phẩm</NuxtLink>
         <h1 class="text-3xl font-bold">
           {{ story?.title }}
         </h1>
@@ -13,33 +13,48 @@
       <UButton
         icon="i-heroicons-plus-circle"
         :loading="isCreating"
-         color="neutral"
+        color="neutral"
         @click="createNewChapter"
       >
-        Chương mới
+        Viết chương mới
       </UButton>
     </div>
 
     <UTabs
-      :items="tabs"
+      :items="tabsManager"
       class="w-full"
       color="neutral"
-      variant="link"
     >
       <template #chapters="{ item }">
-        <UCard>
+        <UCard class="mt-4">
+          <template #header>
+            <h3 class="text-lg font-semibold">
+              {{ item.label }}
+            </h3>
+          </template>
           <UTable
-            :data="chapters"
+            :rows="chapters"
             :columns="chapterColumns"
           />
         </UCard>
       </template>
 
-      <template #lorebook="{ item }">
-        <StoryCharacterManager
-          :story-id="storyId"
-          :title="story?.title"
-        />
+      <template #characters="{ item }">
+        <div class="mt-4">
+          <StoryCharacterManager :story-id="storyId" />
+        </div>
+      </template>
+
+      <template #factions="{ item }">
+        <div class="mt-4">
+          <StoryFactionsManager :story-id="storyId" />
+        </div>
+      </template>
+
+      <template #realms="{ item }">
+        <div class="mt-4">
+          <StoryRealmsManager :story-id="storyId" />
+        </div>
       </template>
     </UTabs>
   </UContainer>
@@ -61,6 +76,14 @@ const route = useRoute()
 const toast = useToast()
 const storyId = route.params.id as string
 const isCreating = ref(false)
+
+const tabsManager = [
+  { slot: 'chapters', label: 'Quản lý Chương' },
+  { slot: 'characters', label: 'Quản lý Nhân vật' },
+  { slot: 'factions', label: 'Quản lý Thế lực' },
+  { slot: 'realms', label: 'Quản lý Cảnh giới' }
+  // Thêm các tab khác tại đây khi bạn tạo component tương ứng
+]
 
 const chapterStatusOptions = [
   { value: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square-20-solid' },
@@ -95,7 +118,6 @@ const { data: story } = await useFetch(`/api/stories/${storyId}`)
 const { data: chapters, refresh: refreshChapters } = await useFetch<ChapterRow[]>(`/api/stories/${storyId}/chapters`, {
   default: () => []
 })
-
 async function handleChapterStatusChange(chapterId: string, newStatus: string) {
   try {
     await $fetch(`/api/chapters/${chapterId}/status`, {
@@ -135,7 +157,8 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
   {
     id: 'actions',
     header: () => h('div', { class: 'text-right' }, 'Hành động'),
-    cell: ({ row }) => h('div', { class: 'text-right' }, h(UDropdownMenu, { items: getActionItems(row), content: { align: 'end' } }, () => h(UButton, { icon: 'i-heroicons-ellipsis-horizontal-20-solid', color: 'gray', variant: 'ghost' })))
+    cell: ({ row }) => h('div', { class: 'text-right' }, h(UDropdownMenu,
+      { items: getActionItems(row), content: { align: 'end' } }, () => h(UButton, { icon: 'i-heroicons-ellipsis-horizontal-20-solid', color: 'gray', variant: 'ghost' })))
   }
 ]
 
@@ -167,7 +190,7 @@ async function createNewChapter() {
     })
     toast.add({ title: 'Đã tạo chương mới!', icon: 'i-heroicons-check-circle' })
     await navigateTo(`/author/stories/${storyId}/chapters/${newChapter._id}`)
-  } catch (e: any) {
+  } catch (e) {
     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể tạo chương mới.', color: 'warning' })
   } finally {
     isCreating.value = false
@@ -185,7 +208,7 @@ async function deleteChapter(chapterId: string) {
     })
     toast.add({ title: 'Xóa chương thành công!', color: 'success' })
     await refreshChapters()
-  } catch (e: any) {
+  } catch (e) {
     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể xóa chương.', color: 'red' })
   }
 }
