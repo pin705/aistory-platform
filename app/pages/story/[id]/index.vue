@@ -65,6 +65,8 @@
               :to="latestChapterLink"
               icon="i-heroicons-sparkles"
               class="flex-1 sm:flex-none justify-center"
+              variant="ghost"
+              color="none"
             >
               Chương mới nhất
             </UButton>
@@ -143,6 +145,7 @@
           <UTabs
             :items="tabs"
             class="w-full"
+            color="neutral"
           >
             <template #description="{ item }">
               <UCard>
@@ -407,7 +410,7 @@ const chapters = computed(() => storyData.value?.chapters)
 
 const tabs = [
   { slot: 'description', label: 'Giới thiệu' },
-  { slot: 'chapters', label: 'Danh sách chương' },
+  { slot: 'chapters', label: 'DS Chương' },
   { slot: 'reviews', label: 'Đánh giá & Bình luận' }
 ]
 

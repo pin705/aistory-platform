@@ -35,6 +35,7 @@
       </p>
       <UButton
         class="mt-4"
+        color="neutral"
         @click="isAddStoryModalOpen = true"
       >
         Bắt đầu sáng tác ngay
@@ -43,11 +44,10 @@
 
     <UModal
       v-model:open="isAddStoryModalOpen"
-      :ui="{ footer: 'justify-end' }"
     >
       <template #header>
         <h2 class="text-xl font-bold">
-          Khởi tạo Tác phẩm
+          Khởi tạo Tác phẩm mới
         </h2>
       </template>
       <template #body>
@@ -57,79 +57,95 @@
           :schema="storySchema"
           @submit="handleAddStory"
         >
-          <ImageUploader
-            v-model="addStoryState.coverImage"
-            class="mb-4"
-          />
-          <UFormField
-            label="Ý tưởng Cốt lõi (Prompt)"
-            name="prompt"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="addStoryState.prompt"
-              :rows="8"
-              :placeholder="promptPlaceholder"
-              class="w-full"
-            />
-          </UFormField>
-          <div class="flex justify-end mb-6">
-            <UButton
-              variant="soft"
-              icon="i-heroicons-sparkles"
-              :loading="isGenerating"
-              @click="handleGenerateDetails"
-            >
-              AI Phác thảo
-            </UButton>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+              <ImageUploader v-model="addStoryState.coverImage" />
+            </div>
+
+            <div class="md:col-span-2">
+              <UTabs :items="addTabs" color="neutral">
+                <template #prompt="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Ý tưởng Cốt lõi (Prompt)"
+                      name="prompt"
+                      description="Nhập ý tưởng chính của bạn, sau đó nhấn nút 'AI Phác thảo' để tự động điền các thông tin còn lại."
+                    >
+                      <UTextarea
+                        v-model="addStoryState.prompt"
+                        :rows="12"
+                        :placeholder="promptPlaceholder"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <div class="flex justify-end">
+                      <UButton
+                        variant="soft"
+                        icon="i-heroicons-sparkles"
+                        :loading="isGenerating"
+                        color="neutral"
+                        @click="handleGenerateDetails"
+                      >
+                        AI Phác thảo
+                      </UButton>
+                    </div>
+                  </div>
+                </template>
+
+                <template #basic="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Tên Tác phẩm"
+                      name="title"
+                    >
+                      <UInput
+                        v-model="addStoryState.title"
+                        placeholder="AI sẽ gợi ý tên ở đây..."
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Mô tả ngắn"
+                      name="description"
+                    >
+                      <UTextarea
+                        v-model="addStoryState.description"
+                        :rows="8"
+                        placeholder="AI sẽ gợi ý mô tả ở đây..."
+                      />
+                    </UFormField>
+                  </div>
+                </template>
+
+                <template #classification="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Thể loại"
+                      name="genres"
+                    >
+                      <USelectMenu
+                        v-model="addStoryState.genres"
+                        :items="genresFromAPI"
+                        multiple
+                        placeholder="Chọn thể loại"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Tags (phân cách bởi dấu phẩy)"
+                      name="tags"
+                    >
+                      <UInput
+                        v-model="addStoryState.tags"
+                        placeholder="AI sẽ gợi ý tags ở đây..."
+                        class="w-full"
+                      />
+                    </UFormField>
+                  </div>
+                </template>
+              </UTabs>
+            </div>
           </div>
-          <UFormField
-            label="Tên Tác phẩm"
-            name="title"
-            class="mb-4"
-          >
-            <UInput
-              v-model="addStoryState.title"
-              placeholder="AI sẽ gợi ý tên ở đây..."
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Mô tả ngắn"
-            name="description"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="addStoryState.description"
-              :rows="5"
-              placeholder="AI sẽ gợi ý mô tả ở đây..."
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Thể loại"
-            name="genres"
-            class="mb-4"
-          >
-            <USelectMenu
-              v-model="addStoryState.genres"
-              :items="genresFromAPI"
-              multiple
-              placeholder="Chọn thể loại"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Tags (phân cách bởi dấu phẩy)"
-            name="tags"
-            class="mb-4"
-          >
-            <UInput
-              v-model="addStoryState.tags"
-              placeholder="AI sẽ gợi ý tags ở đây..."
-              class="w-full"
-            />
-          </UFormField>
         </UForm>
       </template>
       <template #footer>
@@ -146,14 +162,13 @@
           :loading="isLoading"
           @click="createFormRef?.submit()"
         >
-          Tạo Tác phẩm
+          Khởi tạo Tác phẩm
         </UButton>
       </template>
     </UModal>
 
     <UModal
       v-model:open="isEditStoryModalOpen"
-      :ui="{ footer: 'justify-end' }"
     >
       <template #header>
         <h2 class="text-xl font-bold">
@@ -174,76 +189,96 @@
           :schema="storySchema"
           @submit="handleUpdateStory"
         >
-          <ImageUploader
-            v-model="editStoryState.coverImage"
-            class="mb-4"
-          />
-          <UFormField
-            label="Tên Tác phẩm"
-            name="title"
-            class="mb-4"
-          >
-            <UInput
-              v-model="editStoryState.title"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Mô tả ngắn"
-            name="description"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="editStoryState.description"
-              :rows="5"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Ý tưởng Cốt lõi (Prompt)"
-            name="prompt"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="editStoryState.prompt"
-              :rows="8"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Thể loại"
-            name="genres"
-            class="mb-4"
-          >
-            <USelectMenu
-              v-model="editStoryState.genres"
-              :items="genresFromAPI"
-              multiple
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Tags (phân cách bởi dấu phẩy)"
-            name="tags"
-            class="mb-4"
-          >
-            <UInput
-              v-model="editStoryState.tags"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            label="Trạng thái"
-            name="status"
-            class="mb-4"
-          >
-            <USelect
-              v-model="editStoryState.status"
-              :items="statusOptionsForSelect"
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="md:col-span-1">
+              <ImageUploader v-model="editStoryState.coverImage" />
+            </div>
 
-              class="w-full"
-            />
-          </UFormField>
+            <div class="md:col-span-2">
+              <UTabs
+                :items="editTabs"
+                color="neutral"
+              >
+                <template #basic="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Tên Tác phẩm"
+                      name="title"
+                    >
+                      <UInput
+                        v-model="editStoryState.title"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Mô tả ngắn"
+                      name="description"
+                    >
+                      <UTextarea
+                        v-model="editStoryState.description"
+                        :rows="5"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Trạng thái"
+                      name="status"
+                    >
+                      <USelectMenu
+                        v-model="editStoryState.status"
+                        :items="statusOptionsForSelect"
+                        value-key="id"
+                        class="w-full"
+                        option-attribute="label"
+                      />
+                    </UFormField>
+                  </div>
+                </template>
+
+                <template #classification="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Thể loại"
+                      name="genres"
+                    >
+                      <USelectMenu
+                        v-model="editStoryState.genres"
+                        :items="genresFromAPI"
+                        multiple
+                        class="w-full"
+                        placeholder="Chọn thể loại"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Tags (phân cách bởi dấu phẩy)"
+                      name="tags"
+                    >
+                      <UInput
+                        v-model="editStoryState.tags"
+                        class="w-full"
+                      />
+                    </UFormField>
+                  </div>
+                </template>
+
+                <template #advanced="{ item }">
+                  <div class="space-y-4 pt-4">
+                    <UFormField
+                      label="Ý tưởng Cốt lõi (Prompt)"
+                      name="prompt"
+                      description="Prompt gốc sẽ được dùng để giữ vững 'linh hồn' của truyện khi AI viết các chương sau."
+                    >
+                      <UTextarea
+                        v-model="editStoryState.prompt"
+                        :rows="12"
+                        class="w-full"
+                      />
+                    </UFormField>
+                  </div>
+                </template>
+              </UTabs>
+            </div>
+          </div>
         </UForm>
       </template>
       <template #footer>
@@ -284,6 +319,18 @@ const isEditStoryModalOpen = ref(false)
 const isFetchingDetails = ref(false)
 const selectedStoryId = ref<string | null>(null)
 
+const editTabs = [
+  { slot: 'basic', label: 'Cơ bản' },
+  { slot: 'classification', label: 'Phân loại' },
+  { slot: 'advanced', label: 'Nâng cao' }
+]
+
+const addTabs = [
+  { slot: 'prompt', label: 'Ý tưởng' },
+  { slot: 'basic', label: 'Thông tin' },
+  { slot: 'classification', label: 'Phân loại' },
+]
+
 // ----- LẤY DỮ LIỆU CHUNG -----
 type StoryRow = {
   _id: string; title: string; coverImage: string; status: string; chapterCount: number; views: number; updatedAt: string
@@ -295,7 +342,7 @@ const { data: genresFromAPI } = await useFetch<string[]>('/api/genres', { defaul
 const statusColors: Record<string, any> = { 'draft': 'orange', 'published': 'green', 'on-hold': 'gray', 'finished': 'blue' }
 const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
 const statusOptionsForSelect = [
-  { value: 'draft', label: 'Bản nháp' }, { value: 'published', label: 'Đã xuất bản' }, { value: 'on-hold', label: 'Tạm ngưng' }, { value: 'finished', label: 'Hoàn thành' }
+  { id: 'draft', label: 'Bản nháp' }, { id: 'published', label: 'Đã xuất bản' }, { id: 'on-hold', label: 'Tạm ngưng' }, { id: 'finished', label: 'Hoàn thành' }
 ]
 
 // ----- LOGIC CHO DROPDOWN HÀNH ĐỘNG CỦA CARD -----

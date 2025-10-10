@@ -8,7 +8,6 @@
         <div class="flex items-center gap-4">
           <UButton
             icon="i-heroicons-queue-list"
-            color="gray"
             variant="ghost"
             @click="isNavOpen = true"
           />
@@ -41,6 +40,7 @@
             :loading="isSaving && autoSaveStatus !== 'saving'"
             icon="i-heroicons-check"
             @click="saveChapter(false)"
+             color="neutral"
           >
             Lưu
           </UButton>
@@ -62,7 +62,10 @@
           <div class="p-4">
             <USeparator label="Lorebook" />
             <div class="mt-4">
-              <StoryLorebookManager title="chapterData.title" :story-id="storyId" />
+              <StoryLorebookManager
+                title="chapterData.title"
+                :story-id="storyId"
+              />
             </div>
           </div>
         </UCard>
@@ -133,7 +136,7 @@
             </UButton>
             <UButton
               size="xs"
-               color="neutral"
+              color="neutral"
               variant="soft"
               @click="rewriteSelection('shorter')"
             >
@@ -141,7 +144,7 @@
             </UButton>
             <UButton
               size="xs"
-               color="neutral"
+              color="neutral"
               variant="soft"
               @click="rewriteSelection('longer')"
             >
@@ -187,6 +190,7 @@
               class="mt-4 w-full"
               icon="i-heroicons-pencil-square"
               @click="generateNextScene"
+               color="neutral"
             >
               Tạo nội dung
             </UButton>

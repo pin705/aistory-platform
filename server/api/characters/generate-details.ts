@@ -10,21 +10,21 @@ export default defineEventHandler(async (event) => {
   }
 
   // Lấy và giải mã API key của người dùng
-  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' });
+  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' })
   if (!apiKeyRecord) {
-    throw createError({ statusCode: 400, statusMessage: 'Vui lòng thêm API Key của Gemini.' });
+    throw createError({ statusCode: 400, statusMessage: 'Vui lòng thêm API Key của Gemini.' })
   }
-  const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8);
+  const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8)
   if (!decryptedKey) {
-    throw createError({ statusCode: 500, statusMessage: 'Lỗi giải mã key.' });
+    throw createError({ statusCode: 500, statusMessage: 'Lỗi giải mã key.' })
   }
 
   // Lấy bối cảnh chung của truyện để AI hiểu rõ hơn
-  const story = await Story.findById(storyId).select('description prompt');
-  const storyContext = `Bối cảnh truyện: ${story?.prompt || story?.description || 'chưa có'}`;
+  const story = await Story.findById(storyId).select('description prompt')
+  const storyContext = `Bối cảnh truyện: ${story?.prompt || story?.description || 'chưa có'}`
 
   try {
-    const genAI = new GoogleGenAI({ apiKey: decryptedKey });
+    const genAI = new GoogleGenAI({ apiKey: decryptedKey })
 
     const metaPrompt = `
       QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
@@ -42,21 +42,20 @@ export default defineEventHandler(async (event) => {
       - description: Mô tả chi tiết về ngoại hình, khí chất và tính cách (2-3 câu).
       - backstory: Một đoạn tiểu sử ngắn gọn về quá khứ, nguồn gốc của nhân vật (3-4 câu).
       - abilities: Liệt kê 2-3 năng lực, kỹ năng hoặc công pháp đặc trưng.
-    `;
+    `
 
     const result = await genAI.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: [metaPrompt]
-    });
+    })
 
-    const rawText = result.text;
-    const jsonMatch = rawText?.match(/{[\s\S]*}/);
-    if (!jsonMatch) { throw new Error("AI trả về dữ liệu không đúng định dạng."); }
+    const rawText = result.text
+    const jsonMatch = rawText?.match(/{[\s\S]*}/)
+    if (!jsonMatch) { throw new Error('AI trả về dữ liệu không đúng định dạng.') }
 
-    return JSON.parse(jsonMatch[0]);
-
+    return JSON.parse(jsonMatch[0])
   } catch (error: any) {
-    console.error('Lỗi Gemini API khi tạo nhân vật:', error);
-    throw createError({ statusCode: 500, statusMessage: 'AI không thể tạo gợi ý lúc này.' });
+    console.error('Lỗi Gemini API khi tạo nhân vật:', error)
+    throw createError({ statusCode: 500, statusMessage: 'AI không thể tạo gợi ý lúc này.' })
   }
 })

@@ -13,6 +13,7 @@
       <UButton
         icon="i-heroicons-plus-circle"
         :loading="isCreating"
+         color="neutral"
         @click="createNewChapter"
       >
         Chương mới

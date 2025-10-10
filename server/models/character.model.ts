@@ -7,6 +7,6 @@ export const Character = defineMongooseModel('Character', {
   role: { type: String, enum: ['Nhân vật chính', 'Nhân vật phụ', 'Phản diện', 'Quần chúng'], default: 'Nhân vật phụ' },
   description: { type: String, default: '' }, // Mô tả ngoại hình, tính cách...
   backstory: { type: String, default: '' }, // Tiểu sử, quá khứ
-  abilities: { type: String, default: '' }, // Kỹ năng, công pháp, vũ khí...
+  abilities: { type: [String], default: [] }
   // Thêm các trường khác nếu cần
 })

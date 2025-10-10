@@ -16,7 +16,7 @@
           icon="i-heroicons-plus-circle"
           @click="openModal(null)"
         >
-          Thêm Bối Cảnh
+          Thêm Nhân Vật
         </UButton>
       </div>
     </template>

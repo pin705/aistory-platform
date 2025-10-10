@@ -29,12 +29,12 @@ const userMenuItems = [
       class: !loggedIn.value ? 'hidden' : '',
       children: [
         {
-          label: 'Hồ sơ của tôi',
+          label: 'Hồ sơ',
           icon: 'i-heroicons-user-circle-20-solid',
           to: '/profile'
         },
         {
-          label: 'Cài đặt API Key',
+          label: 'API Key',
           icon: 'i-heroicons-key',
           to: '/settings/keys'
         },
