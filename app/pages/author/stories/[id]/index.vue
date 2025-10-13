@@ -33,9 +33,22 @@
             </h3>
           </template>
           <UTable
-            :rows="chapters"
+            ref="table"
+            v-model:pagination="pagination"
+            :pagination-options="{
+              getPaginationRowModel: getPaginationRowModel()
+            }"
+            :data="chapters"
             :columns="chapterColumns"
           />
+          <div class="flex justify-center border-t border-default pt-4">
+            <UPagination
+              :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+              :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+              :total="table?.tableApi?.getFilteredRowModel().rows.length"
+              @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+            />
+          </div>
         </UCard>
       </template>
 
@@ -65,18 +78,23 @@
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
+import { getPaginationRowModel } from '@tanstack/vue-table'
 
 // Resolve các component UI sẽ dùng trong hàm `h()`
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
 const USelect = resolveComponent('USelect')
 const UBadge = resolveComponent('UBadge')
+const table = useTemplateRef('table')
 
 const route = useRoute()
 const toast = useToast()
 const storyId = route.params.id as string
 const isCreating = ref(false)
-
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 5
+})
 const tabsManager = [
   { slot: 'chapters', label: 'Quản lý Chương' },
   { slot: 'characters', label: 'Quản lý Nhân vật' },
@@ -98,12 +116,6 @@ const chapterStatusLabels: Record<string, string> = {
   published: 'Đã xuất bản'
 }
 
-// (MỚI) Định nghĩa các Tab cho giao diện
-const tabs = [
-  { slot: 'chapters', label: 'Danh sách chương' },
-  { slot: 'lorebook', label: 'Lorebook' }
-]
-
 type ChapterRow = {
   _id: string
   chapterNumber: number
@@ -115,9 +127,7 @@ type ChapterRow = {
 // Lấy thông tin cơ bản của truyện để hiển thị title
 const { data: story } = await useFetch(`/api/stories/${storyId}`)
 // Lấy danh sách chương
-const { data: chapters, refresh: refreshChapters } = await useFetch<ChapterRow[]>(`/api/stories/${storyId}/chapters`, {
-  default: () => []
-})
+const { data: chapters, refresh: refreshChapters } = await useFetch<ChapterRow[]>(`/api/stories/${storyId}/chapters`)
 async function handleChapterStatusChange(chapterId: string, newStatus: string) {
   try {
     await $fetch(`/api/chapters/${chapterId}/status`, {

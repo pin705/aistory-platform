@@ -17,7 +17,7 @@
       </template>
 
       <UTable
-        :rows="realms"
+        :data="realms"
         :columns="columns"
       />
 
@@ -36,78 +36,84 @@
     </UCard>
 
     <UModal v-model:open="isModalOpen">
+      <template #header>
+        <h2 class="text-xl font-bold">
+          {{ isEditing ? 'Sửa' : 'Thêm' }} Cảnh giới
+        </h2>
+      </template>
+
       <template #body>
-        <UCard>
-          <template #header>
-            <h2 class="text-xl font-bold">
-              {{ isEditing ? 'Sửa' : 'Thêm' }} Cảnh giới
-            </h2>
-          </template>
-          <UForm
-            :state="formState"
-            :schema="schema"
-            @submit="saveRealm"
+        <div v-if="!isEditing" class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-6 border dark:border-gray-700">
+          <h3 class="font-semibold mb-2 flex items-center gap-2"><Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI</h3>
+          <UFormGroup label="Nhập ý tưởng của bạn" name="ai_prompt">
+            <UTextarea v-model="aiPrompt" :rows="3" placeholder="Ví dụ: Cảnh giới đầu tiên của tu sĩ, tập trung vào việc cảm nhận linh khí trời đất." />
+          </UFormGroup>
+          <UButton variant="soft" :loading="isGenerating" @click="handleGenerate" class="mt-2">Gợi ý</UButton>
+        </div>
+        <UForm
+          :state="formState"
+          :schema="schema"
+          @submit="saveRealm"
+        >
+          <UFormField
+            label="Tên Cảnh giới"
+            name="name"
+            class="mb-4"
+            required
           >
-            <UFormField
-              label="Tên Cảnh giới"
-              name="name"
-              class="mb-4"
-              required
+            <UInput
+              v-model="formState.name"
+              placeholder="Ví dụ: Kim Đan Kỳ"
+            />
+          </UFormField>
+          <UFormField
+            label="Cấp độ (Số thứ tự)"
+            name="level"
+            class="mb-4"
+            required
+          >
+            <UInput
+              v-model.number="formState.level"
+              type="number"
+              placeholder="Dùng để sắp xếp, vd: 3"
+            />
+          </UFormField>
+          <UFormField
+            label="Mô tả"
+            name="description"
+            class="mb-4"
+          >
+            <UTextarea
+              v-model="formState.description"
+              placeholder="Mô tả đặc điểm của người tu luyện ở cảnh giới này..."
+            />
+          </UFormField>
+          <UFormField
+            label="Điều kiện đột phá"
+            name="breakthroughConditions"
+            class="mb-4"
+          >
+            <UTextarea
+              v-model="formState.breakthroughConditions"
+              placeholder="Cần những gì để đột phá lên cảnh giới tiếp theo..."
+            />
+          </UFormField>
+          <div class="flex justify-end gap-2 mt-6">
+            <UButton
+              variant="ghost"
+              color="gray"
+              @click="isModalOpen = false"
             >
-              <UInput
-                v-model="formState.name"
-                placeholder="Ví dụ: Kim Đan Kỳ"
-              />
-            </UFormField>
-            <UFormField
-              label="Cấp độ (Số thứ tự)"
-              name="level"
-              class="mb-4"
-              required
+              Hủy
+            </UButton>
+            <UButton
+              type="submit"
+              :loading="isLoading"
             >
-              <UInput
-                v-model.number="formState.level"
-                type="number"
-                placeholder="Dùng để sắp xếp, vd: 3"
-              />
-            </UFormField>
-            <UFormField
-              label="Mô tả"
-              name="description"
-              class="mb-4"
-            >
-              <UTextarea
-                v-model="formState.description"
-                placeholder="Mô tả đặc điểm của người tu luyện ở cảnh giới này..."
-              />
-            </UFormField>
-            <UFormField
-              label="Điều kiện đột phá"
-              name="breakthroughConditions"
-              class="mb-4"
-            >
-              <UTextarea
-                v-model="formState.breakthroughConditions"
-                placeholder="Cần những gì để đột phá lên cảnh giới tiếp theo..."
-              />
-            </UFormField>
-            <div class="flex justify-end gap-2 mt-6">
-              <UButton
-                variant="ghost"
-                color="gray"
-                @click="isModalOpen = false"
-              >
-                Hủy
-              </UButton>
-              <UButton
-                type="submit"
-                :loading="isLoading"
-              >
-                Lưu
-              </UButton>
-            </div>
-          </UForm>
-        </UCard>
+              Lưu
+            </UButton>
+          </div>
+        </UForm>
       </template>
     </UModal>
   </div>
@@ -130,6 +136,8 @@ const isModalOpen = ref(false)
 const isLoading = ref(false)
 const selectedRealm = ref<any>(null)
 const isEditing = computed(() => !!selectedRealm.value)
+const aiPrompt = ref('')
+const isGenerating = ref(false)
 
 // --- Form Logic ---
 const schema = z.object({
@@ -153,7 +161,27 @@ const columns = [
   }
 ]
 
-function openModal(realm | null) {
+async function handleGenerate() {
+  if (!aiPrompt.value) return toast.add({ title: 'Vui lòng nhập ý tưởng.', color: 'orange' })
+  isGenerating.value = true
+  try {
+    const result = await $fetch('/api/lorebook/generate', {
+      method: 'POST',
+      body: { storyId: props.storyId, loreType: 'realm', prompt: aiPrompt.value }
+    })
+    formState.name = result.name
+    formState.level = result.level
+    formState.description = result.description
+    formState.breakthroughConditions = result.breakthroughConditions
+    toast.add({ title: 'AI đã tạo gợi ý thành công!', icon: 'i-heroicons-sparkles' })
+  } catch (e:any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+function openModal(realm) {
   selectedRealm.value = realm
   if (realm) {
     Object.assign(formState, realm)

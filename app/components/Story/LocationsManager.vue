@@ -17,7 +17,7 @@
       </template>
 
       <UTable
-        :rows="locations"
+        :data="locations"
         :columns="columns"
       />
 
@@ -36,68 +36,93 @@
     </UCard>
 
     <UModal v-model:open="isModalOpen">
+      <template #header>
+        <h2 class="text-xl font-bold">
+          {{ isEditing ? 'Sửa' : 'Thêm' }} Địa danh
+        </h2>
+      </template>
       <template #body>
-        <UCard>
-          <template #header>
-            <h2 class="text-xl font-bold">
-              {{ isEditing ? 'Sửa' : 'Thêm' }} Địa danh
-            </h2>
-          </template>
-          <UForm
-            :state="formState"
-            :schema="schema"
-            @submit="saveLocation"
+        <div
+          v-if="!isEditing"
+          class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-6 border dark:border-gray-700"
+        >
+          <h3 class="font-semibold mb-2 flex items-center gap-2">
+            <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
+          </h3>
+          <UFormGroup
+            label="Nhập ý tưởng của bạn"
+            name="ai_prompt"
           >
-            <UFormField
-              label="Tên Địa danh"
-              name="name"
-              class="mb-4"
-              required
+            <UTextarea
+              v-model="aiPrompt"
+              :rows="3"
+              placeholder="Ví dụ: Một thung lũng hiểm trở, nơi linh khí hỗn loạn, đầy rẫy không gian liệt phùng và là nơi trú ngụ của các yêu thú không gian."
+            />
+          </UFormGroup>
+          <UButton
+            variant="soft"
+            :loading="isGenerating"
+            class="mt-2"
+            @click="handleGenerate"
+          >
+            Gợi ý
+          </UButton>
+        </div>
+
+        <UForm
+          :state="formState"
+          :schema="schema"
+          @submit="saveLocation"
+        >
+          <UFormField
+            label="Tên Địa danh"
+            name="name"
+            class="mb-4"
+            required
+          >
+            <UInput
+              v-model="formState.name"
+              placeholder="Ví dụ: Vạn Thú Sơn Mạch"
+            />
+          </UFormField>
+          <UFormField
+            label="Mô tả"
+            name="description"
+            class="mb-4"
+          >
+            <UTextarea
+              v-model="formState.description"
+              :rows="5"
+              placeholder="Mô tả cảnh quan, khí hậu, lịch sử..."
+            />
+          </UFormField>
+          <UFormField
+            label="Đặc điểm nổi bật"
+            name="keyFeatures"
+            class="mb-4"
+          >
+            <UTextarea
+              v-model="formState.keyFeatures"
+              :rows="3"
+              placeholder="Tài nguyên, nguy hiểm, bí mật ẩn giấu..."
+            />
+          </UFormField>
+          <div class="flex justify-end gap-2 mt-6">
+            <UButton
+              variant="ghost"
+              color="gray"
+              @click="isModalOpen = false"
             >
-              <UInput
-                v-model="formState.name"
-                placeholder="Ví dụ: Vạn Thú Sơn Mạch"
-              />
-            </UFormField>
-            <UFormField
-              label="Mô tả"
-              name="description"
-              class="mb-4"
+              Hủy
+            </UButton>
+            <UButton
+              type="submit"
+              :loading="isLoading"
             >
-              <UTextarea
-                v-model="formState.description"
-                :rows="5"
-                placeholder="Mô tả cảnh quan, khí hậu, lịch sử..."
-              />
-            </UFormField>
-            <UFormField
-              label="Đặc điểm nổi bật"
-              name="keyFeatures"
-              class="mb-4"
-            >
-              <UTextarea
-                v-model="formState.keyFeatures"
-                :rows="3"
-                placeholder="Tài nguyên, nguy hiểm, bí mật ẩn giấu..."
-              />
-            </UFormField>
-            <div class="flex justify-end gap-2 mt-6">
-              <UButton
-                variant="ghost"
-                color="gray"
-                @click="isModalOpen = false"
-              >
-                Hủy
-              </UButton>
-              <UButton
-                type="submit"
-                :loading="isLoading"
-              >
-                Lưu
-              </UButton>
-            </div>
-          </UForm>
-        </UCard>
+              Lưu
+            </UButton>
+          </div>
+        </UForm>
       </template>
     </UModal>
   </div>
@@ -117,6 +142,8 @@ const isModalOpen = ref(false)
 const isLoading = ref(false)
 const selectedLocation = ref<any>(null)
 const isEditing = computed(() => !!selectedLocation.value)
+const aiPrompt = ref('')
+const isGenerating = ref(false)
 
 // --- Form Logic ---
 const schema = z.object({
@@ -138,7 +165,7 @@ const columns = [
   }
 ]
 
-function openModal(location | null) {
+function openModal(location) {
   selectedLocation.value = location
   if (location) {
     Object.assign(formState, location)
@@ -146,6 +173,25 @@ function openModal(location | null) {
     Object.assign(formState, { name: '', description: '', keyFeatures: '' })
   }
   isModalOpen.value = true
+}
+
+async function handleGenerate() {
+  if (!aiPrompt.value) return toast.add({ title: 'Vui lòng nhập ý tưởng.', color: 'orange' })
+  isGenerating.value = true
+  try {
+    const result = await $fetch('/api/lorebook/generate', {
+      method: 'POST',
+      body: { storyId: props.storyId, loreType: 'location', prompt: aiPrompt.value }
+    })
+    formState.name = result.name
+    formState.description = result.description
+    formState.keyFeatures = result.keyFeatures
+    toast.add({ title: 'AI đã tạo gợi ý thành công!', icon: 'i-heroicons-sparkles' })
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } finally {
+    isGenerating.value = false
+  }
 }
 
 async function saveLocation() {

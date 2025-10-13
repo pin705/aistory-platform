@@ -19,6 +19,11 @@
     </template>
 
     <UTable
+      ref="table"
+      v-model:pagination="pagination"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel()
+      }"
       :data="characters"
       :columns="columns"
     />
@@ -28,6 +33,15 @@
       class="text-center p-4"
     >
       Đang tải...
+    </div>
+
+    <div class="flex justify-center border-t border-default pt-4">
+      <UPagination
+        :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
+      />
     </div>
   </UCard>
 
@@ -44,6 +58,7 @@ import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import type { Row } from '@tanstack/vue-table'
 import { watchDebounced } from '@vueuse/core'
+import { getPaginationRowModel } from '@tanstack/vue-table'
 
 const props = defineProps<{
   storyId: string
@@ -51,6 +66,12 @@ const props = defineProps<{
 
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
+const table = useTemplateRef('table')
+
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 5
+})
 
 const toast = useToast()
 const storyId = props.storyId
