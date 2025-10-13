@@ -4,21 +4,16 @@
       icon="i-heroicons-light-bulb"
       color="primary"
       variant="subtle"
-      title="Tại sao cần API Key?"
+      title="Tại sao cần API Key & Model?"
       class="mb-8"
     >
       <template #description>
-        <p>
-          Để sử dụng các tính năng AI thông minh như "AI Phác thảo" hay "Trợ lý Sáng tác", nền tảng cần kết nối đến các dịch vụ AI như Gemini của Google.
-          <br>
-          Bằng cách sử dụng API Key của riêng bạn, bạn có toàn quyền kiểm soát và chi trả cho việc sử dụng AI của mình.
-          <br>
-          <a
-            href="https://aistudio.google.com/app/api-keys"
-            target="_blank"
-            class="underline font-semibold"
-          >Nhấn vào đây để lấy API Key miễn phí từ Google AI Studio.</a>
-        </p>
+        <p>Sử dụng API Key của riêng bạn để kiểm soát chi phí. Chọn Model AI phù hợp với nhu cầu của bạn: các model 'flash' nhanh hơn và rẻ hơn cho các tác vụ đơn giản, trong khi các model 'pro' mạnh mẽ hơn cho việc sáng tác phức tạp.</p>
+        <a
+          href="https://aistudio.google.com/app/api-keys"
+          target="_blank"
+          class="underline font-semibold"
+        >Nhấn vào đây để lấy API Key miễn phí từ Google AI Studio.</a>
       </template>
     </UAlert>
 
@@ -47,7 +42,6 @@
           Thêm API Key mới
         </h2>
       </template>
-
       <template #body>
         <UForm
           :state="addState"
@@ -62,7 +56,7 @@
             <USelectMenu
               v-model="addState.provider"
               class="w-full"
-              :items="['gemini', 'openai', 'groq']"
+              :items="['gemini']"
             />
           </UFormField>
           <UFormField
@@ -75,6 +69,17 @@
               class="w-full"
               type="password"
               placeholder="dán key của bạn vào đây"
+            />
+          </UFormField>
+          <UFormField
+            label="Model AI mặc định"
+            name="apiModel"
+            class="mb-4"
+          >
+            <USelectMenu
+              v-model="addState.apiModel"
+              class="w-full"
+              :items="geminiModels"
             />
           </UFormField>
           <UButton
@@ -93,7 +98,6 @@
           Chỉnh sửa API Key
         </h2>
       </template>
-
       <template #body>
         <UForm
           v-if="selectedKey"
@@ -116,12 +120,24 @@
             label="API Key mới"
             name="apiKey"
             class="mb-4"
+            description="Bỏ trống nếu không muốn thay đổi."
           >
             <UInput
               v-model="editState.apiKey"
               type="password"
               class="w-full"
               placeholder="Nhập key mới để thay thế"
+            />
+          </UFormField>
+          <UFormField
+            label="Model AI mặc định"
+            name="apiModel"
+            class="mb-4"
+          >
+            <USelectMenu
+              v-model="editState.apiModel"
+              class="w-full"
+              :items="geminiModels"
             />
           </UFormField>
           <UButton
@@ -157,7 +173,10 @@ type ApiKeyRow = {
   _id: string
   provider: string
   encryptedKey: string
+  apiModel: string
 }
+
+const geminiModels = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite']
 
 const { data: apiKeys, refresh } = await useFetch<ApiKeyRow[]>('/api/keys', {
   default: () => []
@@ -177,6 +196,7 @@ const columns: TableColumn<ApiKeyRow>[] = [
       )
     }
   },
+  { accessorKey: 'apiModel', header: 'Model Mặc định' },
   {
     id: 'actions',
     header: () => h('div', { class: 'text-right' }, 'Hành động'),
@@ -202,6 +222,7 @@ function openEditModal(key: ApiKeyRow) {
   selectedKey.value = key
   editState.provider = key.provider
   editState.apiKey = ''
+  editState.apiModel = key.apiModel || geminiModels[0]
   isEditModalOpen.value = true
 }
 
@@ -225,10 +246,19 @@ function getActionItems(row: Row<ApiKeyRow>) {
 // --- Form Thêm Mới ---
 const addSchema = z.object({
   provider: z.string(),
-  apiKey: z.string().min(10, 'API Key không hợp lệ')
+  apiKey: z.string().min(10, 'API Key không hợp lệ'),
+  apiModel: z.string().optional()
 })
+
+// --- Form Chỉnh Sửa ---
+const editSchema = z.object({
+  provider: z.string(),
+  apiKey: z.string().min(10, 'API Key mới không hợp lệ'),
+  apiModel: z.string().optional()
+})
+
 type AddSchema = z.output<typeof addSchema>
-const addState = reactive({ provider: 'gemini', apiKey: '' })
+const addState = reactive({ provider: 'gemini', apiKey: '', apiModel: geminiModels[0] })
 
 async function submitAddKey(event: FormSubmitEvent<AddSchema>) {
   isLoading.value = true
@@ -249,13 +279,8 @@ async function submitAddKey(event: FormSubmitEvent<AddSchema>) {
   }
 }
 
-// --- Form Chỉnh Sửa ---
-const editSchema = z.object({
-  provider: z.string(),
-  apiKey: z.string().min(10, 'API Key mới không hợp lệ')
-})
 type EditSchema = z.output<typeof editSchema>
-const editState = reactive({ provider: '', apiKey: '' })
+const editState = reactive({ provider: '', apiKey: '', apiModel: geminiModels[0] })
 
 async function submitEditKey(event: FormSubmitEvent<EditSchema>) {
   if (!selectedKey.value) return
@@ -263,7 +288,7 @@ async function submitEditKey(event: FormSubmitEvent<EditSchema>) {
   try {
     await $fetch(`/api/keys/${selectedKey.value._id}`, {
       method: 'PUT',
-      body: { apiKey: event.data.apiKey }
+      body: { apiKey: event.data.apiKey, apiModel: event.data.apiModel }
     })
     toast.add({ title: 'Cập nhật key thành công!', color: 'success' })
     isEditModalOpen.value = false

@@ -15,83 +15,160 @@
           </UButton>
         </div>
       </template>
-      <UTable
-        :data="factions"
-        :columns="columns"
-      />
+
+      <div
+        v-if="factions && factions.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <UCard
+          v-for="faction in factions"
+          :key="faction._id"
+          class="group relative hover:ring-2 hover:ring-primary-500 transition-all"
+        >
+          <template #header>
+            <h4 class="font-bold text-base truncate">
+              {{ faction.name }}
+            </h4>
+          </template>
+
+          <p class="text-sm font-semibold text-primary-500 dark:text-primary-400 mb-2">
+            {{ faction.ideology }}
+          </p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 h-[60px]">
+            {{ faction.description }}
+          </p>
+
+          <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <UTooltip text="Chỉnh sửa">
+              <UButton
+                icon="i-heroicons-pencil-square"
+                size="sm"
+                variant="soft"
+                @click="openModal(faction)"
+              />
+            </UTooltip>
+            <UTooltip text="Xoá">
+              <UButton
+                icon="i-heroicons-trash"
+                size="sm"
+                color="red"
+                variant="soft"
+                @click="deleteFaction(faction._id)"
+              />
+            </UTooltip>
+          </div>
+        </UCard>
+      </div>
+      <div
+        v-else
+        class="text-center py-10 border-2 border-dashed rounded-lg"
+      >
+        <p class="text-gray-500">
+          Chưa có thế lực nào.
+        </p>
+        <UButton
+          class="mt-4"
+          @click="openModal(null)"
+        >
+          Tạo thế lực đầu tiên
+        </UButton>
+      </div>
     </UCard>
 
-    <UModal v-model:open="isModalOpen">
+    <UModal
+      v-model:open="isModalOpen"
+      :ui="{ width: 'sm:max-w-3xl' }"
+    >
       <template #header>
         <h2 class="text-xl font-bold">
           {{ isEditing ? 'Sửa' : 'Thêm' }} Thế lực
         </h2>
       </template>
       <template #body>
-        <div
-          v-if="!isEditing"
-          class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-6 border dark:border-gray-700"
-        >
-          <h3 class="font-semibold mb-2 flex items-center gap-2">
-            <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
-          </h3>
-          <UFormGroup
-            label="Nhập ý tưởng của bạn"
-            name="ai_prompt"
-          >
-            <UTextarea
-              v-model="aiPrompt"
-              :rows="3"
-              placeholder="Ví dụ: Một môn phái tà đạo chuyên luyện thi thể, mục tiêu là trường sinh bất tử."
-            />
-          </UFormGroup>
-          <UButton
-            variant="soft"
-            :loading="isGenerating"
-            class="mt-2"
-            @click="handleGenerate"
-          >
-            Gợi ý
-          </UButton>
-        </div>
-
         <UForm
           :state="formState"
           @submit="saveFaction"
         >
-          <UFormField
-            label="Tên Thế lực"
-            name="name"
-            class="mb-4"
-          >
-            <UInput v-model="formState.name" />
-          </UFormField>
-          <UFormField
-            label="Tôn chỉ"
-            name="ideology"
-            class="mb-4"
-          >
-            <UInput v-model="formState.ideology" />
-          </UFormField>
-          <UFormField
-            label="Mô tả"
-            name="description"
-            class="mb-4"
-          >
-            <UTextarea v-model="formState.description" />
-          </UFormField>
-          <div class="flex justify-end gap-2">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 space-y-6">
+              <div
+                v-if="!isEditing"
+                class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md border dark:border-gray-700"
+              >
+                <h3 class="font-semibold mb-2 flex items-center gap-2">
+                  <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
+                </h3>
+                <UFieldGroup
+                  label="Nhập ý tưởng của bạn"
+                  name="ai_prompt"
+                >
+                  <UTextarea
+                    v-model="aiPrompt"
+                    :rows="3"
+                    placeholder="Ví dụ: Một môn phái tà đạo chuyên luyện thi thể..."
+                      class="w-full"
+                  />
+                </UFieldGroup>
+                <UButton
+                  variant="soft"
+                  :loading="isGenerating"
+                  class="mt-2"
+                  @click="handleGenerate"
+                >
+                  Gợi ý
+                </UButton>
+              </div>
+
+              <UFormField
+                label="Tên Thế lực"
+                name="name"
+                required
+              >
+                <UInput
+                  v-model="formState.name"
+                  icon="i-heroicons-user-group"
+                    class="w-full"
+                />
+              </UFormField>
+            </div>
+
+            <div class="md:col-span-2 space-y-4">
+              <UFormField
+                label="Tôn chỉ"
+                name="ideology"
+                description="Lý tưởng, mục đích hoạt động chính của thế lực."
+                  class="w-full"
+              >
+                <UInput v-model="formState.ideology" />
+              </UFormField>
+              <UFormField
+                label="Mô tả"
+                name="description"
+                description="Mô tả chi tiết về quy mô, địa bàn, phong cách, thành viên..."
+                  class="w-full"
+              >
+                <UTextarea
+                  v-model="formState.description"
+                  :rows="8"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8 border-t border-gray-200 dark:border-gray-800 pt-4">
             <UButton
               variant="ghost"
-              color="gray"
               @click="isModalOpen = false"
             >
               Hủy
-            </UButton><UButton
+            </UButton>
+            <UButton
               type="submit"
               :loading="isLoading"
+              color="neutral"
             >
-              Lưu
+              {{ isEditing ? 'Lưu thay đổi' : 'Thêm Thế lực' }}
             </UButton>
           </div>
         </UForm>
@@ -101,6 +178,7 @@
 </template>
 
 <script setup lang="ts">
+// Toàn bộ phần script của bạn đã chính xác và được giữ nguyên
 const props = defineProps<{ storyId: string }>()
 const toast = useToast()
 
@@ -113,13 +191,10 @@ const aiPrompt = ref('')
 const isGenerating = ref(false)
 
 const formState = reactive({ name: '', ideology: '', description: '' })
-const columns = [
-  { accessorKey: 'name', header: 'Tên' }, { accessorKey: 'ideology', header: 'Tôn chỉ' },
-  { id: 'actions', cell: ({ row }) => h('div', { class: 'text-right' }, [h(resolveComponent('UButton'), { icon: 'i-heroicons-pencil-square', variant: 'ghost', onClick: () => openModal(row) }), h(resolveComponent('UButton'), { icon: 'i-heroicons-trash', variant: 'ghost', color: 'red', onClick: () => deleteFaction(row._id) })]) }
-]
 
-function openModal(faction) {
+function openModal(faction: any) {
   selectedFaction.value = faction
+  aiPrompt.value = ''
   if (faction) Object.assign(formState, faction)
   else Object.assign(formState, { name: '', ideology: '', description: '' })
   isModalOpen.value = true
@@ -133,13 +208,12 @@ async function handleGenerate() {
       method: 'POST',
       body: { storyId: props.storyId, loreType: 'faction', prompt: aiPrompt.value }
     })
-    // Tự động điền kết quả vào form
     formState.name = result.name
     formState.ideology = result.ideology
     formState.description = result.description
     toast.add({ title: 'AI đã tạo gợi ý thành công!', icon: 'i-heroicons-sparkles' })
-  } catch (e) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
   } finally {
     isGenerating.value = false
   }
@@ -153,8 +227,8 @@ async function saveFaction() {
     await $fetch(url, { method, body: formState })
     toast.add({ title: 'Lưu thành công!' })
     isModalOpen.value = false; await refresh()
-  } catch (e) {
-    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
   } finally { isLoading.value = false }
 }
 
@@ -163,6 +237,6 @@ async function deleteFaction(id: string) {
   try {
     await $fetch(`/api/factions/${id}`, { method: 'DELETE' })
     toast.add({ title: 'Xóa thành công!' }); await refresh()
-  } catch (e) { toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' }) }
+  } catch (e: any) { toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' }) }
 }
 </script>

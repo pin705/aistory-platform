@@ -1,23 +1,69 @@
 <template>
-  <div
-    v-if="chapterData"
-    class="bg-gray-50 dark:bg-gray-900/50 min-h-screen"
-  >
-    <header class="sticky top-0 z-20 bg-background/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
-      <UContainer class="flex items-center justify-between h-16">
-        <div class="flex items-center gap-4">
-          <!-- <UButton
-            icon="i-heroicons-queue-list"
-            variant="ghost"
-            @click="isNavOpen = true"
-          /> -->
-          <div class="flex flex-col">
-            <NuxtLink
-              :to="`/author/stories/${storyId}`"
-              class="text-xs text-gray-500 hover:underline"
-            >
-              {{ chapterData?.title }}
-            </NuxtLink>
+  <div class="flex h-screen bg-gray-100 dark:bg-[#18181b]/50">
+    <div
+      class="flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-[#18181b] transition-all duration-300 overflow-hidden"
+      :class="isLeftSidebarOpen ? 'w-80' : 'w-0'"
+    >
+      <div
+        v-if="isLeftSidebarOpen"
+        class="flex flex-col h-full"
+      >
+        <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+          <h2 class="font-bold text-lg">
+            Cấu trúc truyện
+          </h2>
+        </div>
+        <div class="flex-1 overflow-y-auto p-2">
+          <UAccordion
+            :items="sidebarNav"
+            multiple
+            default-value="0"
+          >
+            <template #chapters>
+              <div class="p-2 space-y-1">
+                <NuxtLink
+                  v-for="chap in storyChapters"
+                  :key="chap._id"
+                  :to="`/author/stories/${storyId}/chapters/${chap._id}`"
+                  class="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  active-class="bg-gray-100 dark:bg-[#18181b] font-semibold"
+                >
+                  Ch.{{ chap.chapterNumber }}: {{ chap.title }}
+                </NuxtLink>
+              </div>
+            </template>
+            <template #lorebook>
+              <StoryCharacterManager :story-id="storyId" />
+            </template>
+          </UAccordion>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <header class="flex-shrink-0 z-20 bg-background/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+        <div class="flex items-center justify-between h-16 px-4">
+          <div class="flex items-center gap-2">
+            <UTooltip text="Về trang Tác phẩm">
+              <UButton
+                to="/dashboard"
+                icon="i-heroicons-arrow-left-circle-20-solid"
+                variant="ghost"
+              />
+            </UTooltip>
+
+            <USeparator
+              orientation="vertical"
+              class="h-6"
+            />
+
+            <UTooltip text="Điều hướng & Lorebook">
+              <UButton
+                icon="i-heroicons-bars-3"
+                variant="ghost"
+                @click="isLeftSidebarOpen = !isLeftSidebarOpen"
+              />
+            </UTooltip>
             <UInput
               v-model="chapterTitle"
               placeholder="Nhập tiêu đề chương"
@@ -26,34 +72,52 @@
               class="font-bold text-lg p-0"
             />
           </div>
-        </div>
 
-        <div class="flex items-center gap-4">
-          <div
-            class="text-sm text-gray-500 transition-opacity duration-300 flex items-center gap-1"
-            :class="autoSaveStatus === 'idle' ? 'opacity-0' : 'opacity-100'"
-          >
-            <span v-if="autoSaveStatus === 'saving'">Đang lưu...</span>
-            <span v-if="autoSaveStatus === 'saved'">Đã lưu ✓</span>
+          <div class="flex items-center gap-2 sm:gap-4">
+            <div class="text-sm text-gray-500 hidden sm:block">
+              {{ autoSaveStatusText }}
+            </div>
+            <UButton
+              :loading="isSaving && autoSaveStatus !== 'saving'"
+              icon="i-heroicons-check"
+              @click="saveChapter(false)"
+            >
+              Lưu
+            </UButton>
+            <UTooltip :text="isRightSidebarOpen ? 'Ẩn Trợ lý AI' : 'Hiện Trợ lý AI'">
+              <UButton
+                :icon="isRightSidebarOpen ? 'i-heroicons-sparkles-solid' : 'i-heroicons-sparkles'"
+                variant="ghost"
+                @click="isRightSidebarOpen = !isRightSidebarOpen"
+              />
+            </UTooltip>
+            <USeparator
+              orientation="vertical"
+              class="h-6"
+            />
+            <UTooltip :text="isFocusMode ? 'Thoát Chế độ Tập trung' : 'Chế độ Tập trung'">
+              <UButton
+                :icon="isFocusMode ? 'i-heroicons-arrows-pointing-in' : 'i-heroicons-arrows-pointing-out'"
+                variant="ghost"
+                @click="toggleFocusMode"
+              />
+            </UTooltip>
+            <UTooltip :text="isFullscreen ? 'Thoát Toàn màn hình' : 'Toàn màn hình'">
+              <UButton
+                :icon="isFullscreen ? 'i-heroicons-viewfinder-circle' : 'i-heroicons-arrows-pointing-out-20-solid'"
+                variant="ghost"
+                @click="toggleFullscreen"
+              />
+            </UTooltip>
           </div>
-          <UButton
-            :loading="isSaving && autoSaveStatus !== 'saving'"
-            icon="i-heroicons-check"
-            @click="saveChapter(false)"
-             color="neutral"
-          >
-            Lưu
-          </UButton>
         </div>
-      </UContainer>
-    </header>
+      </header>
 
-    <UContainer class="py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-gray-900 shadow-md rounded-lg">
+      <div class="flex-1 overflow-y-auto p-2 sm:p-6 lg:p-8">
+        <div class="bg-white dark:bg-[#18181b] shadow-lg rounded-lg max-w-4xl mx-auto">
           <div
             v-if="editor"
-            class="flex items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-800 sticky top-16 bg-white dark:bg-gray-900 z-10 rounded-t-lg"
+            class="flex items-center flex-wrap gap-1 p-2 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-[#18181b] z-10 rounded-t-lg"
           >
             <UButton
               size="sm"
@@ -95,100 +159,85 @@
               H3
             </UButton>
           </div>
-
           <TiptapBubbleMenu
             v-if="editor"
             :editor="editor"
             :tippy-options="{ duration: 100 }"
-            class="p-1 rounded-md shadow-lg flex gap-1"
+            class="bg-primary p-1 rounded-md shadow-lg flex gap-1"
           >
             <UButton
               size="xs"
-              color="neutral"
-              variant="soft"
+              color="white"
+              variant="ghost"
               @click="rewriteSelection('improve')"
             >
               Cải thiện
             </UButton>
             <UButton
               size="xs"
-              color="neutral"
-              variant="soft"
+              color="white"
+              variant="ghost"
               @click="rewriteSelection('shorter')"
             >
               Rút gọn
             </UButton>
             <UButton
               size="xs"
-              color="neutral"
-              variant="soft"
+              color="white"
+              variant="ghost"
               @click="rewriteSelection('longer')"
             >
               Mở rộng
             </UButton>
           </TiptapBubbleMenu>
-
           <TiptapEditorContent :editor="editor" />
-
-          <div class="flex justify-between items-center text-xs text-gray-400 dark:text-gray-500 p-2 border-t border-gray-200 dark:border-gray-800">
+          <div class="flex justify-end items-center text-xs text-gray-400 p-2 border-t border-gray-200 dark:border-gray-800">
             <div
               v-if="editor"
               class="select-none"
             >
-              {{ editor.storage.characterCount.words() }} từ / {{ editor.storage.characterCount.characters() }} ký tự
+              {{ editor.storage.characterCount.words() }} từ
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="lg:col-span-1">
-        <div class="sticky top-20">
-          <UCard>
-            <template #header>
-              <h3 class="font-semibold flex items-center gap-2">
-                <Icon
-                  name="i-heroicons-sparkles"
-                  class="text-primary"
-                /> Trợ lý Sáng tác
-              </h3>
-            </template>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-              Nhập yêu cầu để AI viết tiếp:
-            </p>
-            <UTextarea
-              v-model="userPrompt"
-              :rows="8"
-              :placeholder="promptPlaceholder"
-              class="w-full"
-            />
-            <UButton
-              :loading="isGenerating"
-              class="mt-4 w-full"
-              icon="i-heroicons-pencil-square"
-              @click="generateNextScene"
-               color="neutral"
-            >
-              Tạo nội dung
-            </UButton>
-          </UCard>
+    <div
+      class="flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-[#18181b] transition-all duration-300 overflow-hidden"
+      :class="isRightSidebarOpen ? 'w-96' : 'w-0'"
+    >
+      <div
+        v-if="isRightSidebarOpen"
+        class="flex flex-col h-full"
+      >
+        <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+          <h3 class="font-semibold flex items-center gap-2">
+            <Icon
+              name="i-heroicons-sparkles-20-solid"
+              class="text-primary"
+            /> Trợ lý Sáng tác
+          </h3>
+        </div>
+        <div class="flex-1 p-4 space-y-4 overflow-y-auto">
+          <p class="text-sm text-gray-500">
+            Nhập yêu cầu để AI viết tiếp, hoặc bôi đen văn bản trong trình soạn thảo để chỉnh sửa.
+          </p>
+          <UTextarea
+            v-model="userPrompt"
+            :rows="8"
+            :placeholder="promptPlaceholder"
+          />
+          <UButton
+            :loading="isGenerating"
+            class="w-full"
+            icon="i-heroicons-pencil-square"
+            @click="generateNextScene"
+          >
+            Tạo nội dung
+          </UButton>
         </div>
       </div>
-    </UContainer>
-  </div>
-  <div
-    v-else
-    class="flex items-center justify-center h-screen"
-  >
-    <div class="text-center">
-      <div
-        class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-primary"
-        role="status"
-      >
-        <!-- <span class="visually-hidden">Loading...</span> -->
-      </div>
-      <p class="mt-2 text-gray-500">
-        Đang tải chương...
-      </p>
     </div>
   </div>
 </template>
@@ -196,87 +245,84 @@
 <script setup lang="ts">
 import { useEditor, EditorContent as TiptapEditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import CharacterCount from '@tiptap/extension-character-count' // (MỚI) Import Word Count
-import { watchDebounced } from '@vueuse/core' // (MỚI) Import cho Auto-Save
+import CharacterCount from '@tiptap/extension-character-count'
+import { watchDebounced, useFullscreen } from '@vueuse/core'
 import { BubbleMenu as TiptapBubbleMenu } from '@tiptap/vue-3/menus'
+
+definePageMeta({ layout: 'full-width' }) // Sử dụng layout không có padding
 
 const route = useRoute()
 const toast = useToast()
 const storyId = route.params.id as string
 const chapterId = route.params.chapterId as string
-const isNavOpen = ref(false)
 
-const tabs = [
-  { slot: 'write', label: 'Viết Tiếp', description: 'Nhập yêu cầu để AI viết tiếp:' },
-  { slot: 'lorebook', label: 'Lorebook' }
+// ----- STATE GIAO DIỆN -----
+const isLeftSidebarOpen = ref(true)
+const isRightSidebarOpen = ref(true)
+const isFocusMode = ref(false)
+const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
+
+function toggleFocusMode() {
+  isFocusMode.value = !isFocusMode.value
+  if (isFocusMode.value) {
+    isLeftSidebarOpen.value = false
+    isRightSidebarOpen.value = false
+  }
+}
+watch(isLeftSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
+watch(isRightSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
+
+// ----- LẤY DỮ LIỆU -----
+const { data: storyChapters } = await useFetch(`/api/stories/${storyId}/chapters-list`, { default: () => [] })
+const { data: chapterData, pending: isLoadingChapter } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
+
+// Cấu trúc cho Sidebar Trái
+const sidebarNav = [
+  { label: 'Danh sách chương', slot: 'chapters' },
+  { label: 'Lorebook', slot: 'lorebook' }
 ]
 
-// Các state quản lý trạng thái
+// ----- LOGIC EDITOR -----
 const isSaving = ref(false)
 const isGenerating = ref(false)
-const autoSaveStatus = ref<'idle' | 'saving' | 'saved'>('idle') // (MỚI) State cho Auto-Save
+const autoSaveStatus = ref<'idle' | 'saving' | 'saved'>('idle')
 const userPrompt = ref('')
 const chapterTitle = ref('')
-
-// Lấy dữ liệu chương
-const { data: chapterData } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
-
 const promptPlaceholder = `Ví dụ: "Viết cảnh Lục Thiếu Du đột phá, mô tả sự đau đớn và năng lượng kinh khủng bộc phát."`
 
-// Khởi tạo TipTap Editor với các extension mới
-const editor = useEditor({
-  content: '',
-  extensions: [
-    StarterKit,
-    CharacterCount // (MỚI) Kích hoạt Word Count
-  ],
-  editorProps: { attributes: { class: 'prose dark:prose-invert max-w-none p-4 focus:outline-none min-h-[60vh]' } }
+const autoSaveStatusText = computed(() => {
+  if (autoSaveStatus.value === 'saving') return 'Đang lưu...'
+  if (autoSaveStatus.value === 'saved') return 'Đã lưu ✓'
+  return ''
 })
 
-async function rewriteSelection(mode: 'improve' | 'shorter' | 'longer') {
-  if (!editor.value) return
-  const { from, to } = editor.value.state.selection
-  const selectedText = editor.value.state.doc.textBetween(from, to)
+const editor = useEditor({
+  content: '',
+  extensions: [StarterKit, CharacterCount],
+  editorProps: { attributes: { class: 'prose dark:prose-invert max-w-none p-4 focus:outline-none min-h-[70vh]' } }
+})
 
-  if (!selectedText) {
-    toast.add({ title: 'Vui lòng bôi đen đoạn văn bản cần xử lý', color: 'warning' })
-    return
-  }
-
-  // TODO: Gọi một API mới, ví dụ `/api/chapters/rewrite-text`
-  // Gửi đi `selectedText` và `mode`
-  // Nhận kết quả và thay thế đoạn văn bản đã chọn
-  toast.add({ title: `Đã gửi yêu cầu "${mode}" cho AI...` })
-  // Ví dụ: editor.value.chain().focus().deleteSelection().insertContent(result.rewrittenText).run()
-}
-
-// `watch` dữ liệu từ `useFetch` để cập nhật editor và title
 watch(chapterData, (newData) => {
   if (newData) {
     chapterTitle.value = newData.title
     if (editor.value && !editor.value.isFocused) {
-      editor.value?.commands.setContent(newData.content, false) // `false` để không emit update
+      editor.value?.commands.setContent(newData.content, false)
     }
   }
 }, { immediate: true })
 
-// (MỚI) Logic Tự động lưu
-watchDebounced(
-  () => [chapterTitle.value, editor.value?.getHTML()],
+watchDebounced(() => [chapterTitle.value, editor.value?.getHTML()],
   async ([newTitle, newContent], [oldTitle, oldContent]) => {
-    // Chỉ tự động lưu khi có thay đổi thực sự và không phải lần load đầu tiên
     const hasChanged = newTitle !== oldTitle || newContent !== oldContent
-    if (editor.value && hasChanged && chapterId !== 'new') {
+    if (editor.value && hasChanged && chapterId !== 'new' && !isSaving.value) {
       autoSaveStatus.value = 'saving'
-      await saveChapter(true) // Gọi hàm save ở chế độ im lặng
+      await saveChapter(true)
       autoSaveStatus.value = 'saved'
-      setTimeout(() => autoSaveStatus.value = 'idle', 2000) // Ẩn thông báo sau 2s
+      setTimeout(() => autoSaveStatus.value = 'idle', 2000)
     }
-  },
-  { debounce: 2500, deep: true } // Kích hoạt sau 2.5s không có thay đổi
+  }, { debounce: 2500, deep: true }
 )
 
-// (CẬP NHẬT) Hàm lưu chương để hỗ trợ chế độ "im lặng"
 async function saveChapter(isSilent = false) {
   isSaving.value = true
   try {
@@ -369,17 +415,20 @@ async function generateNextScene() {
     isGenerating.value = false
   }
 }
+
+async function rewriteSelection(mode: string) {
+  // TODO: Gọi API rewrite
+  toast.add({ title: `Đã gửi yêu cầu "${mode}" cho AI...` })
+}
 </script>
 
 <style>
 .tiptap p.is-editor-empty:first-child::before {
-  content: 'Bắt đầu viết chương của bạn ở đây...';
+  content: 'Bắt đầu viết...';
   float: left;
   color: #adb5bd;
   pointer-events: none;
   height: 0;
 }
-.tiptap:focus {
-  outline: none;
-}
+.tiptap:focus { outline: none; }
 </style>

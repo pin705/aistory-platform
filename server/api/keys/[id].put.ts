@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const keyId = event.context.params?.id
 
   // Lấy API key mới từ body của request
-  const { apiKey: newApiKey } = await readBody(event)
+  const { apiKey: newApiKey, apiModel: newApiModel } = await readBody(event)
 
   if (!newApiKey) {
     throw createError({ statusCode: 400, statusMessage: 'Thiếu API key mới' })
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   // để đảm bảo người dùng chỉ có thể sửa key của chính họ.
   const updatedKey = await ApiKey.findOneAndUpdate(
     { _id: keyId, userId: session.user.id },
-    { $set: { encryptedKey: newApiKey } }, // << TẠM THỜI: thay bằng encryptedKey
+    { $set: { encryptedKey: newApiKey, apiModel: newApiModel } }, // << TẠM THỜI: thay bằng encryptedKey
     { new: true } // Trả về document đã được cập nhật
   )
 

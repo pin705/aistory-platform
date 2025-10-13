@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
     `
 
     const result = await genAI.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
       contents: [metaPrompt]
     })
 

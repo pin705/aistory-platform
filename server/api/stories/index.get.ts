@@ -12,11 +12,11 @@ export default defineEventHandler(async (event) => {
       .sort({ updatedAt: -1 })
       .limit(12)
       .select('title coverImage description')
-  ]);
+  ])
 
   // Trả về một object chứa cả hai danh sách
   return {
     hotStories,
-    newStories,
+    newStories
   }
 })

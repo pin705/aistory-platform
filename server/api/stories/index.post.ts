@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     author: session.user.id, // Gán tác giả là người dùng đang đăng nhập
     status: 'draft', // Mặc định là bản nháp
     prompt,
-    coverImage: coverImage || '', // Mặc định chưa có ảnh bìa
+    coverImage: coverImage || '' // Mặc định chưa có ảnh bìa
   })
 
   // Trả về truyện vừa tạo để frontend có thể lấy ID và chuyển hướng

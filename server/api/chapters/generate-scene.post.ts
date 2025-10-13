@@ -13,9 +13,9 @@ export default defineEventHandler(async (event) => {
     prompt: userPrompt,
     context: {
       storyId,
-      currentContent,
+      currentContent
     },
-    status: 'pending',
+    status: 'pending'
   })
 
   // 2. Kích hoạt tác vụ nền (fire-and-forget) để không làm client phải chờ

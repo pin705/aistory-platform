@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   const session = await getUserSession(event)
   if (!session) throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
 
-  const { provider, apiKey } = await readBody(event)
+  const { provider, apiKey, apiModel } = await readBody(event)
   if (!provider || !apiKey) throw createError({ statusCode: 400, statusMessage: 'Thiếu thông tin' })
 
   // (QUAN TRỌNG) Mã hóa API key trước khi lưu
@@ -22,7 +22,8 @@ export default defineEventHandler(async (event) => {
     await ApiKey.create({
       userId: session.user.id,
       provider,
-      encryptedKey: encryptedKey
+      encryptedKey: encryptedKey,
+      apiModel: apiModel || ''
     })
   }
 

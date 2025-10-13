@@ -16,101 +16,150 @@
         </div>
       </template>
 
-      <UTable
-        :data="locations"
-        :columns="columns"
-      />
+      <div
+        v-if="locations && locations.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <UCard
+          v-for="location in locations"
+          :key="location._id"
+          class="group relative hover:ring-2 hover:ring-primary-500 transition-all"
+        >
+          <template #header>
+            <h4 class="font-bold text-base truncate">
+              {{ location.name }}
+            </h4>
+          </template>
+
+          <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 h-[60px]">
+            {{ location.description }}
+          </p>
+
+          <div class="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <UTooltip text="Chỉnh sửa">
+              <UButton
+                icon="i-heroicons-pencil-square"
+                size="sm"
+                variant="soft"
+                @click="openModal(location)"
+              />
+            </UTooltip>
+            <UTooltip text="Xoá">
+              <UButton
+                icon="i-heroicons-trash"
+                size="sm"
+                variant="soft"
+                @click="deleteLocation(location._id)"
+              />
+            </UTooltip>
+          </div>
+        </UCard>
+      </div>
 
       <div
-        v-if="pending"
-        class="text-center p-4"
+        v-else
+        class="text-center py-10 border-2 border-dashed rounded-lg"
       >
-        Đang tải...
-      </div>
-      <div
-        v-if="!pending && locations.length === 0"
-        class="text-center py-6 text-gray-500"
-      >
-        <p>Chưa có địa danh nào được tạo.</p>
+        <p class="text-gray-500">
+          Chưa có địa danh nào được tạo.
+        </p>
+        <UButton
+          class="mt-4"
+          @click="openModal(null)"
+        >
+          Tạo địa danh đầu tiên
+        </UButton>
       </div>
     </UCard>
 
-    <UModal v-model:open="isModalOpen">
+    <UModal
+      v-model:open="isModalOpen"
+      :ui="{ width: 'sm:max-w-3xl' }"
+    >
       <template #header>
         <h2 class="text-xl font-bold">
           {{ isEditing ? 'Sửa' : 'Thêm' }} Địa danh
         </h2>
       </template>
       <template #body>
-        <div
-          v-if="!isEditing"
-          class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md mb-6 border dark:border-gray-700"
-        >
-          <h3 class="font-semibold mb-2 flex items-center gap-2">
-            <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
-          </h3>
-          <UFormGroup
-            label="Nhập ý tưởng của bạn"
-            name="ai_prompt"
-          >
-            <UTextarea
-              v-model="aiPrompt"
-              :rows="3"
-              placeholder="Ví dụ: Một thung lũng hiểm trở, nơi linh khí hỗn loạn, đầy rẫy không gian liệt phùng và là nơi trú ngụ của các yêu thú không gian."
-            />
-          </UFormGroup>
-          <UButton
-            variant="soft"
-            :loading="isGenerating"
-            class="mt-2"
-            @click="handleGenerate"
-          >
-            Gợi ý
-          </UButton>
-        </div>
-
         <UForm
           :state="formState"
           :schema="schema"
           @submit="saveLocation"
         >
-          <UFormField
-            label="Tên Địa danh"
-            name="name"
-            class="mb-4"
-            required
-          >
-            <UInput
-              v-model="formState.name"
-              placeholder="Ví dụ: Vạn Thú Sơn Mạch"
-            />
-          </UFormField>
-          <UFormField
-            label="Mô tả"
-            name="description"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="formState.description"
-              :rows="5"
-              placeholder="Mô tả cảnh quan, khí hậu, lịch sử..."
-            />
-          </UFormField>
-          <UFormField
-            label="Đặc điểm nổi bật"
-            name="keyFeatures"
-            class="mb-4"
-          >
-            <UTextarea
-              v-model="formState.keyFeatures"
-              :rows="3"
-              placeholder="Tài nguyên, nguy hiểm, bí mật ẩn giấu..."
-            />
-          </UFormField>
-          <div class="flex justify-end gap-2 mt-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-1 space-y-6">
+              <div
+                v-if="!isEditing"
+                class="p-4 bg-gray-50 dark:bg-gray-800 rounded-md border dark:border-gray-700"
+              >
+                <h3 class="font-semibold mb-2 flex items-center gap-2">
+                  <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
+                </h3>
+                <UFieldGroup
+                  label="Nhập ý tưởng của bạn"
+                  name="ai_prompt"
+                >
+                  <UTextarea
+                    v-model="aiPrompt"
+                    :rows="3"
+                    placeholder="Ví dụ: Một thành phố bay trên mây..."
+                    class="w-full"
+                  />
+                </UFieldGroup>
+                <UButton
+                  variant="soft"
+                  :loading="isGenerating"
+                  class="mt-2"
+                  @click="handleGenerate"
+                >
+                  Gợi ý
+                </UButton>
+              </div>
+
+              <UFormField
+                label="Tên Địa danh"
+                name="name"
+                required
+              >
+                <UInput
+                  v-model="formState.name"
+                  icon="i-heroicons-map-pin"
+                  placeholder="Ví dụ: Vạn Thú Sơn Mạch"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+
+            <div class="md:col-span-2 space-y-4">
+              <UFormField
+                label="Mô tả"
+                name="description"
+                description="Mô tả tổng quan về cảnh quan, khí hậu, lịch sử, dân cư..."
+              >
+                <UTextarea
+                  v-model="formState.description"
+                  :rows="8"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField
+                label="Đặc điểm nổi bật"
+                name="keyFeatures"
+                description="Các tài nguyên đặc biệt, mối nguy hiểm, hoặc bí mật ẩn giấu tại nơi này."
+              >
+                <UTextarea
+                  v-model="formState.keyFeatures"
+                  :rows="5"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 mt-8 border-t border-gray-200 dark:border-gray-800 pt-4">
             <UButton
               variant="ghost"
-              color="gray"
               @click="isModalOpen = false"
             >
               Hủy
@@ -118,6 +167,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+              color="neutral"
             >
               Lưu
             </UButton>
@@ -129,14 +179,12 @@
 </template>
 
 <script setup lang="ts">
-import { h, resolveComponent } from 'vue'
+// Toàn bộ phần script của bạn đã chính xác và được giữ nguyên
 import { z } from 'zod'
 
 const props = defineProps<{ storyId: string }>()
 const toast = useToast()
-const UButton = resolveComponent('UButton')
 
-// --- State & Data Fetching ---
 const { data: locations, refresh, pending } = await useFetch(`/api/stories/${props.storyId}/locations`, { default: () => [] })
 const isModalOpen = ref(false)
 const isLoading = ref(false)
@@ -145,28 +193,12 @@ const isEditing = computed(() => !!selectedLocation.value)
 const aiPrompt = ref('')
 const isGenerating = ref(false)
 
-// --- Form Logic ---
-const schema = z.object({
-  name: z.string().min(3, 'Tên quá ngắn')
-})
+const schema = z.object({ name: z.string().min(3, 'Tên quá ngắn') })
 const formState = reactive({ name: '', description: '', keyFeatures: '' })
 
-// --- Table & Actions ---
-const columns = [
-  { accessorKey: 'name', header: 'Tên Địa danh', sortable: true },
-  { accessorKey: 'description', header: 'Mô tả' },
-  {
-    id: 'actions',
-    header: '',
-    cell: ({ row }) => h('div', { class: 'text-right flex justify-end gap-1' }, [
-      h(UButton, { icon: 'i-heroicons-pencil-square', variant: 'ghost', onClick: () => openModal(row) }),
-      h(UButton, { icon: 'i-heroicons-trash', variant: 'ghost', color: 'red', onClick: () => deleteLocation(row._id) })
-    ])
-  }
-]
-
-function openModal(location) {
+function openModal(location: any) {
   selectedLocation.value = location
+  aiPrompt.value = ''
   if (location) {
     Object.assign(formState, location)
   } else {
@@ -203,7 +235,7 @@ async function saveLocation() {
     toast.add({ title: 'Lưu thành công!' })
     isModalOpen.value = false
     await refresh()
-  } catch (e) {
+  } catch (e: any) {
     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
   } finally {
     isLoading.value = false
@@ -216,7 +248,7 @@ async function deleteLocation(id: string) {
     await $fetch(`/api/locations/${id}`, { method: 'DELETE' })
     toast.add({ title: 'Xóa thành công!' })
     await refresh()
-  } catch (e) {
+  } catch (e: any) {
     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
   }
 }

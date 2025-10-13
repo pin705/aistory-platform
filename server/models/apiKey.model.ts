@@ -9,5 +9,6 @@ export const ApiKey = defineMongooseModel('ApiKey', {
   },
   encryptedKey: { type: String, required: true }, // API key đã được mã hóa
   isActive: { type: Boolean, default: true }, // Cho phép người dùng bật/tắt key
+  apiModel: { type: String, default: '' }, // Mô hình AI mặc định (nếu có)
   createdAt: { type: Date, default: Date.now },
 })

@@ -218,13 +218,9 @@ async function handleGenerateDetails() {
   }
   isGenerating.value = true
   try {
-    const result = await $fetch('/api/characters/generate-details', {
+    const result = await $fetch('/api/lorebook/generate', {
       method: 'POST',
-      body: {
-        storyId: props.storyId,
-        role: formState.role,
-        prompt: aiPrompt.value
-      }
+      body: { storyId: props.storyId, loreType: 'character', prompt: aiPrompt.value }
     })
 
     // Tự động điền kết quả vào form
@@ -233,7 +229,7 @@ async function handleGenerateDetails() {
     formState.backstory = result.backstory
     formState.abilities = result.abilities
     toast.add({ title: 'AI đã tạo gợi ý thành công!', icon: 'i-heroicons-sparkles' })
-  } catch (e: any) {
+  } catch (e) {
     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
   } finally {
     isGenerating.value = false

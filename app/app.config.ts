@@ -8,7 +8,7 @@ export default defineAppConfig({
     },
     modal: {
       slots: {
-        content: 'sm:max-w-3xl',
+        content: 'sm:max-w-xl md:max-w-2xl lg:max-w-3xl',
         footer: 'justify-end'
       }
     },

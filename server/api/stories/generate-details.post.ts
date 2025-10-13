@@ -11,24 +11,24 @@ export default defineEventHandler(async (event) => {
   }
 
   // Lấy và giải mã API key (giữ nguyên)
-  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' });
+  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' })
   if (!apiKeyRecord) {
-    throw createError({ statusCode: 400, statusMessage: 'Vui lòng thêm API Key của Gemini trong Cài đặt.' });
+    throw createError({ statusCode: 400, statusMessage: 'Vui lòng thêm API Key của Gemini trong Cài đặt.' })
   }
 
-  let decryptedKey: string;
+  let decryptedKey: string
   try {
-    const bytes = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!);
-    decryptedKey = bytes.toString(CryptoJS.enc.Utf8);
-    if (!decryptedKey) throw new Error("Decryption failed");
+    const bytes = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!)
+    decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
+    if (!decryptedKey) throw new Error('Decryption failed')
   } catch (error) {
-    throw createError({ statusCode: 500, statusMessage: 'Không thể giải mã API key.' });
+    throw createError({ statusCode: 500, statusMessage: 'Không thể giải mã API key.' })
   }
 
   // --- (NÂNG CẤP) GỌI GEMINI API BẰNG THƯ VIỆN MỚI ---
   try {
     // 1. Khởi tạo client với API key
-    const genAI = new GoogleGenAI({ apiKey: decryptedKey });
+    const genAI = new GoogleGenAI({ apiKey: decryptedKey })
 
     const metaPrompt = `
       Dựa trên bối cảnh truyện do người dùng cung cấp dưới đây, hãy tạo ra các thông tin sau:
@@ -40,39 +40,38 @@ export default defineEventHandler(async (event) => {
       Bối cảnh của người dùng: "${prompt}"
 
       QUAN TRỌNG: Chỉ trả về một đối tượng JSON hợp lệ, không chứa bất kỳ văn bản nào khác ngoài JSON (không có markdown \`\`\`json).
-    `;
+    `
 
     // 4. Gọi hàm `generateContent` với cấu trúc mới
     const result = await genAI.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: metaPrompt,
-    });
+      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
+      contents: metaPrompt
+    })
 
     const rawText = result.text ?? ''
-    const jsonMatch = rawText.match(/{[\s\S]*}/);
+    const jsonMatch = rawText.match(/{[\s\S]*}/)
     if (!jsonMatch) {
-      console.error("Không tìm thấy JSON hợp lệ trong phản hồi của AI:", rawText);
-      throw new Error("AI đã trả về dữ liệu không đúng định dạng.");
+      console.error('Không tìm thấy JSON hợp lệ trong phản hồi của AI:', rawText)
+      throw new Error('AI đã trả về dữ liệu không đúng định dạng.')
     }
 
-    const jsonString = jsonMatch[0];
+    const jsonString = jsonMatch[0]
 
     try {
-      return JSON.parse(jsonString);
+      return JSON.parse(jsonString)
     } catch (e) {
-      console.error("Lỗi parse JSON từ AI:", rawText);
-      throw new Error("AI đã trả về dữ liệu không hợp lệ.");
+      console.error('Lỗi parse JSON từ AI:', rawText)
+      throw new Error('AI đã trả về dữ liệu không hợp lệ.')
     }
-
   } catch (error: any) {
-    console.error('Lỗi Gemini API:', error);
+    console.error('Lỗi Gemini API:', error)
     if (error.message.includes('API key not valid')) {
-      throw createError({ statusCode: 400, statusMessage: 'API Key của Gemini không hợp lệ. Vui lòng kiểm tra lại.' });
+      throw createError({ statusCode: 400, statusMessage: 'API Key của Gemini không hợp lệ. Vui lòng kiểm tra lại.' })
     }
     // Lỗi 404 Not Found giờ đây rõ ràng hơn là do model không tồn tại hoặc sai tên
     if (error.message.includes('404')) {
-      throw createError({ statusCode: 404, statusMessage: 'Model Gemini không được tìm thấy. Vui lòng kiểm tra lại tên model.' });
+      throw createError({ statusCode: 404, statusMessage: 'Model Gemini không được tìm thấy. Vui lòng kiểm tra lại tên model.' })
     }
-    throw createError({ statusCode: 500, statusMessage: 'AI không thể tạo gợi ý lúc này. Vui lòng thử lại sau.' });
+    throw createError({ statusCode: 500, statusMessage: 'AI không thể tạo gợi ý lúc này. Vui lòng thử lại sau.' })
   }
 })
