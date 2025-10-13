@@ -5,7 +5,7 @@ module.exports = {
       script: '.output/server/index.mjs',
 
       // Single process, no cluster
-      instances: 'max',
+      // instances: 'max',
       exec_mode: 'fork',
 
       // Độ ổn định & tự phục hồi
@@ -16,8 +16,8 @@ module.exports = {
       exp_backoff_restart_delay: 200, // tăng dần delay giữa các lần restart
 
       // Bộ nhớ & log
-      max_memory_restart: '4096M', // nâng ngưỡng restart theo RAM của máy
-      node_args: '--max-old-space-size:8192',
+      // max_memory_restart: '4096M', // nâng ngưỡng restart theo RAM của máy
+      // node_args: '--max-old-space-size:8192',
       merge_logs: true,
       time: true,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
