@@ -40,7 +40,7 @@
                   <UTextarea
                     v-model="aiPrompt"
                     :rows="4"
-                    placeholder="Ví dụ: Một sát thủ về hưu, tính cách lạnh lùng..."
+                    placeholder="Ví dụ: Một sát thủ về hưu, tính cách lạnh lùng nhưng yêu thương động vật. Bị cuốn vào vòng xoáy báo thù sau khi thú cưng bị hại."
                     class="w-full"
                   />
                 </UFormField>

@@ -135,7 +135,7 @@
                 <UInput
                   v-model="formState.name"
                   icon="i-heroicons-bolt"
-                  placeholder="Ví dụ: Kim Đan Kỳ"
+                  placeholder="Ví dụ: Cảnh giới sau Kim Đan, tu sĩ bắt đầu dung hợp linh hồn với pháp bảo của mình."
                   class="w-full"
                 />
               </UFormField>

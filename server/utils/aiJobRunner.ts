@@ -61,13 +61,9 @@ export async function runSceneGenerationJob(jobId: string) {
     job.status = 'processing'
     await job.save()
 
-    const apiKeyRecord = await ApiKey.findOne({ userId: job.userId, provider: 'gemini' })
-    if (!apiKeyRecord) throw new Error('Không tìm thấy API Key của Gemini.')
-    const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8)
-    if (!decryptedKey) throw new Error('Lỗi giải mã key.')
-
     const metaPrompt = await getMetaPrompt(job)
 
+    console.log('metaPrompt', metaPrompt)
     const rawText = await generateContent({
       userId: job.userId,
       prompt: metaPrompt,

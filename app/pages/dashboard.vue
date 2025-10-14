@@ -224,7 +224,19 @@ const editTabs = [{ slot: 'basic', label: 'Cơ bản' }, { slot: 'classification
 const statusOptionsForSelect = [{ value: 'draft', label: 'Bản nháp' }, { value: 'published', label: 'Đã xuất bản' }, { value: 'on-hold', label: 'Tạm ngưng' }, { value: 'finished', label: 'Hoàn thành' }]
 const statusColors: Record<string, any> = { 'draft': 'orange', 'published': 'green', 'on-hold': 'gray', 'finished': 'blue' }
 const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
-const promptPlaceholder = `Ví dụ: Nhân vật chính tên Khải, một người bình thường sống sót sau thảm họa tận thế...`
+const promptPlaceholder = `Ví dụ:
+- **Thể loại:** Huyền huyễn, Phiêu lưu, Hài hước.
+
+- **Nhân vật chính:** Tên là Vĩ, một thanh niên làm nghề "shipper" cổ vật, chuyên vận chuyển các món đồ kỳ lạ giữa các thành phố. Cậu ta lanh lợi, mồm mép, và có nguyên tắc sống là "không bao giờ dính vào rắc rối". Vĩ không có tài năng tu luyện nhưng lại sở hữu một khả năng đặc biệt: "May mắn vô lý", giúp cậu ta luôn thoát khỏi hiểm cảnh một cách khó tin.
+
+- **Thế giới:** Một thế giới nơi các vị thần cổ đại đã sụp đổ, để lại những "Mảnh Vỡ Thần Lực" rải rác khắp nơi. Những mảnh vỡ này ban cho người sở hữu những năng lực dị thường nhưng cũng đi kèm với sự điên rồ hoặc tai ương. Các thế lực lớn tranh giành nhau từng mảnh vỡ để gia tăng sức mạnh.
+
+- **Tình tiết mở đầu:** Trong một lần giao hàng, Vĩ vô tình làm vỡ món đồ mình vận chuyển - một chiếc hộp cổ. Bên trong không phải là cổ vật mà là một "Mảnh Vỡ Thần Lực" chứa đựng linh hồn của một vị thần lảm nhảm, lắm mồm tên là "Lex". Mảnh vỡ hợp nhất với Vĩ, và Lex trở thành "hệ thống" bất đắc dĩ của cậu, liên tục đưa ra những "nhiệm vụ" trời ơi đất hỡi.
+
+- **Xung đột chính:** Chủ nhân thực sự của Mảnh Vỡ - một tổ chức sát thủ mang tên "Bóng Đêm Tĩnh Lặng" - đang truy lùng Vĩ để lấy lại món đồ. Vĩ phải chạy trốn, đồng thời học cách sử dụng sức mạnh mới của mình và đối phó với những nhiệm vụ oái oăm của Lex.
+
+- **Mục tiêu:** Tìm cách tách Mảnh Vỡ ra khỏi người, trả lại "cục nợ" Lex về đúng chỗ của nó, và quay lại với cuộc sống shipper bình yên. Nhưng dần dần, cậu phát hiện ra âm mưu lớn hơn của Bóng Đêm Tĩnh Lặng và bị cuốn vào việc bảo vệ những người vô tội.
+`
 
 function pollForJobResult(jobId: string, timeout = 180000) { // Timeout 3 phút
   const startTime = Date.now()
@@ -240,7 +252,7 @@ function pollForJobResult(jobId: string, timeout = 180000) { // Timeout 3 phút
       const response = await $fetch(`/api/jobs/${jobId}`)
       if (response.status === 'completed') {
         clearInterval(interval)
-        toast.add({ title: 'AI đã sáng thế thành công!', description: `Đã tạo truyện "${response.result.newStoryTitle}".`, icon: 'i-heroicons-sparkles', color: 'green' })
+        toast.add({ title: 'AI đã sáng thế thành công!', description: `Đã tạo truyện "${response.result.newStoryTitle}".`, icon: 'i-heroicons-sparkles', color: 'success' })
         isModalOpen.value = false
         await refreshStories()
         await navigateTo(`/author/stories/${response.result.newStoryId}`)

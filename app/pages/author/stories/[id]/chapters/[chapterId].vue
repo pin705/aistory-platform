@@ -32,9 +32,9 @@
                 </NuxtLink>
               </div>
             </template>
-            <template #lorebook>
+            <!-- <template #lorebook>
               <StoryCharacterManager :story-id="storyId" />
-            </template>
+            </template> -->
           </UAccordion>
         </div>
       </div>
@@ -205,7 +205,7 @@
     </div>
 
     <div
-      class="flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-[#18181b] transition-all duration-300 overflow-hidden"
+      class="flex-shrink-0 p-4 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-[#18181b] transition-all duration-300 overflow-hidden"
       :class="isRightSidebarOpen ? 'w-96' : 'w-0'"
     >
       <div
@@ -220,26 +220,108 @@
             /> Trợ lý Sáng tác
           </h3>
         </div>
-        <div class="flex-1 p-4 space-y-4 overflow-y-auto">
-          <p class="text-sm text-gray-500">
-            Nhập yêu cầu để AI viết tiếp, hoặc bôi đen văn bản trong trình soạn thảo để chỉnh sửa.
-          </p>
-          <UTextarea
-            v-model="userPrompt"
-            :rows="8"
-            :placeholder="promptPlaceholder"
-            class="w-full"
-          />
-          <UButton
-            :loading="isGenerating"
-            class="w-full"
-            icon="i-heroicons-pencil-square"
-            color="neutral"
-            @click="generateNextScene"
-          >
-            Tạo nội dung
-          </UButton>
-        </div>
+
+        <UTabs
+          :default-index="selectedAiTabIndex"
+          :items="aiTabs"
+          class="flex-1 flex flex-col"
+          color="neutral"
+        >
+          <template #outline="{ item }">
+            <div class="p-4 space-y-4 flex-1 overflow-y-auto">
+              <UFormField
+                :label="item.description"
+                name="outline_prompt"
+              >
+                <UTextarea
+                  v-model="outlinePrompt"
+                  :rows="6"
+                  placeholder="Nhập ý tưởng chính cho toàn bộ chương. Ví dụ:
+- Triệu An khám phá một hang động bí ẩn, chiến đấu với yêu thú và đoạt được linh dược quý hiếm.
+- Lãnh Hàn Tuyết bắt đầu điều tra về thân thế của Triệu An.
+- Một nhiệm vụ tông môn bất ngờ được đưa ra, dẫn đến một khu vực nguy hiểm."
+                  class="w-full"
+                />
+              </UFormField>
+              <UButton
+                block
+                :loading="isOutlining"
+                color="neutral"
+                @click="generateOutline"
+              >
+                Tạo Dàn ý
+              </UButton>
+
+              <div
+                v-if="outlineResult"
+                class="mt-4 space-y-3 text-sm"
+              >
+                <USeparator label="Dàn ý gợi ý" />
+                <div
+                  v-for="(step, key) in formattedOutline"
+                  :key="key"
+                  class="p-2.5 bg-gray-50 dark:bg-gray-900/50 rounded-md"
+                >
+                  <p class="font-semibold capitalize text-gray-800 dark:text-gray-200">
+                    {{ step.label }}
+                  </p>
+                  <div
+                    v-for="(point, index) in step.points"
+                    :key="index"
+                    class="flex items-start justify-between gap-2 mt-1"
+                  >
+                    <p class="flex-1 text-gray-600 dark:text-gray-400">
+                      - {{ point }}
+                    </p>
+                    <UButton
+                      size="xs"
+                      variant="soft"
+                      icon="i-heroicons-arrow-right-circle"
+                      @click="useOutlineStep(point)"
+                    >
+                      Sử dụng
+                    </UButton>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template #compose="{ item }">
+            <div class="flex flex-col h-full">
+              <div class="p-4 space-y-4 border-b border-gray-200 dark:border-gray-800">
+                <p class="text-sm text-gray-500">{{ item.description }}</p>
+                <UTextarea v-model="userPrompt" :rows="8" :placeholder="promptPlaceholder" class="w-full" />
+                <UButton :loading="isGenerating" class="w-full" icon="i-heroicons-pencil-square" @click="generateNextScene">Tạo nội dung</UButton>
+              </div>
+              <div class="flex-1 p-4 space-y-2 overflow-y-auto">
+                <p class="text-sm font-semibold text-gray-500">Thêm Ngữ cảnh từ Lorebook</p>
+                <UAccordion :items="lorebookItems" multiple :default-open="[0]">
+                  <template #default="{ item, open }"></template>
+                  <template #item="{ item: accordionItem }">
+                    <div class="p-2 space-y-1">
+                      <div v-if="!accordionItem.data?.length" class="text-xs text-center text-gray-400 py-2">Chưa có dữ liệu.</div>
+                      <div v-for="entry in accordionItem.data" :key="entry._id" class="flex items-center justify-between p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <span class="text-sm">{{ entry.name }} <span class="text-xs text-gray-400">{{ entry.extra }}</span></span>
+
+                        <UButton
+                          size="xs"
+                          :icon="addedLorebookContext.includes(entry.name) ? 'i-heroicons-check-circle-solid' : 'i-heroicons-plus-circle'"
+                          :color="addedLorebookContext.includes(entry.name) ? 'success' : 'warning'"
+                          @click="toggleLorebookContext(accordionItem.label, entry.name)"
+                        >
+                          {{ addedLorebookContext.includes(entry.name) ? 'Đã thêm' : 'Thêm' }}
+                        </UButton>
+
+                      </div>
+                    </div>
+                  </template>
+                </UAccordion>
+              </div>
+            </div>
+          </template>
+
+        </UTabs>
       </div>
     </div>
   </div>
@@ -265,6 +347,73 @@ const isRightSidebarOpen = ref(true)
 const isFocusMode = ref(false)
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
 
+// --- (CẬP NHẬT) STATE CHO TRỢ LÝ AI ---
+const selectedAiTabIndex = ref(0) // Mặc định ở tab "Dàn ý"
+const aiTabs = [
+  { slot: 'outline', label: 'Tạo Dàn ý', description: 'Nhập ý tưởng chính cho chương này:' },
+  { slot: 'compose', label: 'Sáng tác', description: 'Tinh chỉnh và thêm ngữ cảnh để AI viết tiếp:' }
+]
+
+// State cho chức năng Tạo Dàn ý
+const isOutlining = ref(false)
+const outlinePrompt = ref('')
+const outlineResult = ref<any>(null)
+const addedLorebookContext = ref<string[]>([])
+
+// Computed để format dàn ý cho đẹp hơn
+const formattedOutline = computed(() => {
+  if (!outlineResult.value) return []
+  return [
+    { label: 'Mở đầu', points: [outlineResult.value.opening] },
+    { label: 'Diễn biến', points: outlineResult.value.development },
+    { label: 'Cao trào', points: [outlineResult.value.climax] },
+    { label: 'Kết thúc', points: [outlineResult.value.ending] }
+  ]
+})
+
+// (MỚI) Hàm tạo dàn ý
+async function generateOutline() {
+  if (!outlinePrompt.value) return toast.add({ title: 'Vui lòng nhập ý tưởng cho chương', color: 'warning' })
+  isOutlining.value = true
+  outlineResult.value = null
+  try {
+    const result = await $fetch('/api/chapters/generate-outline', {
+      method: 'POST',
+      body: { storyId, chapterIdea: outlinePrompt.value }
+    })
+    outlineResult.value = result
+    toast.add({ title: 'Đã tạo dàn ý thành công!', icon: 'i-heroicons-check-circle' })
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } finally {
+    isOutlining.value = false
+  }
+}
+
+function toggleLorebookContext(type: string, name: string) {
+  const contextText = `\n(Bối cảnh cần chú ý: ${type} - ${name})`
+  const isAdded = addedLorebookContext.value.includes(name)
+
+  if (isAdded) {
+    // Nếu đã thêm -> Xóa khỏi prompt và khỏi state
+    userPrompt.value = userPrompt.value.replace(contextText, '')
+    addedLorebookContext.value = addedLorebookContext.value.filter(item => item !== name)
+    toast.add({ title: `Đã xóa '${name}' khỏi prompt`, color: 'orange' })
+  } else {
+    // Nếu chưa thêm -> Thêm vào prompt và vào state
+    userPrompt.value += contextText
+    addedLorebookContext.value.push(name)
+    toast.add({ title: `Đã thêm '${name}' vào prompt!` })
+  }
+}
+
+function useOutlineStep(stepText: string) {
+  console.log('Using outline step:', stepText)
+  userPrompt.value.push(stepText) // Giữ nguyên các ngữ cảnh đã thêm
+  selectedAiTabIndex.value = 1 // Tự động chuyển sang tab "Sáng tác"
+  toast.add({ title: 'Đã thêm vào prompt Sáng tác!', icon: 'i-heroicons-arrow-down-tray' })
+}
+
 function toggleFocusMode() {
   isFocusMode.value = !isFocusMode.value
   if (isFocusMode.value) {
@@ -279,10 +428,41 @@ watch(isRightSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
 const { data: storyChapters } = await useFetch(`/api/stories/${storyId}/chapters-list`, { default: () => [] })
 const { data: chapterData, pending: isLoadingChapter } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
 
+const { data: lorebookData } = await useFetch(`/api/stories/${storyId}/lorebook`)
+
+const lorebookItems = computed(() => [
+  {
+    label: 'Nhân vật',
+    slot: 'item',
+    data: lorebookData.value?.characters.map(c => ({ ...c, extra: `(${c.role})` })) || []
+  },
+  {
+    label: 'Thế lực',
+    slot: 'item',
+    data: lorebookData.value?.factions || []
+  },
+  {
+    label: 'Cảnh giới',
+    slot: 'item',
+    data: lorebookData.value?.realms.map(r => ({ ...r, extra: `(Cấp ${r.level})` })) || []
+  },
+  {
+    label: 'Địa danh',
+    slot: 'item',
+    data: lorebookData.value?.locations || []
+  }
+])
+
+function addContextToPrompt(type: string, name: string) {
+  const contextText = `\n(Bối cảnh cần chú ý: ${type} - ${name})`
+  userPrompt.value += contextText
+  toast.add({ title: `Đã thêm '${name}' vào prompt!` })
+}
+
 // Cấu trúc cho Sidebar Trái
 const sidebarNav = [
-  { label: 'Danh sách chương', slot: 'chapters' },
-  { label: 'Lorebook', slot: 'lorebook' }
+  { label: 'Danh sách chương', slot: 'chapters' }
+  // { label: 'Lorebook', slot: 'lorebook' }
 ]
 
 // ----- LOGIC EDITOR -----
@@ -291,7 +471,10 @@ const isGenerating = ref(false)
 const autoSaveStatus = ref<'idle' | 'saving' | 'saved'>('idle')
 const userPrompt = ref('')
 const chapterTitle = ref('')
-const promptPlaceholder = `Ví dụ: "Viết cảnh Lục Thiếu Du đột phá, mô tả sự đau đớn và năng lượng kinh khủng bộc phát."`
+const promptPlaceholder = `Gợi ý cho AI viết cảnh tiếp theo. Ví dụ:
+- Triệu An đối mặt với Lãnh Hàn Tuyết sau cuộc tỷ thí.
+- Mô tả sự nghi ngờ của Lãnh Hàn Tuyết và cách Triệu An 'diễn' để che giấu bí mật của mình.
+- Kết thúc bằng việc một trưởng lão bất ngờ xuất hiện."`
 
 const autoSaveStatusText = computed(() => {
   if (autoSaveStatus.value === 'saving') return 'Đang lưu...'
@@ -423,6 +606,12 @@ async function rewriteSelection(mode: string) {
   // TODO: Gọi API rewrite
   toast.add({ title: `Đã gửi yêu cầu "${mode}" cho AI...` })
 }
+
+watch(isGenerating, (newValue, oldValue) => {
+  if (oldValue === true && newValue === false) {
+    addedLorebookContext.value = []
+  }
+})
 </script>
 
 <style>

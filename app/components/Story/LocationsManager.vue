@@ -125,7 +125,7 @@
                 <UInput
                   v-model="formState.name"
                   icon="i-heroicons-map-pin"
-                  placeholder="Ví dụ: Vạn Thú Sơn Mạch"
+                  placeholder="Ví dụ: Một thành phố bay lơ lửng trên mây, được xây dựng bởi một chủng tộc cổ đại đã biến mất."
                   class="w-full"
                 />
               </UFormField>

@@ -105,7 +105,7 @@
                   <UTextarea
                     v-model="aiPrompt"
                     :rows="3"
-                    placeholder="Ví dụ: Một môn phái tà đạo chuyên luyện thi thể..."
+                    placeholder="Ví dụ: Một tổ chức sát thủ bí ẩn, chỉ hoạt động về đêm, thờ phụng một vị thần bóng tối cổ xưa."
                       class="w-full"
                   />
                 </UFieldGroup>

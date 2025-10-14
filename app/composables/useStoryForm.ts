@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
 
 // Định nghĩa kiểu dữ liệu cho state của form
 interface StoryFormState {

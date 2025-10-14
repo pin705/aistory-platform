@@ -1,31 +1,27 @@
 // Hàm tạo prompt cho việc gợi ý thông tin truyện
 async function createStoryDetailsPrompt(job): Promise<string> {
-  return `
+  const metaPrompt = `
       QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
       Bạn là một tác giả và chuyên gia xây dựng thế giới truyện (world-building expert). Dựa trên ý tưởng cốt lõi của người dùng, hãy phác thảo toàn bộ nền móng cho một câu chuyện mới.
-      Ý tưởng cốt lõi của người dùng: "${job.prompt}"
-      Nhiệm vụ: Hãy tạo ra một cấu trúc JSON duy nhất, hợp lệ (không có markdown) chứa:
-      1. "story": một object chứa "title", "description", "tags" (mảng), "genres" (mảng).
-      2. "characters": một mảng chứa 3-5 nhân vật, mỗi nhân vật là object có "name", "role", "description", "backstory", "abilities" (mảng).
-      3. "factions": một mảng chứa 2-3 thế lực, mỗi thế lực là object có "name", "ideology", "description".
-      4. "realms": một mảng chứa 5-7 cảnh giới, mỗi cảnh giới là object có "name", "level", "description".
+
+      **Ý tưởng cốt lõi của người dùng:**
+      "${job.prompt}"
+
+      **Nhiệm vụ:**
+      Hãy tạo ra một cấu trúc JSON duy nhất, hợp lệ (không có markdown) chứa tất cả các thông tin sau:
+
+      1. "story": một object chứa "title" (tên truyện), "description" (mô tả), "tags" (mảng 3-5 tag), và "genres" (mảng 2-3 thể loại).
+
+      2. "characters": một mảng chứa 3-5 nhân vật quan trọng (chính, phản diện, phụ), mỗi nhân vật là một object có "name", "role", "description", "backstory", và "abilities" (mảng các chuỗi).
+
+      3. "factions": một mảng chứa 2-3 thế lực/môn phái chính, mỗi thế lực là một object có "name", "ideology", và "description".
+
+      4. "realms": một mảng chứa 5-7 cảnh giới tu luyện đầu tiên, mỗi cảnh giới là một object có "name", "level" (BẮT BUỘC LÀ MỘT CON SỐ - NUMBER), và "description".
+
+      5. "locations": một mảng chứa 2-3 địa danh quan trọng, mỗi địa danh là một object có "name", "description", và "keyFeatures" (các đặc điểm nổi bật).
     `
 
-  // const allGenres = await Genre.find().select('name')
-  // const genreListString = allGenres.map(g => g.name).join(', ')
-
-  // return `
-  //   QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
-  //   Dựa trên bối cảnh truyện do người dùng cung cấp dưới đây, hãy tạo ra các thông tin sau:
-  //   - title: một tên truyện thật hấp dẫn, ngắn gọn bằng tiếng Việt.
-  //   - description: một đoạn mô tả lôi cuốn bằng tiếng Việt, khoảng 2-3 câu.
-  //   - tags: một mảng chứa 3-5 tag (từ khóa) liên quan nhất, viết bằng tiếng Việt không dấu, chữ thường.
-  //   - genres: một mảng chứa 2-3 thể loại phù hợp nhất từ danh sách sau: ${genreListString}.
-
-  //   Bối cảnh của người dùng: "${job.prompt}"
-
-  //   Chỉ trả về một đối tượng JSON hợp lệ, không chứa bất kỳ văn bản nào khác ngoài JSON (không có markdown \`\`\`json).
-  // `
+  return metaPrompt
 }
 
 async function createSceneGenerationPrompt(job: any): Promise<string> {

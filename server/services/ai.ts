@@ -38,13 +38,14 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           model: modelName || apiKeyRecord.apiModel?.toString() || 'gemini-2.5-flash',
           contents: prompt
         })
+
         const usageMetadata = result.usageMetadata
         if (usageMetadata) {
           logTokenUsage({
             userId,
             jobType, // Hoặc một tên cụ thể hơn nếu có
             provider,
-            modelName: modelName,
+            modelName,
             promptTokenCount: usageMetadata.promptTokenCount,
             candidatesTokenCount: usageMetadata.candidatesTokenCount,
             totalTokenCount: usageMetadata.totalTokenCount
@@ -58,12 +59,15 @@ export async function generateContent(options: GenerateContentOptions): Promise<
       }
     case 'groq':
       try {
-        const groq = new Groq()
+        const groq = new Groq({
+          apiKey: decryptedKey
+        })
+
         const chatCompletion = await groq.chat.completions.create({
           messages: [
             {
               role: 'user',
-              content: ''
+              content: prompt
             }
           ],
           model: modelName || apiKeyRecord.apiModel?.toString() || 'llama-3.1-8b-instant',
@@ -74,6 +78,7 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           stop: null
         })
 
+        console.log('chatCompletion', chatCompletion)
         const usageMetadata = chatCompletion.usage
         if (usageMetadata) {
           logTokenUsage({
@@ -107,10 +112,6 @@ export async function embedContent(options: { prompt: string }): Promise<number[
     model: modelName,
     contents: prompt
   })
-
-  // Rất tiếc, API `embedContent` hiện không trả về `usageMetadata`.
-  // Việc tính token cho embedding phức tạp hơn và có thể cần thư viện ngoài.
-  // Tạm thời chúng ta sẽ bỏ qua việc log token cho embedding.
 
   const embedding = result.embeddings?.[0]
   if (!embedding || !embedding.values) {
