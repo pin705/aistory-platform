@@ -5,6 +5,7 @@ export const Story = defineMongooseModel('Story', {
   author: { type: 'ObjectId', ref: 'User', required: true, index: true },
   description: { type: String, required: true },
   coverImage: { type: String, default: '' },
+  summary: { type: String, default: '' },
   status: {
     type: String,
     enum: ['draft', 'published', 'on-hold', 'finished'],

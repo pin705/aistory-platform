@@ -52,8 +52,8 @@ export default defineNuxtConfig({
   pwa: {
     // registerType: 'prompt',
     manifest: {
-      name: 'Mực thần ký',
-      short_name: 'Mực thần ký',
+      name: 'Sáng tác truyện',
+      short_name: 'Sáng tác truyện',
       theme_color: '#1e1e1e',
       icons: [
         {

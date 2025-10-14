@@ -164,5 +164,5 @@ function getRankColor(rank: number) {
   return 'text-gray-400'
 }
 
-useHead({ title: 'Trang chủ - Mực thần ký' })
+useHead({ title: 'Trang chủ - Sáng tác truyện' })
 </script>

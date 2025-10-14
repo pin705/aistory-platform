@@ -60,30 +60,35 @@ export async function retrieveLorebookContext(storyId: string, userPrompt: strin
   const contextParts: string[] = []
 
   if (mentionedCharacters.length > 0) {
-    const charContext = mentionedCharacters.map(char =>
-      `- Nhân vật: ${char.name} (Vai trò: ${char.role}).\n  - Mô tả: ${char.description}.\n  - Kỹ năng: ${char.abilities.join('; ')}.`
-    ).join('\n')
+    const charContext = mentionedCharacters.map((char) => {
+      const shortDesc = char.description ? char.description.substring(0, 150) + '...' : 'Không có mô tả.'
+      const shortBackstory = char.backstory ? char.backstory.substring(0, 150) + '...' : 'Không có tiểu sử.'
+      return `- Nhân vật: ${char.name} (Vai trò: ${char.role}).\n  - Mô tả: ${shortDesc}\n  - Tiểu sử: ${shortBackstory}\n  - Kỹ năng: ${char.abilities.join('; ')}.`
+    }).join('\n')
     contextParts.push(`### Nhân vật được nhắc đến:\n${charContext}`)
   }
 
   if (mentionedFactions.length > 0) {
-    const factionContext = mentionedFactions.map(faction =>
-      `- Thế lực: ${faction.name} (Tôn chỉ: ${faction.ideology}).\n  - Mô tả: ${faction.description}.`
-    ).join('\n')
+    const factionContext = mentionedFactions.map((faction) => {
+      const shortDesc = faction.description ? faction.description.substring(0, 150) + '...' : 'Không có mô tả.'
+      return `- Thế lực: ${faction.name} (Tôn chỉ: ${faction.ideology}).\n  - Mô tả: ${shortDesc}`
+    }).join('\n')
     contextParts.push(`### Thế lực được nhắc đến:\n${factionContext}`)
   }
 
   if (mentionedLocations.length > 0) {
-    const locationContext = mentionedLocations.map(loc =>
-      `- Địa danh: ${loc.name}.\n  - Mô tả: ${loc.description}.\n  - Đặc điểm: ${loc.keyFeatures}.`
-    ).join('\n')
-    contextParts.push(`### Địa danh được nhắc đến:\n${locationContext}`)
+    const locationContext = mentionedLocations.map((location) => {
+      const shortDesc = location.description ? location.description.substring(0, 150) + '...' : 'Không có mô tả.'
+      return `- Địa điểm: ${location.name}.\n  - Mô tả: ${shortDesc}\n  - Đặc điểm chính: ${location.keyFeatures.join('; ')}.`
+    }).join('\n')
+    contextParts.push(`### Địa điểm được nhắc đến:\n${locationContext}`)
   }
 
   if (mentionedRealms.length > 0) {
-    const realmContext = mentionedRealms.map(realm =>
-      `- Cảnh giới: ${realm.name} (Cấp ${realm.level}).\n  - Mô tả: ${realm.description}.`
-    ).join('\n')
+    const realmContext = mentionedRealms.map((realm) => {
+      const shortDesc = realm.description ? realm.description.substring(0, 150) + '...' : 'Không có mô tả.'
+      return `- Cảnh giới: ${realm.name} (Cấp độ: ${realm.level}).\n  - Mô tả: ${shortDesc}`
+    }).join('\n')
     contextParts.push(`### Cảnh giới được nhắc đến:\n${realmContext}`)
   }
 

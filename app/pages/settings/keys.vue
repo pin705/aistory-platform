@@ -1,21 +1,33 @@
 <template>
   <UContainer class="py-8">
-    <UAlert
-      icon="i-heroicons-light-bulb"
-      color="primary"
-      variant="subtle"
-      title="Tại sao cần API Key & Model?"
-      class="mb-8"
-    >
-      <template #description>
-        <p>Sử dụng API Key của riêng bạn để kiểm soát chi phí. Chọn Model AI phù hợp với nhu cầu của bạn: các model 'flash' nhanh hơn và rẻ hơn cho các tác vụ đơn giản, trong khi các model 'pro' mạnh mẽ hơn cho việc sáng tác phức tạp.</p>
-        <a
-          href="https://aistudio.google.com/app/api-keys"
-          target="_blank"
-          class="underline font-semibold"
-        >Nhấn vào đây để lấy API Key miễn phí từ Google AI Studio.</a>
-      </template>
-    </UAlert>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <UAlert
+        icon="i-heroicons-light-bulb"
+        title="Hướng dẫn Gemini"
+        color="neutral"
+      >
+        <template #description>
+          Lấy API Key miễn phí từ <a
+            href="https://aistudio.google.com/app/api-keys"
+            target="_blank"
+            class="underline font-semibold"
+          >Google AI Studio</a> để sử dụng các model Gemini.
+        </template>
+      </UAlert>
+      <UAlert
+        icon="i-heroicons-light-bulb"
+        title="Hướng dẫn Groq"
+        color="neutral"
+      >
+        <template #description>
+          Groq cung cấp tốc độ cực nhanh. Lấy API Key miễn phí tại <a
+            href="https://console.groq.com/keys"
+            target="_blank"
+            class="underline font-semibold"
+          >Groq Console</a>.
+        </template>
+      </UAlert>
+    </div>
 
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold">
@@ -23,6 +35,7 @@
       </h1>
       <UButton
         icon="i-heroicons-plus"
+        color="neutral"
         @click="isAddModalOpen = true"
       >
         Thêm Key mới
@@ -55,8 +68,7 @@
           >
             <USelectMenu
               v-model="addState.provider"
-              class="w-full"
-              :items="['gemini']"
+              :items="['gemini', 'groq']"
             />
           </UFormField>
           <UFormField
@@ -66,9 +78,9 @@
           >
             <UInput
               v-model="addState.apiKey"
-              class="w-full"
               type="password"
               placeholder="dán key của bạn vào đây"
+              class="w-full"
             />
           </UFormField>
           <UFormField
@@ -78,16 +90,26 @@
           >
             <USelectMenu
               v-model="addState.apiModel"
+              :items="availableModels"
               class="w-full"
-              :items="geminiModels"
             />
           </UFormField>
-          <UButton
-            type="submit"
-            :loading="isLoading"
-          >
-            Lưu Key
-          </UButton>
+          <div class="flex justify-end gap-2 mt-4">
+            <UButton
+              color="gray"
+              variant="ghost"
+              @click="isAddModalOpen=false"
+            >
+              Hủy
+            </UButton>
+            <UButton
+              type="submit"
+              :loading="isLoading"
+              color="neutral"
+            >
+              Lưu Key
+            </UButton>
+          </div>
         </UForm>
       </template>
     </UModal>
@@ -112,8 +134,8 @@
           >
             <UInput
               :model-value="editState.provider"
-              class="w-full"
               disabled
+              class="w-full"
             />
           </UFormField>
           <UFormField
@@ -125,27 +147,46 @@
             <UInput
               v-model="editState.apiKey"
               type="password"
-              class="w-full"
               placeholder="Nhập key mới để thay thế"
-            />
-          </UFormField>
-          <UFormField
-            label="Model AI mặc định"
-            name="apiModel"
-            class="mb-4"
-          >
-            <USelectMenu
-              v-model="editState.apiModel"
               class="w-full"
-              :items="geminiModels"
             />
           </UFormField>
-          <UButton
-            type="submit"
-            :loading="isLoading"
-          >
-            Lưu thay đổi
-          </UButton>
+          <div class="grid grid-cols-2 gap-4 mb-4 items-center">
+            <UFormField
+              label="Model AI mặc định"
+              name="apiModel"
+            >
+              <USelectMenu
+                v-model="editState.apiModel"
+                :items="availableModels"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField
+              label="Trạng thái"
+              name="isActive"
+              class="flex flex-col items-start mt-1"
+            >
+              <USwitch v-model="editState.isActive" />
+              <span class="text-xs mt-1">{{ editState.isActive ? 'Đang hoạt động' : 'Vô hiệu hóa' }}</span>
+            </UFormField>
+          </div>
+          <div class="flex justify-end gap-2 mt-4">
+            <UButton
+              color="gray"
+              variant="ghost"
+              @click="isEditModalOpen=false"
+            >
+              Hủy
+            </UButton>
+            <UButton
+              type="submit"
+              :loading="isLoading"
+              color="neutral"
+            >
+              Lưu thay đổi
+            </UButton>
+          </div>
         </UForm>
       </template>
     </UModal>
@@ -161,162 +202,119 @@ import type { Row } from '@tanstack/vue-table'
 
 const UButton = resolveComponent('UButton')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
+const UBadge = resolveComponent('UBadge')
 
 const toast = useToast()
 const isLoading = ref(false)
-
 const isAddModalOpen = ref(false)
 const isEditModalOpen = ref(false)
-const selectedKey = ref<ApiKeyRow | null>(null)
+const selectedKey = ref<any | null>(null)
 
-type ApiKeyRow = {
-  _id: string
-  provider: string
-  encryptedKey: string
-  apiModel: string
-}
-
+// --- DANH SÁCH MODEL ---
 const geminiModels = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite']
+const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'meta-llama/llama-4-maverick-17b-128e-instruct', 'meta-llama/llama-4-scout-17b-16e-instruct']
 
-const { data: apiKeys, refresh } = await useFetch<ApiKeyRow[]>('/api/keys', {
-  default: () => []
-})
+// --- LẤY DỮ LIỆU ---
+const { data: apiKeys, refresh } = await useFetch<any[]>('/api/keys', { default: () => [] })
 
-const columns: TableColumn<ApiKeyRow>[] = [
+// --- CẤU HÌNH BẢNG ---
+const columns: TableColumn<any>[] = [
   { accessorKey: 'provider', header: 'Nhà cung cấp' },
   {
-    accessorKey: 'encryptedKey',
-    header: 'Key',
-    cell: ({ row }) => {
-      const key = row.getValue('encryptedKey') as string
-      return h(
-        'span',
-        { class: 'font-mono' },
-        `${key?.substring(0, 4)}...${key?.slice(-4)}`
-      )
-    }
+    accessorKey: 'isActive',
+    header: 'Trạng thái',
+    cell: ({ row }) => h(UBadge, {
+      color: row.original.isActive ? 'success' : 'warning',
+      variant: 'soft',
+      label: row.original.isActive ? 'Hoạt động' : 'Vô hiệu hóa'
+    })
   },
   { accessorKey: 'apiModel', header: 'Model Mặc định' },
   {
     id: 'actions',
     header: () => h('div', { class: 'text-right' }, 'Hành động'),
-    cell: ({ row }) =>
-      h(
-        'div',
-        { class: 'text-right' },
-        h(
-          UDropdownMenu,
-          { items: getActionItems(row), content: { align: 'end' } },
-          () =>
-            h(UButton, {
-              icon: 'i-heroicons-ellipsis-horizontal-20-solid',
-              color: 'gray',
-              variant: 'ghost'
-            })
-        )
-      )
+    cell: ({ row }) => h('div', { class: 'text-right' }, h(UDropdownMenu, { items: getActionItems(row) }, () => h(UButton, { icon: 'i-heroicons-ellipsis-horizontal-20-solid', color: 'gray', variant: 'ghost' })))
   }
 ]
 
-function openEditModal(key: ApiKeyRow) {
-  selectedKey.value = key
-  editState.provider = key.provider
-  editState.apiKey = ''
-  editState.apiModel = key.apiModel || geminiModels[0]
-  isEditModalOpen.value = true
-}
-
-function getActionItems(row: Row<ApiKeyRow>) {
+function getActionItems(row: Row<any>) {
   return [
-    {
-      label: 'Sửa',
-      icon: 'i-heroicons-pencil-square-20-solid',
-      onSelect: () => openEditModal(row.original)
-    },
-    { type: 'separator' as const },
-    {
-      label: 'Xoá',
-      labelClass: 'text-red-500 dark:text-red-400',
-      icon: 'i-heroicons-trash-20-solid',
-      onSelect: () => deleteKey(row.original._id)
-    }
+    [{ label: 'Sửa', icon: 'i-heroicons-pencil-square-20-solid', onSelect: () => openEditModal(row.original) }],
+    [{ label: 'Xoá', icon: 'i-heroicons-trash-20-solid', labelClass: 'text-red-500', onSelect: () => deleteKey(row.original._id) }]
   ]
 }
 
-// --- Form Thêm Mới ---
-const addSchema = z.object({
-  provider: z.string(),
-  apiKey: z.string().min(10, 'API Key không hợp lệ'),
-  apiModel: z.string().optional()
-})
+function openEditModal(key: any) {
+  selectedKey.value = key
+  editState.provider = key.provider
+  editState.apiKey = ''
+  editState.apiModel = key.apiModel
+  editState.isActive = key.isActive
+  isEditModalOpen.value = true
+}
 
-// --- Form Chỉnh Sửa ---
-const editSchema = z.object({
-  provider: z.string(),
-  apiKey: z.string().min(10, 'API Key mới không hợp lệ'),
-  apiModel: z.string().optional()
-})
+async function deleteKey(id: string) {
+  if (!confirm('Bạn có chắc chắn muốn xóa key này?')) return
+  try {
+    await $fetch(`/api/keys/${id}`, { method: 'DELETE' })
+    toast.add({ title: 'Xóa key thành công!', color: 'green' })
+    await refresh()
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  }
+}
 
+// --- FORM THÊM MỚI ---
+const addSchema = z.object({ provider: z.string(), apiKey: z.string().min(10, 'API Key không hợp lệ'), apiModel: z.string() })
 type AddSchema = z.output<typeof addSchema>
 const addState = reactive({ provider: 'gemini', apiKey: '', apiModel: geminiModels[0] })
+
+// Computed để chọn danh sách model động
+const availableModels = computed(() => {
+  const currentProvider = isEditModalOpen.value ? editState.provider : addState.provider
+  return currentProvider === 'gemini' ? geminiModels : groqModels
+})
+
+// Watcher để tự động đổi model khi provider thay đổi trong form THÊM MỚI
+watch(() => addState.provider, (newProvider) => {
+  addState.apiModel = newProvider === 'gemini' ? geminiModels[0] : groqModels[0]
+})
 
 async function submitAddKey(event: FormSubmitEvent<AddSchema>) {
   isLoading.value = true
   try {
     await $fetch('/api/keys', { method: 'POST', body: event.data })
-    toast.add({ title: 'Thêm key thành công!', color: 'success' })
+    toast.add({ title: 'Thêm key thành công!', color: 'green' })
     isAddModalOpen.value = false
     addState.apiKey = ''
     await refresh()
   } catch (e: any) {
-    toast.add({
-      title: 'Lỗi!',
-      description: e.data?.statusMessage || 'Đã xảy ra lỗi',
-      color: 'warning'
-    })
-  } finally {
-    isLoading.value = false
-  }
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } finally { isLoading.value = false }
 }
 
+// --- FORM CHỈNH SỬA ---
+const editSchema = z.object({
+  apiKey: z.string().optional().or(z.string().min(10, 'API Key mới không hợp lệ')),
+  apiModel: z.string(),
+  isActive: z.boolean()
+})
 type EditSchema = z.output<typeof editSchema>
-const editState = reactive({ provider: '', apiKey: '', apiModel: geminiModels[0] })
+const editState = reactive({ provider: '', apiKey: '', apiModel: '', isActive: true })
 
 async function submitEditKey(event: FormSubmitEvent<EditSchema>) {
   if (!selectedKey.value) return
   isLoading.value = true
   try {
-    await $fetch(`/api/keys/${selectedKey.value._id}`, {
-      method: 'PUT',
-      body: { apiKey: event.data.apiKey, apiModel: event.data.apiModel }
-    })
-    toast.add({ title: 'Cập nhật key thành công!', color: 'success' })
+    const body: Partial<EditSchema> & { apiKey?: string } = { ...event.data }
+    if (!body.apiKey) delete body.apiKey
+
+    await $fetch(`/api/keys/${selectedKey.value._id}`, { method: 'PUT', body })
+    toast.add({ title: 'Cập nhật key thành công!', color: 'green' })
     isEditModalOpen.value = false
     await refresh()
   } catch (e: any) {
-    toast.add({
-      title: 'Lỗi!',
-      description: e.data?.statusMessage || 'Đã xảy ra lỗi',
-      color: 'warning'
-    })
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// --- Hàm Xóa ---
-async function deleteKey(id: string) {
-  if (!confirm('Bạn có chắc chắn muốn xóa key này?')) return
-  try {
-    await $fetch(`/api/keys/${id}`, { method: 'DELETE' })
-    toast.add({ title: 'Xóa key thành công!', color: 'success' })
-    await refresh()
-  } catch (e: any) {
-    toast.add({
-      title: 'Lỗi!',
-      description: e.data?.statusMessage || 'Đã xảy ra lỗi',
-      color: 'warning'
-    })
-  }
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'red' })
+  } finally { isLoading.value = false }
 }
 </script>

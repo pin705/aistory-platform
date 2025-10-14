@@ -30,7 +30,7 @@ export const useStoryForm = () => {
     description: '',
     genres: [],
     tags: '',
-    status: 'draft',
+    status: 'draft'
   })
 
   // Schema validation
@@ -41,7 +41,7 @@ export const useStoryForm = () => {
     genres: z.array(z.string()).optional(),
     tags: z.string().optional(),
     coverImage: z.string().optional(),
-    status: z.string().optional(),
+    status: z.string().optional()
   })
 
   // Hàm reset form về trạng thái ban đầu
@@ -75,22 +75,66 @@ export const useStoryForm = () => {
   }
 
   // Hàm gọi AI phác thảo
+  // async function handleGenerateDetails() {
+  //   if (formState.prompt.length < 50) {
+  //     return toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
+  //   }
+  //   isGenerating.value = true
+  //   try {
+  //     const result = await $fetch('/api/stories/generate-details', { method: 'POST', body: { prompt: formState.prompt } })
+  //     formState.title = result.title
+  //     formState.description = result.description
+  //     formState.tags = result.tags.join(', ')
+  //     formState.genres = result.genres
+  //     toast.add({ title: 'AI đã phác thảo thành công!', icon: 'i-heroicons-sparkles' })
+  //   } catch (e) {
+  //     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
+  //   } finally {
+  //     isGenerating.value = false
+  //   }
+  // }
+
+  // async function handleGenerateDetails() {
+  //   if (formState.prompt.length < 50) {
+  //     toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
+  //     return null // Trả về null nếu thất bại
+  //   }
+  //   isGenerating.value = true
+  //   toast.add({ title: 'AI đang sáng thế...', description: 'Quá trình này có thể mất một lúc, vui lòng chờ.', icon: 'i-heroicons-globe-alt', timeout: 5000 })
+  //   try {
+  //     // Gọi API mới và trả về truyện đã được tạo
+  //     const newStory = await $fetch('/api/stories/generate-full', {
+  //       method: 'POST',
+  //       body: { prompt: formState.prompt }
+  //     })
+  //     toast.add({ title: 'AI đã sáng thế thành công!', icon: 'i-heroicons-sparkles' })
+  //     return newStory // Trả về truyện mới
+  //   } catch (e: any) {
+  //     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
+  //     return null // Trả về null nếu thất bại
+  //   } finally {
+  //     isGenerating.value = false
+  //   }
+  // }
+
   async function handleGenerateDetails() {
     if (formState.prompt.length < 50) {
-      return toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
+      toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
+      return null
     }
     isGenerating.value = true
+    toast.add({ title: 'Đã gửi yêu cầu cho AI', description: 'Tác vụ đang được xử lý nền...', icon: 'i-heroicons-clock', timeout: 5000 })
     try {
-      const result = await $fetch('/api/stories/generate-details', { method: 'POST', body: { prompt: formState.prompt } })
-      formState.title = result.title
-      formState.description = result.description
-      formState.tags = result.tags.join(', ')
-      formState.genres = result.genres
-      toast.add({ title: 'AI đã phác thảo thành công!', icon: 'i-heroicons-sparkles' })
-    } catch (e) {
+    // Gọi API mới, chỉ nhận về jobId
+      const { jobId } = await $fetch('/api/stories/generate-full', {
+        method: 'POST',
+        body: { prompt: formState.prompt }
+      })
+      return jobId // Trả về jobId
+    } catch (e: any) {
       toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
-    } finally {
-      isGenerating.value = false
+      isGenerating.value = false // Dừng loading nếu có lỗi ngay lúc gửi
+      return null
     }
   }
 
@@ -103,6 +147,6 @@ export const useStoryForm = () => {
     isFetchingDetails,
     resetForm,
     fetchStoryDetails,
-    handleGenerateDetails,
+    handleGenerateDetails
   }
 }

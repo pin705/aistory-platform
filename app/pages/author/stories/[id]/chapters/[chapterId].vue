@@ -80,9 +80,10 @@
             <UButton
               :loading="isSaving && autoSaveStatus !== 'saving'"
               icon="i-heroicons-check"
+              color="neutral"
               @click="saveChapter(false)"
             >
-              Lưu
+              Lưu chương
             </UButton>
             <UTooltip :text="isRightSidebarOpen ? 'Ẩn Trợ lý AI' : 'Hiện Trợ lý AI'">
               <UButton
@@ -227,11 +228,13 @@
             v-model="userPrompt"
             :rows="8"
             :placeholder="promptPlaceholder"
+            class="w-full"
           />
           <UButton
             :loading="isGenerating"
             class="w-full"
             icon="i-heroicons-pencil-square"
+            color="neutral"
             @click="generateNextScene"
           >
             Tạo nội dung
@@ -337,7 +340,7 @@ async function saveChapter(isSilent = false) {
 
     // Chỉ hiển thị toast khi không ở chế độ im lặng
     if (!isSilent) {
-      toast.add({ title: 'Lưu chương thành công!', color: 'green' })
+      toast.add({ title: 'Lưu chương thành công!', color: 'success' })
     }
 
     // Luôn kích hoạt indexing

@@ -6,6 +6,7 @@
       </h1>
       <UButton
         icon="i-heroicons-plus-circle"
+        color="neutral"
         @click="openStoryModal(null)"
       >
         Sáng tác truyện mới
@@ -34,6 +35,7 @@
       </p>
       <UButton
         class="mt-4"
+        color="neutral"
         @click="openStoryModal(null)"
       >
         Bắt đầu sáng tác ngay
@@ -42,7 +44,6 @@
 
     <UModal
       v-model:open="isModalOpen"
-      :ui="{ width: 'sm:max-w-4xl' }"
     >
       <template #header>
         <h2 class="text-xl font-bold">
@@ -68,7 +69,10 @@
               <ImageUploader v-model="formState.coverImage" />
             </div>
             <div class="md:col-span-2">
-              <UTabs :items="isEditing ? editTabs : addTabs">
+              <UTabs
+                :items="isEditing ? editTabs : addTabs"
+                color="neutral"
+              >
                 <template #prompt>
                   <div class="space-y-4 pt-4">
                     <UFormField
@@ -80,6 +84,7 @@
                         v-model="formState.prompt"
                         :rows="12"
                         :placeholder="promptPlaceholder"
+                        class="w-full"
                       />
                     </UFormField>
                     <div class="flex justify-end">
@@ -87,7 +92,7 @@
                         variant="soft"
                         icon="i-heroicons-sparkles"
                         :loading="isGenerating"
-                        @click="handleGenerateDetails"
+                        @click="callAIGenerate"
                       >
                         AI Phác thảo
                       </UButton>
@@ -100,7 +105,10 @@
                       label="Tên Tác phẩm"
                       name="title"
                     >
-                      <UInput v-model="formState.title" />
+                      <UInput
+                        v-model="formState.title"
+                        class="w-full"
+                      />
                     </UFormField>
                     <UFormField
                       label="Mô tả ngắn"
@@ -109,6 +117,7 @@
                       <UTextarea
                         v-model="formState.description"
                         :rows="5"
+                        class="w-full"
                       />
                     </UFormField>
                     <UFormField
@@ -119,8 +128,8 @@
                       <USelectMenu
                         v-model="formState.status"
                         :items="statusOptionsForSelect"
-                        value-attribute="value"
-                        option-attribute="label"
+                        value-key="value"
+                        class="w-full"
                       />
                     </UFormField>
                   </div>
@@ -136,13 +145,17 @@
                         :items="genresFromAPI"
                         multiple
                         placeholder="Chọn thể loại"
+                        class="w-full"
                       />
                     </UFormField>
                     <UFormField
                       label="Tags (phân cách bởi dấu phẩy)"
                       name="tags"
                     >
-                      <UInput v-model="formState.tags" />
+                      <UInput
+                        v-model="formState.tags"
+                        class="w-full"
+                      />
                     </UFormField>
                   </div>
                 </template>
@@ -156,6 +169,7 @@
                       <UTextarea
                         v-model="formState.prompt"
                         :rows="12"
+                        class="w-full"
                       />
                     </UFormField>
                   </div>
@@ -167,8 +181,8 @@
       </template>
       <template #footer>
         <UButton
-          color="gray"
           variant="ghost"
+          color="error"
           @click="isModalOpen = false"
         >
           Hủy
@@ -176,6 +190,7 @@
         <UButton
           type="submit"
           :loading="isLoading"
+          color="neutral"
           @click="storyFormRef?.submit()"
         >
           {{ isEditing ? 'Cập nhật Tác phẩm' : 'Khởi tạo Tác phẩm' }}
@@ -210,6 +225,50 @@ const statusOptionsForSelect = [{ value: 'draft', label: 'Bản nháp' }, { valu
 const statusColors: Record<string, any> = { 'draft': 'orange', 'published': 'green', 'on-hold': 'gray', 'finished': 'blue' }
 const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
 const promptPlaceholder = `Ví dụ: Nhân vật chính tên Khải, một người bình thường sống sót sau thảm họa tận thế...`
+
+function pollForJobResult(jobId: string, timeout = 180000) { // Timeout 3 phút
+  const startTime = Date.now()
+  const interval = setInterval(async () => {
+    if (Date.now() - startTime > timeout) {
+      clearInterval(interval)
+      toast.add({ title: 'Lỗi!', description: 'Yêu cầu đã quá thời gian.', color: 'error' })
+      isGenerating.value = false
+      return
+    }
+
+    try {
+      const response = await $fetch(`/api/jobs/${jobId}`)
+      if (response.status === 'completed') {
+        clearInterval(interval)
+        toast.add({ title: 'AI đã sáng thế thành công!', description: `Đã tạo truyện "${response.result.newStoryTitle}".`, icon: 'i-heroicons-sparkles', color: 'green' })
+        isModalOpen.value = false
+        await refreshStories()
+        await navigateTo(`/author/stories/${response.result.newStoryId}`)
+        isGenerating.value = false
+      } else if (response.status === 'failed') {
+        clearInterval(interval)
+        toast.add({ title: 'Lỗi từ AI!', description: response.error, color: 'error' })
+        isGenerating.value = false
+      }
+      // Nếu status vẫn là 'pending' hoặc 'processing', không làm gì cả và chờ lần hỏi thăm tiếp theo
+    } catch (error) {
+      clearInterval(interval)
+      toast.add({ title: 'Lỗi!', description: 'Không thể kiểm tra trạng thái công việc.', color: 'error' })
+      isGenerating.value = false
+    }
+  }, 5000) // Hỏi thăm mỗi 5 giây
+}
+
+async function callAIGenerate() {
+  // `handleGenerateDetails` bây giờ sẽ trả về `jobId` hoặc `null`
+  const jobId = await handleGenerateDetails()
+
+  if (jobId) {
+    // Nếu có jobId, bắt đầu quá trình hỏi thăm kết quả
+    pollForJobResult(jobId)
+  }
+  // `isGenerating` đã được set là true bên trong `handleGenerateDetails`
+}
 
 // ----- CÁC HÀM XỬ LÝ HÀNH ĐỘNG -----
 async function openStoryModal(story: any | null) {

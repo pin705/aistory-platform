@@ -1,6 +1,7 @@
 import CryptoJS from 'crypto-js'
 import { GoogleGenAI } from '@google/genai'
 import { getMetaPrompt } from './promptFactory' // Chúng ta vẫn dùng promptFactory để quản lý prompt tập trung
+import { generateContent } from '../services/ai';
 
 /**
  * Xử lý job tạo chi tiết truyện (title, description...)
@@ -69,18 +70,10 @@ export async function runSceneGenerationJob(jobId: string) {
 
     const metaPrompt = await getMetaPrompt(job)
 
-    // --- (CẬP NHẬT) GỌI GEMINI API THEO CÚ PHÁP MỚI ---
-    // 1. Khởi tạo client
-    const genAI = new GoogleGenAI({ apiKey: decryptedKey })
-
-    // 2. Gọi API trực tiếp
-    const result = await genAI.models.generateContent({
-      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
-      contents: metaPrompt
+    const rawText = await generateContent({
+      userId: job.userId.toString(),
+      prompt: metaPrompt
     })
-
-    // 3. Lấy kết quả text trực tiếp
-    const rawText = result.text || ''
 
     // (FIX) Dọn dẹp Markdown bao quanh HTML
     // Tìm vị trí của thẻ HTML đầu tiên '<' và cuối cùng '>'
