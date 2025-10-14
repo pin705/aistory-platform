@@ -27,8 +27,8 @@
               <UBadge
                 v-for="genre in item.genres"
                 :key="genre"
-                color="gray"
-                variant="solid"
+                color="white"
+                variant="outline"
               >
                 {{ genre }}
               </UBadge>
@@ -44,15 +44,21 @@
           <UTabs
             :items="mainTabs"
             variant="link"
-            color="gray"
           >
             <template #editorPicks="{ item }">
-              <h2 class="text-xl sm:text-2xl md:text-3xl font-bold my-6 flex items-center gap-2">
-                <UIcon
-                  name="i-heroicons-star-20-solid"
-                  class="text-yellow-500"
-                /> {{ item.label }}
-              </h2>
+              <div class="flex justify-between items-center my-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <UIcon
+                    name="i-heroicons-star-20-solid"
+                    class="text-yellow-500"
+                  /> {{ item.label }}
+                </h2>
+                <UButton
+                  label="Xem tất cả"
+                  variant="link"
+                  trailing-icon="i-heroicons-arrow-right"
+                />
+              </div>
               <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                 <StoryCard
                   v-for="story in homeData.editorPicks"
@@ -62,12 +68,19 @@
               </div>
             </template>
             <template #newlyCompleted="{ item }">
-              <h2 class="text-xl sm:text-2xl md:text-3xl font-bold my-6 flex items-center gap-2">
-                <UIcon
-                  name="i-heroicons-check-badge-20-solid"
-                  class="text-green-500"
-                /> {{ item.label }}
-              </h2>
+              <div class="flex justify-between items-center my-6">
+                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
+                  <UIcon
+                    name="i-heroicons-check-badge-20-solid"
+                    class="text-green-500"
+                  /> {{ item.label }}
+                </h2>
+                <UButton
+                  label="Xem tất cả"
+                  variant="link"
+                  trailing-icon="i-heroicons-arrow-right"
+                />
+              </div>
               <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 <StoryCard
                   v-for="story in homeData.newlyCompleted"
@@ -82,33 +95,27 @@
         <div class="lg:col-span-1 space-y-8">
           <div>
             <h3 class="text-lg lg:text-xl font-bold mb-4 border-b-2 border-primary pb-2">
-              Bảng Xếp Hạng
+              Bảng Xếp Hạng Truyện
             </h3>
-            <div class="space-y-4">
-              <div
+            <div class="space-y-1">
+              <NuxtLink
                 v-for="(story, index) in homeData.storyPowerRankings"
                 :key="story._id"
-                class="flex items-start gap-3"
+                :to="`/story/${story.slug}`"
+                class="flex items-start gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <span
-                  class="text-xl md:text-2xl font-bold"
+                  class="text-xl md:text-2xl font-bold w-6 text-center"
                   :class="getRankColor(index + 1)"
                 >{{ index + 1 }}</span>
-                <div>
-                  <NuxtLink
-                    :to="`/story/${story._id}`"
-                    class="font-semibold hover:text-primary line-clamp-1"
-                  >{{ story.title }}</NuxtLink>
+                <div class="flex-1 overflow-hidden">
+                  <p class="font-semibold line-clamp-1">{{ story.title }}</p>
                   <p class="text-xs text-gray-500 flex items-center gap-2">
                     <span>{{ story.author.username }}</span>
-                    <UBadge
-                      :label="story.genres[0]"
-                      size="xs"
-                      variant="soft"
-                    />
+                    <span class="flex items-center gap-1"><UIcon name="i-heroicons-eye" /> {{ story.views }}</span>
                   </p>
                 </div>
-              </div>
+              </NuxtLink>
             </div>
           </div>
 
@@ -116,25 +123,22 @@
             <h3 class="text-lg lg:text-xl font-bold mb-4 border-b-2 border-primary pb-2">
               Tác Giả Nổi Bật
             </h3>
-            <div class="space-y-4">
-              <div
+            <div class="space-y-2">
+              <NuxtLink
                 v-for="author in homeData.featuredAuthors"
                 :key="author._id"
-                class="flex items-center gap-3"
+                :to="`/author/${author.slug}`"
+                class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <UAvatar
                   :src="author.avatar"
                   :alt="author.username"
                 />
-                <div>
-                  <p class="font-semibold">
-                    {{ author.username }}
-                  </p>
-                  <p class="text-xs text-gray-500">
-                    2 tác phẩm
-                  </p>
+                <div class="flex-1 overflow-hidden">
+                  <p class="font-semibold truncate">{{ author.username }}</p>
+                  <p class="text-xs text-gray-500">{{ author.storyCount }} tác phẩm</p>
                 </div>
-              </div>
+              </NuxtLink>
             </div>
           </div>
         </div>

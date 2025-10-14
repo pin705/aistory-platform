@@ -37,6 +37,8 @@ export default defineEventHandler(async (event) => {
       prompt: metaPrompt,
       jobType: 'generate_outline'
     })
+
+    console.log('Raw outline response:', rawText)
     const jsonMatch = rawText.match(/{[\s\S]*}/)
     if (!jsonMatch) { throw new Error('AI không thể tạo dàn ý.') }
 

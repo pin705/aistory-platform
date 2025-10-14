@@ -1,4 +1,5 @@
 import { embedContent } from '../services/ai'
+import mongoose from 'mongoose'
 
 export async function retrieveSimilarContext(storyId: string, userPrompt: string): Promise<string> {
   const queryVector = await embedContent({ prompt: userPrompt })
@@ -6,17 +7,19 @@ export async function retrieveSimilarContext(storyId: string, userPrompt: string
     throw new Error('Không thể tạo vector cho prompt người dùng.')
   }
 
+  const storyObjectId = new mongoose.Types.ObjectId(storyId);
+
   // 4. Tìm kiếm trong MongoDB Atlas bằng $vectorSearch với vector đã được trích xuất
   const similarChunks = await Chunk.aggregate([
     {
       $vectorSearch: {
-        index: 'default', // Tên index bạn tạo trên Atlas
+        index: 'vector_index', // Tên index bạn tạo trên Atlas
         path: 'contentEmbedding',
         queryVector: queryVector, // <-- Sử dụng biến đã được làm sạch
         numCandidates: 100,
         limit: 3,
         filter: {
-          storyId: { $eq: storyId }
+          storyId: { $eq: storyObjectId }
         }
       }
     }
@@ -28,6 +31,7 @@ export async function retrieveSimilarContext(storyId: string, userPrompt: string
 
   // 5. Nối các kết quả lại thành một đoạn ngữ cảnh
   const context = similarChunks.map(chunk => chunk.chunkText).join('\n---\n')
+  console.log('Retrieved similar context:', context)
   return context
 }
 

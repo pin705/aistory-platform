@@ -505,7 +505,7 @@ const latestReviews = computed(() => reviews.value.slice(0, 3)) // Lấy 3 đán
 
 const config = useRuntimeConfig()
 // 1. Tạo các biến SEO cơ bản một cách động
-const pageTitle = computed(() => `${story.value.title} - ${story.value.author.username} | Bút Thần Giới`)
+const pageTitle = computed(() => `${story.value.title} - ${story.value.author.username} | Sáng Tác Truyện`)
 const pageDescription = computed(() => (story.value.description || '').substring(0, 160) + '...')
 const canonicalUrl = computed(() => `${config.public.baseURL}${route.fullPath}`)
 const ogImageUrl = computed(() => story.value.coverImage || `${config.public.baseURL}/og-image.png`)

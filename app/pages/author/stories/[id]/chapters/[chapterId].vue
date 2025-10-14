@@ -9,26 +9,43 @@
         class="flex flex-col h-full"
       >
         <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
-          <h2 class="font-bold text-lg">
-            Cấu trúc truyện
-          </h2>
+          <div class="flex items-center gap-2">
+            <h2 class="font-bold text-lg">
+              Cấu trúc truyện
+            </h2>
+            <UTooltip text="Thêm chương mới">
+              <UButton
+                icon="i-heroicons-plus-circle"
+                variant="ghost"
+                :loading="isCreatingChapter"
+                @click="createNewChapter"
+              />
+            </UTooltip>
+          </div>
         </div>
-        <div class="flex-1 overflow-y-auto p-2">
+        <div class="flex-1 overflow-y-auto p-4">
           <UAccordion
             :items="sidebarNav"
             multiple
             default-value="0"
           >
             <template #chapters>
-              <div class="p-2 space-y-1">
+              <div class="">
                 <NuxtLink
                   v-for="chap in storyChapters"
                   :key="chap._id"
                   :to="`/author/stories/${storyId}/chapters/${chap._id}`"
-                  class="block px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+      class="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
                   active-class="bg-gray-100 dark:bg-[#18181b] font-semibold"
                 >
-                  Ch.{{ chap.chapterNumber }}: {{ chap.title }}
+                  <span class="truncate">Ch.{{ chap.chapterNumber }}: {{ chap.title }}</span>
+
+                  <UTooltip :text="chap.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'">
+                    <div
+                      class="w-2 h-2 rounded-full flex-shrink-0"
+                      :class="chap.status === 'published' ? 'bg-green-500' : 'bg-orange-500'"
+                    />
+                  </UTooltip>
                 </NuxtLink>
               </div>
             </template>
@@ -287,21 +304,51 @@
             </div>
           </template>
 
-           <template #compose="{ item }">
+          <template #compose="{ item }">
             <div class="flex flex-col h-full">
               <div class="p-4 space-y-4 border-b border-gray-200 dark:border-gray-800">
-                <p class="text-sm text-gray-500">{{ item.description }}</p>
-                <UTextarea v-model="userPrompt" :rows="8" autoresize :placeholder="promptPlaceholder" class="w-full" />
-                <UButton :loading="isGenerating" class="w-full" icon="i-heroicons-pencil-square" @click="generateNextScene">Tạo nội dung</UButton>
+                <p class="text-sm text-gray-500">
+                  {{ item.description }}
+                </p>
+                <UTextarea
+                  v-model="userPrompt"
+                  :rows="8"
+                  autoresize
+                  :placeholder="promptPlaceholder"
+                  class="w-full"
+                />
+                <UButton
+                  :loading="isGenerating"
+                  class="w-full"
+                  icon="i-heroicons-pencil-square"
+                  @click="generateNextScene"
+                >
+                  Tạo nội dung
+                </UButton>
               </div>
               <div class="flex-1 p-4 space-y-2 overflow-y-auto">
-                <p class="text-sm font-semibold text-gray-500">Thêm Ngữ cảnh từ Lorebook</p>
-                <UAccordion :items="lorebookItems" multiple :default-open="[0]">
-                  <template #default="{ item, open }"></template>
+                <p class="text-sm font-semibold text-gray-500">
+                  Thêm Ngữ cảnh từ Lorebook
+                </p>
+                <UAccordion
+                  :items="lorebookItems"
+                  multiple
+                  :default-open="[0]"
+                >
+                  <template #default="{ item, open }" />
                   <template #item="{ item: accordionItem }">
                     <div class="p-2 space-y-1">
-                      <div v-if="!accordionItem.data?.length" class="text-xs text-center text-gray-400 py-2">Chưa có dữ liệu.</div>
-                      <div v-for="entry in accordionItem.data" :key="entry._id" class="flex items-center justify-between p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                      <div
+                        v-if="!accordionItem.data?.length"
+                        class="text-xs text-center text-gray-400 py-2"
+                      >
+                        Chưa có dữ liệu.
+                      </div>
+                      <div
+                        v-for="entry in accordionItem.data"
+                        :key="entry._id"
+                        class="flex items-center justify-between p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                      >
                         <span class="text-sm">{{ entry.name }} <span class="text-xs text-gray-400">{{ entry.extra }}</span></span>
 
                         <UButton
@@ -312,7 +359,6 @@
                         >
                           {{ addedLorebookContext.includes(entry.name) ? 'Đã thêm' : 'Thêm' }}
                         </UButton>
-
                       </div>
                     </div>
                   </template>
@@ -320,7 +366,6 @@
               </div>
             </div>
           </template>
-
         </UTabs>
       </div>
     </div>
@@ -343,6 +388,7 @@ const chapterId = route.params.chapterId as string
 
 // ----- STATE GIAO DIỆN -----
 const isLeftSidebarOpen = ref(true)
+const isCreatingChapter = ref(false)
 const isRightSidebarOpen = ref(true)
 const isFocusMode = ref(false)
 const { isFullscreen, toggle: toggleFullscreen } = useFullscreen()
@@ -370,6 +416,30 @@ const formattedOutline = computed(() => {
     { label: 'Kết thúc', points: [outlineResult.value.ending] }
   ]
 })
+
+async function createNewChapter() {
+  isCreatingChapter.value = true
+  try {
+    // Gọi API để tạo một chương mới trống
+    const newChapter = await $fetch(`/api/stories/${storyId}/chapters`, {
+      method: 'POST',
+      body: {} // Gửi body rỗng, API sẽ tự điền title và chapterNumber
+    })
+
+    toast.add({ title: 'Đã tạo chương mới!', icon: 'i-heroicons-check-circle' })
+
+    // Làm mới danh sách chương trong sidebar
+    await refreshStoryChapters()
+
+    // Chuyển hướng đến trang soạn thảo của chương vừa tạo
+    // Dùng `replace: true` để người dùng không bị "back" lại chương cũ
+    await navigateTo(`/author/stories/${storyId}/chapters/${newChapter._id}`, { replace: true })
+  } catch (e: any) {
+    toast.add({ title: 'Lỗi!', description: e.data?.statusMessage || 'Không thể tạo chương mới.', color: 'warning' })
+  } finally {
+    isCreatingChapter.value = false
+  }
+}
 
 // (MỚI) Hàm tạo dàn ý
 async function generateOutline() {
@@ -425,9 +495,9 @@ watch(isLeftSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
 watch(isRightSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
 
 // ----- LẤY DỮ LIỆU -----
-const { data: storyChapters } = await useFetch(`/api/stories/${storyId}/chapters-list`, { default: () => [] })
+const { data: storyChapters, refresh: refreshStoryChapters } = await useFetch(`/api/stories/${storyId}/chapters-list`, { default: () => [] })
 const { data: chapterData, pending: isLoadingChapter } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
-
+const { data: story } = await useFetch(`/api/stories/${storyId}`)
 const { data: lorebookData } = await useFetch(`/api/stories/${storyId}/lorebook`)
 
 const lorebookItems = computed(() => [
@@ -459,10 +529,8 @@ function addContextToPrompt(type: string, name: string) {
   toast.add({ title: `Đã thêm '${name}' vào prompt!` })
 }
 
-// Cấu trúc cho Sidebar Trái
 const sidebarNav = [
-  { label: 'Danh sách chương', slot: 'chapters' }
-  // { label: 'Lorebook', slot: 'lorebook' }
+  { label: `Danh sách chương (${storyChapters.value.length})`, slot: 'chapters', defaultOpen: true }
 ]
 
 // ----- LOGIC EDITOR -----
@@ -558,7 +626,15 @@ function pollForSceneResult(jobId: string, timeout = 180000) { // Timeout 3 phú
       if (response.status === 'completed') {
         clearInterval(interval)
         if (response.result?.generatedText) {
-          editor.value?.chain().focus().insertContent(response.result.generatedText).run()
+          // 1. Làm sạch chuỗi HTML trả về từ AI
+          const cleanedHtml = response.result.generatedText
+            .trim() // Xóa khoảng trắng thừa ở đầu và cuối
+            .replace(/\n/g, '') // Xóa các ký tự xuống dòng không cần thiết
+
+          if (editor.value) {
+            // 2. Sử dụng lệnh chèn nội dung chính xác vào cuối văn bản
+            editor.value.chain().focus().insertContentAt(editor.value.state.doc.content.size, cleanedHtml).run()
+          }
           toast.add({ title: 'AI đã viết xong!', icon: 'i-heroicons-check-circle' })
         } else {
           toast.add({ title: 'Lỗi!', description: 'AI không trả về nội dung.', color: 'error' })
@@ -612,6 +688,29 @@ watch(isGenerating, (newValue, oldValue) => {
     addedLorebookContext.value = []
   }
 })
+
+// (MỚI) Theo dõi sự thay đổi của chapterId trên URL
+watch(() => route.params.chapterId, (newId) => {
+  if (newId) {
+    // Khi chapterId thay đổi, gọi `refresh` để fetch lại dữ liệu mới
+    refreshChapterData()
+  }
+})
+
+// `watch` dữ liệu từ `useFetch` để cập nhật editor và title
+watch(chapterData, (newData) => {
+  if (newData) {
+    chapterTitle.value = newData.title
+    if (editor.value) {
+      // Dùng `setContent` để đảm bảo editor được cập nhật hoàn toàn
+      editor.value.commands.setContent(newData.content, false)
+    }
+  } else if (chapterId.value === 'new') {
+    // Xử lý khi chuyển từ một chương cũ sang "tạo chương mới"
+    chapterTitle.value = ''
+    editor.value?.commands.clearContent()
+  }
+}, { immediate: true })
 </script>
 
 <style>

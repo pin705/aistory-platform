@@ -17,9 +17,6 @@ export default defineEventHandler(async () => {
 
   // --- Lấy dữ liệu cho Bảng Xếp Hạng Tác Giả ---
   // Đây là logic giả lập, bạn cần xây dựng hệ thống điểm/độ nổi tiếng cho tác giả sau này
-  const featuredAuthors = await User.find() // Giả lập: Lấy 5 tác giả bất kỳ
-    .limit(5)
-    .select('username avatar')
 
   // --- Lấy dữ liệu cho các Tab ở cột chính ---
   // Biên tập viên đề cử (giả lập: lấy truyện mới nhất)
@@ -34,11 +31,32 @@ export default defineEventHandler(async () => {
     .limit(6)
     .populate('author', 'username')
 
+     const featuredAuthorsData = await User.aggregate([
+    // Có thể thêm logic sắp xếp tác giả theo độ nổi tiếng ở đây (ví dụ: số follower)
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: 'stories', // Tên collection của Story model
+        localField: '_id',
+        foreignField: 'author',
+        as: 'stories'
+      }
+    },
+    {
+      $project: {
+        username: 1,
+        avatar: 1,
+        slug: 1, // Lấy thêm slug để tạo link
+        storyCount: { $size: '$stories' } // Đếm số lượng truyện
+      }
+    }
+  ])
+
   return {
     featuredStories,
     storyPowerRankings,
-    featuredAuthors,
+    featuredAuthors: featuredAuthorsData, // Trả về dữ liệu mới
     editorPicks,
-    newlyCompleted
+    newlyCompleted,
   }
 })

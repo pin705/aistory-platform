@@ -189,5 +189,5 @@ const activityFeed = computed(() => {
   return [...chapters, ...reviews].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 })
 
-useHead({ title: () => `Tác giả ${authorData.value?.author.username || ''} | Bút Thần Giới` })
+useHead({ title: () => `Tác giả ${authorData.value?.author.username || ''} | Sáng Tác Truyện` })
 </script>

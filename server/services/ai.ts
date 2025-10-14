@@ -78,7 +78,6 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           stop: null
         })
 
-        console.log('chatCompletion', chatCompletion)
         const usageMetadata = chatCompletion.usage
         if (usageMetadata) {
           logTokenUsage({

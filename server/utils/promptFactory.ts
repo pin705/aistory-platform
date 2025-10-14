@@ -1,3 +1,5 @@
+import { convert } from 'html-to-text'
+
 // Hàm tạo prompt cho việc gợi ý thông tin truyện
 async function createStoryDetailsPrompt(job): Promise<string> {
   const metaPrompt = `
@@ -24,34 +26,56 @@ async function createStoryDetailsPrompt(job): Promise<string> {
   return metaPrompt
 }
 
-async function createSceneGenerationPrompt(job: any): Promise<string> {
+async function createSceneGenerationPrompt(job): Promise<string> {
   const { storyId, currentContent } = job.context
   const userPrompt = job.prompt
 
-  // (CẬP NHẬT) Giờ đây chúng ta lấy `summary` thay vì `prompt`
   const [ragContext, lorebookContext, story] = await Promise.all([
     retrieveSimilarContext(storyId, userPrompt),
     retrieveLorebookContext(storyId, userPrompt),
-    Story.findById(storyId).select('summary') // <-- Chỉ lấy summary
+    Story.findById(storyId).select('summary')
   ])
   const storySummary = story?.summary || 'Không có tóm tắt.'
 
+  // Chuyển đổi currentContent HTML thành văn bản thuần túy
+  const plainTextCurrentContent = convert(currentContent || '', {
+    wordwrap: false,
+    selectors: [{ selector: 'p', options: { itemPrefix: ' ' } }]
+  }).trim()
+
+  // (CẬP NHẬT TOÀN DIỆN) Prompt mới với quy tắc khắt khe
   return `
-    QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT VÀ CÓ ĐỊNH DẠNG HTML.
-    Bạn là một trợ lý viết truyện chuyên nghiệp...
+      QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
+      Bạn là một tiểu thuyết gia chuyên nghiệp với bút pháp mạch lạc, văn phong trong sáng, chuyên viết cho các nền tảng đọc truyện online.
 
-    **1. Tóm tắt cốt truyện chính (Kim chỉ nam):** ${storySummary}
+      **NHIỆM VỤ:**
+      Dựa vào TOÀN BỘ thông tin bối cảnh được cung cấp, hãy viết phần tiếp theo cho câu chuyện.
 
-    **2. Thông tin Lorebook:** ${lorebookContext}
+      **QUY TẮC ĐỊNH DẠNG BẮT BUỘC:**
+      1.  Chỉ sử dụng thẻ <p> để bọc các đoạn văn.
+      2.  Mỗi đoạn văn PHẢI nằm trong một cặp thẻ <p>...</p> riêng biệt.
+      3.  KHÔNG được sử dụng các thẻ <html>, <body>, <div>, <span> hay bất kỳ thẻ HTML nào khác.
+      4.  KHÔNG được thêm bất kỳ định dạng Markdown nào (ví dụ: dấu *, _, #).
+      5.  Giữ cho các đoạn văn có độ dài hợp lý, không xuống dòng tùy tiện.
 
-    **3. Ngữ cảnh từ các chương trước:** ${ragContext}
+      **VÍ DỤ VỀ KẾT QUẢ MONG MUỐN:**
+      <p>Lục Thiếu Du khẽ nhíu mày, luồng năng lượng vừa rồi rõ ràng không phải là của Triệu trưởng lão.</p><p>Hắn đưa mắt nhìn quanh hang động, sự cảnh giác được đẩy lên mức cao nhất. Trong bóng tối, một tiếng cười khàn khàn đột ngột vang lên.</p>
+      ---
+      **BỐI CẢNH ĐỂ BẠN SÁNG TÁC:**
 
-    **4. Vài dòng cuối của nội dung đang viết:** ...${(currentContent || '').slice(-1500)}
-
-    **Yêu cầu của tác giả:** "${userPrompt}"
-
-    Nhiệm vụ: ... Chỉ trả về phần truyện được viết tiếp dưới dạng HTML...
-  `
+      **1. Tóm tắt cốt truyện chính (Kim chỉ nam):**
+      ${storySummary}
+      **2. Thông tin Lorebook về các thực thể liên quan:**
+      ${lorebookContext}
+      **3. Ngữ cảnh từ các chương trước (RAG):**
+      ${ragContext}
+      **4. Vài dòng cuối của nội dung đang viết (dạng văn bản thuần túy):**
+      ...${plainTextCurrentContent.slice(-1500)}
+      **5. Yêu cầu của tác giả cho cảnh này:**
+      "${userPrompt}"
+      ---
+      Hãy bắt đầu viết. Chỉ trả về phần truyện được viết tiếp, tuân thủ nghiêm ngặt các quy tắc định dạng đã nêu.
+    `
 }
 
 export async function getMetaPrompt(job): Promise<string> {

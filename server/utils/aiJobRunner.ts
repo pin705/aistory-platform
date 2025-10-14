@@ -33,7 +33,8 @@ export async function runAiGenerationFullPostJob(jobId: string) {
     await Promise.all([
       Character.insertMany(generatedData.characters.map((c: any) => ({ ...c, storyId }))),
       Faction.insertMany(generatedData.factions.map((f: any) => ({ ...f, storyId }))),
-      CultivationRealm.insertMany(generatedData.realms.map((r: any) => ({ ...r, storyId })))
+      CultivationRealm.insertMany(generatedData.realms.map((r: any) => ({ ...r, storyId }))),
+      Location.insertMany(generatedData.locations.map((l: any) => ({ ...l, storyId })))
     ])
 
     job.status = 'completed'
