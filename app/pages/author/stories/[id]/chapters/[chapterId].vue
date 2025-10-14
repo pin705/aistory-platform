@@ -83,7 +83,7 @@
               color="neutral"
               @click="saveChapter(false)"
             >
-              Lưu chương
+              Lưu
             </UButton>
             <UTooltip :text="isRightSidebarOpen ? 'Ẩn Trợ lý AI' : 'Hiện Trợ lý AI'">
               <UButton
@@ -254,7 +254,7 @@
 
               <div
                 v-if="outlineResult"
-                class="mt-4 space-y-3 text-sm"
+                class="mt-4 space-y-3 text-sm max-h-[calc(100vh-200px)] overflow-y-auto"
               >
                 <USeparator label="Dàn ý gợi ý" />
                 <div
@@ -287,11 +287,11 @@
             </div>
           </template>
 
-          <template #compose="{ item }">
+           <template #compose="{ item }">
             <div class="flex flex-col h-full">
               <div class="p-4 space-y-4 border-b border-gray-200 dark:border-gray-800">
                 <p class="text-sm text-gray-500">{{ item.description }}</p>
-                <UTextarea v-model="userPrompt" :rows="8" :placeholder="promptPlaceholder" class="w-full" />
+                <UTextarea v-model="userPrompt" :rows="8" autoresize :placeholder="promptPlaceholder" class="w-full" />
                 <UButton :loading="isGenerating" class="w-full" icon="i-heroicons-pencil-square" @click="generateNextScene">Tạo nội dung</UButton>
               </div>
               <div class="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -307,7 +307,7 @@
                         <UButton
                           size="xs"
                           :icon="addedLorebookContext.includes(entry.name) ? 'i-heroicons-check-circle-solid' : 'i-heroicons-plus-circle'"
-                          :color="addedLorebookContext.includes(entry.name) ? 'success' : 'warning'"
+                          :color="addedLorebookContext.includes(entry.name) ? 'green' : 'gray'"
                           @click="toggleLorebookContext(accordionItem.label, entry.name)"
                         >
                           {{ addedLorebookContext.includes(entry.name) ? 'Đã thêm' : 'Thêm' }}
@@ -409,7 +409,7 @@ function toggleLorebookContext(type: string, name: string) {
 
 function useOutlineStep(stepText: string) {
   console.log('Using outline step:', stepText)
-  userPrompt.value.push(stepText) // Giữ nguyên các ngữ cảnh đã thêm
+  userPrompt.value += stepText + '\n' // Giữ nguyên các ngữ cảnh đã thêm
   selectedAiTabIndex.value = 1 // Tự động chuyển sang tab "Sáng tác"
   toast.add({ title: 'Đã thêm vào prompt Sáng tác!', icon: 'i-heroicons-arrow-down-tray' })
 }
