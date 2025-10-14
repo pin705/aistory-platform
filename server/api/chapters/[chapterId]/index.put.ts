@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const chapterId = event.context.params?.chapterId as string
-  const { title, content } = await readBody(event)
+  const { title, content, status } = await readBody(event)
 
   const chapter = await Chapter.findById(chapterId)
   if (!chapter) {
@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
   chapter.title = title || chapter.title
   chapter.content = content || chapter.content
   chapter.updatedAt = new Date()
+  chapter.status = status || chapter.status
 
   await chapter.save()
 

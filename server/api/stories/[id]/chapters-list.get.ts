@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
   const chapters = await Chapter.find({ storyId })
     .sort({ chapterNumber: 1 })
-    .select('_id title chapterNumber')
+    .select('_id title chapterNumber status')
 
   return chapters
 })

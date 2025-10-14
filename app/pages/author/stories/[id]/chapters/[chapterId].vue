@@ -35,7 +35,7 @@
                   v-for="chap in storyChapters"
                   :key="chap._id"
                   :to="`/author/stories/${storyId}/chapters/${chap._id}`"
-      class="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+                  class="flex items-center justify-between px-3 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
                   active-class="bg-gray-100 dark:bg-[#18181b] font-semibold"
                 >
                   <span class="truncate">Ch.{{ chap.chapterNumber }}: {{ chap.title }}</span>
@@ -88,6 +88,30 @@
               variant="none"
               class="font-bold text-lg p-0"
             />
+
+            <USelectMenu
+              v-model="chapterStatus"
+              :items="statusOptions"
+              value-key="key"
+              @change="changeChapStatus"
+            >
+              <template #default>
+                <UBadge
+                  :color="currentStatus?.color"
+                  variant="soft"
+                >
+                  {{ currentStatus?.label }}
+                </UBadge>
+              </template>
+              <template #item="{ item }">
+                <UIcon
+                  :name="item.icon"
+                  class="w-4 h-4 mr-2"
+                  :class="`text-${item.color}-500`"
+                />
+                <span>{{ item.label }}</span>
+              </template>
+            </USelectMenu>
           </div>
 
           <div class="flex items-center gap-2 sm:gap-4">
@@ -185,7 +209,6 @@
           >
             <UButton
               size="xs"
-              color="white"
               variant="ghost"
               @click="rewriteSelection('improve')"
             >
@@ -193,7 +216,6 @@
             </UButton>
             <UButton
               size="xs"
-              color="white"
               variant="ghost"
               @click="rewriteSelection('shorter')"
             >
@@ -201,7 +223,6 @@
             </UButton>
             <UButton
               size="xs"
-              color="white"
               variant="ghost"
               @click="rewriteSelection('longer')"
             >
@@ -313,7 +334,6 @@
                 <UTextarea
                   v-model="userPrompt"
                   :rows="8"
-                  autoresize
                   :placeholder="promptPlaceholder"
                   class="w-full"
                 />
@@ -354,7 +374,7 @@
                         <UButton
                           size="xs"
                           :icon="addedLorebookContext.includes(entry.name) ? 'i-heroicons-check-circle-solid' : 'i-heroicons-plus-circle'"
-                          :color="addedLorebookContext.includes(entry.name) ? 'green' : 'gray'"
+                          :color="addedLorebookContext.includes(entry.name) ? 'success' : 'warning'"
                           @click="toggleLorebookContext(accordionItem.label, entry.name)"
                         >
                           {{ addedLorebookContext.includes(entry.name) ? 'Đã thêm' : 'Thêm' }}
@@ -405,6 +425,13 @@ const isOutlining = ref(false)
 const outlinePrompt = ref('')
 const outlineResult = ref<any>(null)
 const addedLorebookContext = ref<string[]>([])
+const chapterStatus = ref('draft') // State để lưu trạng thái hiện tại
+const statusOptions = [
+  { key: 'draft', label: 'Bản nháp', icon: 'i-heroicons-pencil-square', color: 'orange' },
+  { key: 'published', label: 'Đã xuất bản', icon: 'i-heroicons-globe-alt', color: 'green' }
+]
+
+const currentStatus = computed(() => statusOptions.find(s => s.key === chapterStatus.value))
 
 // Computed để format dàn ý cho đẹp hơn
 const formattedOutline = computed(() => {
@@ -496,8 +523,8 @@ watch(isRightSidebarOpen, (isOpen) => { if (isOpen) isFocusMode.value = false })
 
 // ----- LẤY DỮ LIỆU -----
 const { data: storyChapters, refresh: refreshStoryChapters } = await useFetch(`/api/stories/${storyId}/chapters-list`, { default: () => [] })
-const { data: chapterData, pending: isLoadingChapter } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
-const { data: story } = await useFetch(`/api/stories/${storyId}`)
+const { data: chapterData, pending: isLoadingChapter, refresh: refreshChapterData } = await useFetch(chapterId !== 'new' ? `/api/chapters/${chapterId}` : null, { lazy: true })
+// const { data: story } = await useFetch(`/api/stories/${storyId}`)
 const { data: lorebookData } = await useFetch(`/api/stories/${storyId}/lorebook`)
 
 const lorebookItems = computed(() => [
@@ -556,14 +583,47 @@ const editor = useEditor({
   editorProps: { attributes: { class: 'prose dark:prose-invert max-w-none p-4 focus:outline-none min-h-[70vh]' } }
 })
 
+watch(() => route.params.chapterId, (newId) => {
+  if (newId) {
+    // 1. Dừng mọi tác vụ TTS đang chạy
+    stop()
+    // 2. Tải lại dữ liệu cho chương mới
+    refreshChapterData()
+  }
+}, { immediate: true })
+
 watch(chapterData, (newData) => {
   if (newData) {
     chapterTitle.value = newData.title
-    if (editor.value && !editor.value.isFocused) {
-      editor.value?.commands.setContent(newData.content, false)
+    chapterStatus.value = newData.status
+    if (editor.value) {
+      // Dùng `setContent` để đảm bảo editor được cập nhật hoàn toàn
+      // Kiểm tra `isFocused` để không ghi đè khi người dùng đang gõ
+      if (!editor.value.isFocused) {
+        editor.value.commands.setContent(newData.content, false)
+      }
     }
+  } else if (chapterId === 'new') {
+    // Xử lý khi chuyển sang trang "tạo chương mới"
+    chapterTitle.value = 'Chương mới'
+    chapterStatus.value = 'draft'
+    editor.value?.commands.clearContent()
   }
-}, { immediate: true })
+})
+
+const changeChapStatus = async (newStatus: string) => {
+  try {
+    console.log('chapterId', chapterId)
+    await $fetch(`/api/chapters/${chapterId}`, {
+      method: 'PUT',
+      body: { status: currentStatus.value?.key }
+    })
+    toast.add({ title: `Đã đổi trạng thái thành: ${currentStatus.value?.label}` })
+    // Chỉ cần refresh list chương ở sidebar, không cần refresh toàn bộ dữ liệu trang
+  } catch (e) {
+    toast.add({ title: 'Lỗi!', description: 'Không thể cập nhật trạng thái.', color: 'error' })
+  }
+}
 
 watchDebounced(() => [chapterTitle.value, editor.value?.getHTML()],
   async ([newTitle, newContent], [oldTitle, oldContent]) => {
@@ -688,29 +748,6 @@ watch(isGenerating, (newValue, oldValue) => {
     addedLorebookContext.value = []
   }
 })
-
-// (MỚI) Theo dõi sự thay đổi của chapterId trên URL
-watch(() => route.params.chapterId, (newId) => {
-  if (newId) {
-    // Khi chapterId thay đổi, gọi `refresh` để fetch lại dữ liệu mới
-    refreshChapterData()
-  }
-})
-
-// `watch` dữ liệu từ `useFetch` để cập nhật editor và title
-watch(chapterData, (newData) => {
-  if (newData) {
-    chapterTitle.value = newData.title
-    if (editor.value) {
-      // Dùng `setContent` để đảm bảo editor được cập nhật hoàn toàn
-      editor.value.commands.setContent(newData.content, false)
-    }
-  } else if (chapterId.value === 'new') {
-    // Xử lý khi chuyển từ một chương cũ sang "tạo chương mới"
-    chapterTitle.value = ''
-    editor.value?.commands.clearContent()
-  }
-}, { immediate: true })
 </script>
 
 <style>
