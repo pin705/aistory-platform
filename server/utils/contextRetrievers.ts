@@ -1,16 +1,7 @@
-import { GoogleGenAI } from '@google/genai'
+import { embedContent } from '../services/ai'
 
 export async function retrieveSimilarContext(storyId: string, userPrompt: string): Promise<string> {
-  const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_SERVER_API_KEY! })
-  const promptEmbeddingResult = await genAI.models.embedContent({
-    model: 'text-embedding-004',
-    contents: [userPrompt]
-  })
-
-  // 3. (QUAN TRỌNG) Trích xuất mảng vector thuần túy
-  const queryVector = promptEmbeddingResult.embeddings?.[0]?.values
-
-  // Kiểm tra để chắc chắn đã lấy được vector
+  const queryVector = await embedContent({ prompt: userPrompt })
   if (!queryVector || !Array.isArray(queryVector)) {
     throw new Error('Không thể tạo vector cho prompt người dùng.')
   }

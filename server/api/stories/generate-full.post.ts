@@ -1,5 +1,3 @@
-import { runAiGenerationFullPostJob } from '~~/server/jobs/handlers'
-
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const { prompt } = await readBody(event)

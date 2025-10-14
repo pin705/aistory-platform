@@ -1,12 +1,7 @@
-import CryptoJS from 'crypto-js'
-import { GoogleGenAI } from '@google/genai'
 import { getMetaPrompt } from './promptFactory' // Chúng ta vẫn dùng promptFactory để quản lý prompt tập trung
 import { generateContent } from '../services/ai';
 
-/**
- * Xử lý job tạo chi tiết truyện (title, description...)
- */
-export async function runAiGenerationJob(jobId: string) {
+export async function runAiGenerationFullPostJob(jobId: string) {
   const job = await AiJob.findById(jobId)
   if (!job) { console.error(`Job not found: ${jobId}`); return }
 
@@ -14,33 +9,36 @@ export async function runAiGenerationJob(jobId: string) {
     job.status = 'processing'
     await job.save()
 
-    const apiKeyRecord = await ApiKey.findOne({ userId: job.userId, provider: 'gemini' })
-    if (!apiKeyRecord) throw new Error('Không tìm thấy API Key của Gemini.')
-    const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8)
-    if (!decryptedKey) throw new Error('Lỗi giải mã key.')
-
-    // Lấy metaPrompt từ nhà máy prompt
     const metaPrompt = await getMetaPrompt(job)
-
-    // --- (CẬP NHẬT) GỌI GEMINI API THEO CÚ PHÁP MỚI ---
-    // 1. Khởi tạo client
-    const genAI = new GoogleGenAI({ apiKey: decryptedKey })
-
-    // 2. Gọi API trực tiếp
-    const result = await genAI.models.generateContent({
-      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
-      contents: metaPrompt
+    const rawText = await generateContent({
+      userId: job.userId.toString(),
+      prompt: metaPrompt,
+      jobType: 'generate_story_details'
     })
-
-    // 3. Lấy kết quả text trực tiếp
-    const rawText = result.text
-    // --- KẾT THÚC CẬP NHẬT ---
 
     const jsonMatch = rawText?.match(/{[\s\S]*}/)
     if (!jsonMatch) throw new Error('AI trả về dữ liệu không đúng định dạng.')
 
+    const generatedData = JSON.parse(jsonMatch[0])
+
+    // LƯU VÀO DATABASE
+    const newStory = await Story.create({
+      ...generatedData.story,
+      prompt: job.prompt,
+      author: job.userId,
+      status: 'draft',
+      summary: generatedData.story.description || job.prompt.substring(0, 200) + '...'
+    })
+    const storyId = newStory._id
+    await Promise.all([
+      Character.insertMany(generatedData.characters.map((c: any) => ({ ...c, storyId }))),
+      Faction.insertMany(generatedData.factions.map((f: any) => ({ ...f, storyId }))),
+      CultivationRealm.insertMany(generatedData.realms.map((r: any) => ({ ...r, storyId })))
+    ])
+
     job.status = 'completed'
-    job.result = JSON.parse(jsonMatch[0])
+    // Chỉ lưu ID của truyện mới tạo vào kết quả
+    job.result = { newStoryId: newStory._id, newStoryTitle: newStory.title }
     job.completedAt = new Date()
     await job.save()
   } catch (error: any) {
@@ -71,8 +69,9 @@ export async function runSceneGenerationJob(jobId: string) {
     const metaPrompt = await getMetaPrompt(job)
 
     const rawText = await generateContent({
-      userId: job.userId.toString(),
-      prompt: metaPrompt
+      userId: job.userId,
+      prompt: metaPrompt,
+      jobType: 'generate_scene'
     })
 
     // (FIX) Dọn dẹp Markdown bao quanh HTML

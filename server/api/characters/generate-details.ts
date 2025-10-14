@@ -1,5 +1,4 @@
-import { GoogleGenAI } from '@google/genai'
-import CryptoJS from 'crypto-js'
+import { generateContent } from '~~/server/services/ai'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
@@ -9,23 +8,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Vui lòng cung cấp Vai trò và Ý tưởng nhân vật.' })
   }
 
-  // Lấy và giải mã API key của người dùng
-  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' })
-  if (!apiKeyRecord) {
-    throw createError({ statusCode: 400, statusMessage: 'Vui lòng thêm API Key của Gemini.' })
-  }
-  const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8)
-  if (!decryptedKey) {
-    throw createError({ statusCode: 500, statusMessage: 'Lỗi giải mã key.' })
-  }
-
   // Lấy bối cảnh chung của truyện để AI hiểu rõ hơn
   const story = await Story.findById(storyId).select('description prompt')
   const storyContext = `Bối cảnh truyện: ${story?.prompt || story?.description || 'chưa có'}`
 
   try {
-    const genAI = new GoogleGenAI({ apiKey: decryptedKey })
-
     const metaPrompt = `
       QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
       Bạn là một chuyên gia sáng tạo nhân vật cho tiểu thuyết. Dựa vào bối cảnh truyện và ý tưởng nhân vật do người dùng cung cấp, hãy phát triển thành một hồ sơ nhân vật chi tiết.
@@ -43,13 +30,12 @@ export default defineEventHandler(async (event) => {
       - backstory: Một đoạn tiểu sử ngắn gọn về quá khứ, nguồn gốc của nhân vật (3-4 câu).
       - abilities: Liệt kê 2-3 năng lực, kỹ năng hoặc công pháp đặc trưng.
     `
-
-    const result = await genAI.models.generateContent({
-      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
-      contents: [metaPrompt]
+    const rawText = await generateContent({
+      userId: session.user.id,
+      prompt: metaPrompt,
+      jobType: 'generate_character_details'
     })
 
-    const rawText = result.text
     const jsonMatch = rawText?.match(/{[\s\S]*}/)
     if (!jsonMatch) { throw new Error('AI trả về dữ liệu không đúng định dạng.') }
 

@@ -1,5 +1,6 @@
 import CryptoJS from 'crypto-js'
 import { GoogleGenAI } from '@google/genai'
+import { generateContent } from '~~/server/services/ai'
 
 // Các mẫu prompt cho từng loại
 const PROMPT_TEMPLATES: Record<string, string> = {
@@ -29,7 +30,7 @@ async function getExistingLoreContext(storyId: string) {
     Character.find({ storyId }).select('name role'),
     Faction.find({ storyId }).select('name ideology'),
     Location.find({ storyId }).select('name'),
-    CultivationRealm.find({ storyId }).select('name level').sort({ level: 1 }),
+    CultivationRealm.find({ storyId }).select('name level').sort({ level: 1 })
   ])
 
   const characterContext = characters.length > 0
@@ -59,12 +60,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Yêu cầu không hợp lệ.' })
   }
 
-  // Lấy API key của người dùng
-  const apiKeyRecord = await ApiKey.findOne({ userId: session.user.id, provider: 'gemini' })
-  if (!apiKeyRecord) throw createError({ statusCode: 400, message: 'Vui lòng thêm API Key Gemini.' })
-  const decryptedKey = CryptoJS.AES.decrypt(apiKeyRecord.encryptedKey, process.env.CRYPTO_SECRET!).toString(CryptoJS.enc.Utf8)
-  if (!decryptedKey) throw createError({ statusCode: 500, message: 'Lỗi giải mã key.' })
-
   const story = await Story.findById(storyId).select('prompt description')
   const storyContext = `Bối cảnh truyện: ${story?.prompt || story?.description || 'chưa có'}`
 
@@ -93,12 +88,12 @@ export default defineEventHandler(async (event) => {
       ${PROMPT_TEMPLATES[loreType]}
     `
 
-    const result = await genAI.models.generateContent({
-      model: apiKeyRecord?.apiModel?.toString() || 'gemini-2.5-flash',
-      contents: metaPrompt
+    const rawText = await generateContent({
+      userId: session.user.id,
+      prompt: metaPrompt,
+      jobType: 'generate_post_details'
     })
 
-    const rawText = result.text ?? ''
     const jsonMatch = rawText.match(/{[\s\S]*}/)
     if (!jsonMatch) {
       throw createError({ statusCode: 500, statusMessage: 'AI đã trả về dữ liệu không đúng định dạng.' })
