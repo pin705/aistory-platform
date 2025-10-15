@@ -11,8 +11,7 @@ const userMenuItems = [
     {
       label: 'Sáng tác',
       icon: 'i-heroicons-squares-2x2',
-      to: '/dashboard',
-      disable: !loggedIn.value
+      to: !loggedIn.value ? '/login' : '/dashboard'
     },
     {
       label: 'Đăng nhập',
