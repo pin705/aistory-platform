@@ -1,5 +1,5 @@
 <template>
-  <UContainer>
+  <UContainer class="my-4 lg:my-8">
     <div v-if="story">
       <section
         class="relative border-b border-gray-200 dark:border-gray-800 py-10 overflow-hidden"
