@@ -1,4 +1,17 @@
 <script setup>
+const isLoading = useState('isLoading', () => false)
+
+// 2. Lấy context của ứng dụng Nuxt.
+const nuxtApp = useNuxtApp()
+
+// 3. Lắng nghe các sự kiện (hook) chuyển trang.
+nuxtApp.hook('page:start', () => {
+  isLoading.value = true
+})
+nuxtApp.hook('page:finish', () => {
+  isLoading.value = false
+})
+
 // (CẬP NHẬT) Đặt tên và mô tả mới theo thương hiệu "Sáng tác truyện"
 const title = 'Sáng tác truyện - Nền tảng Sáng tác truyện với Trợ lý AI'
 const description
@@ -44,7 +57,8 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <NuxtLoadingIndicator />
+    <AppLoading />
+    <!-- <NuxtLoadingIndicator /> -->
     <Navbar />
     <UMain>
       <VitePwaManifest />
