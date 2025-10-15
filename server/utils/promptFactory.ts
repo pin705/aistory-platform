@@ -61,9 +61,6 @@ async function createSceneGenerationPrompt(job): Promise<string> {
       3.  KHÔNG được sử dụng các thẻ <html>, <body>, <div>, <span> hay bất kỳ thẻ HTML nào khác.
       4.  KHÔNG được thêm bất kỳ định dạng Markdown nào (ví dụ: dấu *, _, #).
       5.  Giữ cho các đoạn văn có độ dài hợp lý, không xuống dòng tùy tiện.
-
-      **VÍ DỤ VỀ KẾT QUẢ MONG MUỐN:**
-      <p>Lục Thiếu Du khẽ nhíu mày, luồng năng lượng vừa rồi rõ ràng không phải là của Triệu trưởng lão.</p><p>Hắn đưa mắt nhìn quanh hang động, sự cảnh giác được đẩy lên mức cao nhất. Trong bóng tối, một tiếng cười khàn khàn đột ngột vang lên.</p>
       ---
       **BỐI CẢNH ĐỂ BẠN SÁNG TÁC:**
 
