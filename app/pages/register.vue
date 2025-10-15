@@ -80,6 +80,7 @@
           <UButton
             block
             icon="i-simple-icons-google"
+             color="neutral"
             @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
@@ -89,6 +90,7 @@
           <UButton
             block
             icon="i-simple-icons-github"
+             color="neutral"
             @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
@@ -170,7 +172,7 @@
             type="submit"
             block
             :loading="isLoading"
-            size="lg"
+             color="neutral"
           >
             Tạo tài khoản
           </UButton>

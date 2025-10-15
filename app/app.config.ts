@@ -3,7 +3,12 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: 'purple',
+      primary: 'black',
+      // secondary: 'purple',
+      // success: 'green',
+      // info: 'blue',
+      // warning: 'yellow',
+      // error: 'red',
       neutral: 'zinc'
     },
     modal: {
@@ -11,6 +16,6 @@ export default defineAppConfig({
         content: 'sm:max-w-xl md:max-w-2xl lg:max-w-3xl',
         footer: 'justify-end'
       }
-    },
+    }
   }
 })

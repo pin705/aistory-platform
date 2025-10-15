@@ -9,6 +9,7 @@
           <UButton
             icon="i-heroicons-plus-circle"
             @click="openModal(null)"
+             color="neutral"
           >
             Thêm Cảnh giới
           </UButton>
@@ -50,6 +51,7 @@
                 size="sm"
                 variant="soft"
                 @click="openModal(realm)"
+                 color="neutral"
               />
             </UTooltip>
             <UTooltip text="Xoá">
@@ -121,6 +123,7 @@
                   :loading="isGenerating"
                   class="mt-2"
                   @click="handleGenerate"
+                   color="neutral"
                 >
                   Gợi ý
                 </UButton>
@@ -189,6 +192,7 @@
             </UButton>
             <UButton
               type="submit"
+               color="neutral"
               :loading="isLoading"
             >
               Lưu

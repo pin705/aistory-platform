@@ -48,6 +48,7 @@
             size="lg"
             :icon="isFollowingState ? 'i-heroicons-check' : 'i-heroicons-user-plus'"
             @click="handleFollow"
+             color="neutral"
           >
             {{ isFollowingState ? 'Đang theo dõi' : 'Theo dõi' }}
           </UButton>
@@ -60,6 +61,7 @@
         :items="tabs"
         class="w-full"
         variant="link"
+         color="neutral"
       >
         <template #works="{ item }">
           <UCard>

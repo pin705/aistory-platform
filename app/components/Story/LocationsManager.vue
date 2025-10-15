@@ -9,6 +9,7 @@
           <UButton
             icon="i-heroicons-plus-circle"
             @click="openModal(null)"
+             color="neutral"
           >
             Thêm Địa danh
           </UButton>
@@ -41,6 +42,7 @@
                 size="sm"
                 variant="soft"
                 @click="openModal(location)"
+                 color="neutral"
               />
             </UTooltip>
             <UTooltip text="Xoá">
@@ -66,6 +68,7 @@
         <UButton
           class="mt-4"
           @click="openModal(null)"
+           color="neutral"
         >
           Tạo địa danh đầu tiên
         </UButton>
@@ -112,6 +115,7 @@
                   :loading="isGenerating"
                   class="mt-2"
                   @click="handleGenerate"
+                   color="neutral"
                 >
                   Gợi ý
                 </UButton>
@@ -168,6 +172,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+               color="neutral"
             >
               Lưu
             </UButton>

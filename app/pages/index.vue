@@ -44,6 +44,7 @@
           <UTabs
             :items="mainTabs"
             variant="link"
+             color="neutral"
           >
             <template #editorPicks="{ item }">
               <div class="flex justify-between items-center my-6">
@@ -57,6 +58,7 @@
                   label="Xem tất cả"
                   variant="link"
                   trailing-icon="i-heroicons-arrow-right"
+                   color="neutral"
                 />
               </div>
               <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -79,6 +81,7 @@
                   label="Xem tất cả"
                   variant="link"
                   trailing-icon="i-heroicons-arrow-right"
+                   color="neutral"
                 />
               </div>
               <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">

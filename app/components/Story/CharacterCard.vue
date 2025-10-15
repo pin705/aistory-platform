@@ -29,11 +29,13 @@
           size="lg"
           variant="ghost"
           @click="emit('edit', character)"
+          color="neutral"
         />
         <UButton
           icon="i-heroicons-trash"
           size="lg"
           variant="ghost"
+          color="error"
           @click="emit('delete', character._id)"
         />
       </div>

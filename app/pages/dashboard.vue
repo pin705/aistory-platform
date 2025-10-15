@@ -7,6 +7,7 @@
       <UButton
         icon="i-heroicons-plus-circle"
         to="/author/stories/new"
+         color="neutral"
       >
         Sáng tác truyện mới
       </UButton>
@@ -35,6 +36,7 @@
       <UButton
         class="mt-4"
         @click="openStoryModal(null)"
+         color="neutral"
       >
         Bắt đầu sáng tác ngay
       </UButton>
@@ -69,6 +71,7 @@
             <div class="md:col-span-2">
               <UTabs
                 :items="isEditing ? editTabs : addTabs"
+                 color="neutral"
               >
                 <template #prompt>
                   <div class="space-y-4 pt-4">
@@ -90,6 +93,7 @@
                         icon="i-heroicons-sparkles"
                         :loading="isGenerating"
                         @click="callAIGenerate"
+                         color="neutral"
                       >
                         AI Phác thảo
                       </UButton>
@@ -188,6 +192,7 @@
           type="submit"
           :loading="isLoading"
           @click="storyFormRef?.submit()"
+           color="neutral"
         >
           {{ isEditing ? 'Cập nhật Tác phẩm' : 'Khởi tạo Tác phẩm' }}
         </UButton>

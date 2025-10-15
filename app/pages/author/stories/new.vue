@@ -57,6 +57,7 @@
                 :variant="storyData.settings.writingStructure === 'structured' ? 'solid' : 'outline'"
                 class="flex-col h-24 text-center"
                 @click="storyData.settings.writingStructure = 'structured'"
+                 color="neutral"
               >
                 <Icon
                   name="i-heroicons-squares-2x2"
@@ -69,6 +70,7 @@
                 :variant="storyData.settings.writingStructure === 'open' ? 'solid' : 'outline'"
                 class="flex-col h-24 text-center"
                 @click="storyData.settings.writingStructure = 'open'"
+                 color="neutral"
               >
                 <Icon
                   name="i-heroicons-sparkles"
@@ -248,6 +250,7 @@
           variant="ghost"
           icon="i-heroicons-arrow-left"
           @click="prevStep"
+           color="neutral"
         >
           Quay lại
         </UButton>
@@ -264,16 +267,16 @@
             v-if="currentStep < wizardSteps.length"
             :disabled="!canProceed"
             trailing-icon="i-heroicons-arrow-right"
-            size="lg"
             @click="nextStep"
+             color="neutral"
           >
             {{ currentStep === 4 && isGenerating ? 'Đang xử lý...' : 'Bước tiếp theo' }}
           </UButton>
           <UButton
             v-if="currentStep === wizardSteps.length"
             :loading="isLoading"
-            size="lg"
             icon="i-heroicons-rocket-launch"
+             color="neutral"
             :to="`/author/stories/${storyData._id}`"
           >
             Hoàn tất & Đi tới Tác phẩm

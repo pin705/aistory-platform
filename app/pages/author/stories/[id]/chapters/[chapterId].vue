@@ -262,6 +262,7 @@
           :default-index="selectedAiTabIndex"
           :items="aiTabs"
           class="flex-1 flex flex-col"
+           color="neutral"
         >
           <template #outline="{ item }">
             <div class="p-4 space-y-4 flex-1 overflow-y-auto">
@@ -283,6 +284,7 @@
                 block
                 :loading="isOutlining"
                 @click="generateOutline"
+                color="neutral"
               >
                 Tạo Dàn ý
               </UButton>

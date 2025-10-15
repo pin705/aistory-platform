@@ -49,6 +49,7 @@
                   :loading="isGenerating"
                   block
                   @click="handleGenerateDetails"
+                   color="neutral"
                 >
                   Gợi ý chi tiết
                 </UButton>
@@ -140,6 +141,7 @@
                     variant="outline"
                     size="sm"
                     @click="addAbility"
+                     color="neutral"
                   />
                 </div>
               </UFormField>
@@ -158,6 +160,7 @@
           <UButton
             type="submit"
             :loading="isLoading"
+             color="neutral"
           >
             {{ isEditing ? 'Lưu thay đổi' : 'Thêm nhân vật' }}
           </UButton>

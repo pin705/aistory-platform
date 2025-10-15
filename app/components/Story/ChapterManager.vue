@@ -9,6 +9,7 @@
           icon="i-heroicons-plus-circle"
           :loading="isCreating"
           @click="createNewChapter"
+           color="neutral"
         >
           Viết chương mới
         </UButton>

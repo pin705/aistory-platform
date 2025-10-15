@@ -77,7 +77,7 @@
           >
             <UButton
               :icon="action.icon"
-              :color="action.label === 'Xoá truyện' ? 'error' : 'primary'"
+              :color="action.label === 'Xoá truyện' ? 'error' : 'neutral'"
               variant="ghost"
               class="bg-white/10 hover:bg-white/20 text-white rounded-full"
               @click="action.click"

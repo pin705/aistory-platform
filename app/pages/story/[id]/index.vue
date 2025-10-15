@@ -56,6 +56,7 @@
               :to="firstChapterLink"
               icon="i-heroicons-book-open"
               class="flex-1 sm:flex-none justify-center"
+              color="neutral"
             >
               Đọc từ đầu
             </UButton>
@@ -64,7 +65,6 @@
               icon="i-heroicons-sparkles"
               class="flex-1 sm:flex-none justify-center"
               variant="ghost"
-              color="none"
             >
               Chương mới nhất
             </UButton>
@@ -143,6 +143,7 @@
           <UTabs
             :items="tabs"
             class="w-full"
+             color="neutral"
           >
             <template #description="{ item }">
               <UCard>

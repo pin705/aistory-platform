@@ -54,6 +54,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+               color="neutral"
             >
               Lưu thay đổi
             </UButton>

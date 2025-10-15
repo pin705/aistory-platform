@@ -15,6 +15,7 @@
     <UTabs
       :items="tabsManager"
       class="w-full"
+       color="neutral"
     >
       <template #chapters="{ item }">
         <StoryChapterManager :story-id="storyId" />

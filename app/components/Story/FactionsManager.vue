@@ -9,6 +9,7 @@
           <UButton
             icon="i-heroicons-plus-circle"
             @click="openModal(null)"
+             color="neutral"
           >
             Thêm Thế lực
           </UButton>
@@ -43,6 +44,7 @@
                 icon="i-heroicons-pencil-square"
                 size="sm"
                 variant="soft"
+                 color="neutral"
                 @click="openModal(faction)"
               />
             </UTooltip>
@@ -68,6 +70,7 @@
         <UButton
           class="mt-4"
           @click="openModal(null)"
+           color="neutral"
         >
           Tạo thế lực đầu tiên
         </UButton>
@@ -113,6 +116,7 @@
                   :loading="isGenerating"
                   class="mt-2"
                   @click="handleGenerate"
+                   color="neutral"
                 >
                   Gợi ý
                 </UButton>
@@ -166,6 +170,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+               color="neutral"
             >
               {{ isEditing ? 'Lưu thay đổi' : 'Thêm Thế lực' }}
             </UButton>

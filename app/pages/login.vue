@@ -79,6 +79,7 @@
           <UButton
             block
             icon="i-simple-icons-google"
+             color="neutral"
             @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
@@ -88,6 +89,7 @@
           <UButton
             block
             icon="i-simple-icons-github"
+             color="neutral"
              @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
@@ -142,6 +144,7 @@
             type="submit"
             block
             :loading="isLoading"
+             color="neutral"
           >
             Đăng nhập
           </UButton>
