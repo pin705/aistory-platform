@@ -20,7 +20,7 @@
           <button
             v-for="genre in genresFromAPI"
             :key="genre"
-            class="p-4 border rounded-lg text-center transition-all duration-200 text-sm font-medium"
+            class="p-2 border rounded-lg text-center transition-all duration-200 text-sm font-medium"
             :class="storyData.genres.includes(genre) ? 'bg-primary-500 border-gray-500 dark:border-primary-500 ring-1' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
             color="neutral"
             @click="toggleGenre(genre)"
