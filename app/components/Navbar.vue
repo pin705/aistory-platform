@@ -1,16 +1,16 @@
 <script setup lang="ts">
 const { loggedIn, clear, session } = useUserSession()
 
-const userMenuItems = [
+const items = [
   [
     {
       label: 'Đề xuất',
-      icon: 'i-heroicons-home-20-solid',
+      // icon: 'i-heroicons-home-20-solid',
       to: '/'
     },
     {
       label: 'Sáng tác',
-      icon: 'i-heroicons-squares-2x2',
+      // icon: 'i-heroicons-squares-2x2',
       to: !loggedIn.value ? '/login' : '/dashboard'
     },
     {
@@ -45,24 +45,47 @@ const userMenuItems = [
       ]
     }
   ]
-
 ]
 </script>
 
 <template>
-  <div class="fixed top-2 sm:top-4 mx-auto left-1/2 transform -translate-x-1/2 z-10">
-    <UNavigationMenu
-      :items="userMenuItems"
-      variant="link"
-      class="bg-muted/80 backdrop-blur-sm rounded-full px-2 sm:px-4 border border-muted/50 shadow-lg shadow-neutral-950/5"
-      :ui="{
-        link: 'px-2 py-1',
-        linkLeadingIcon: 'hidden'
-      }"
-    >
-      <template #list-trailing>
-        <UColorModeButton />
-      </template>
-    </UNavigationMenu>
-  </div>
+  <UHeader>
+    <template #left>
+      <NuxtLink to="/">
+        <AppLogo class="w-auto h-6 shrink-0" />
+      </NuxtLink>
+
+      <TemplateMenu />
+    </template>
+
+    <template #right>
+      <UNavigationMenu
+        :items="items"
+        variant="link"
+        class="hidden lg:block"
+      />
+
+      <!-- <UButton
+        label="Download App"
+        variant="subtle"
+        class="hidden lg:block"
+      /> -->
+
+      <UColorModeButton />
+    </template>
+
+    <template #body>
+      <UNavigationMenu
+        :items="items"
+        orientation="vertical"
+        class="-mx-2.5"
+      />
+      <!-- <UButton
+        class="mt-4"
+        label="Download App"
+        variant="subtle"
+        block
+      /> -->
+    </template>
+  </UHeader>
 </template>

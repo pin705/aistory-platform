@@ -1,50 +1,12 @@
 <template>
   <div v-if="homeData">
-    <section class="mb-12">
-      <UCarousel
-        v-slot="{ item }"
-        :items="homeData.featuredStories"
-        :ui="{ item: 'basis-full' }"
-        class="rounded-lg overflow-hidden"
-        arrows
-        indicators
-      >
-        <div class="relative aspect-[16/7] w-full">
-          <img
-            :src="item.coverImage"
-            class="w-full h-full object-cover filter brightness-50"
-            draggable="false"
-          >
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-          <UContainer class="absolute bottom-0 left-0 right-0 py-4 sm:py-8 text-white">
-            <h2 class="text-2xl sm:text-3xl md:text-5xl font-bold line-clamp-2">
-              {{ item.title }}
-            </h2>
-            <p class="mt-2 max-w-2xl text-gray-300 line-clamp-2 text-sm sm:text-base">
-              {{ item.description }}
-            </p>
-            <div class="mt-4 flex flex-wrap gap-2">
-              <UBadge
-                v-for="genre in item.genres"
-                :key="genre"
-                color="white"
-                variant="outline"
-              >
-                {{ genre }}
-              </UBadge>
-            </div>
-          </UContainer>
-        </div>
-      </UCarousel>
-    </section>
-
     <UContainer>
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div class="lg:col-span-3">
           <UTabs
             :items="mainTabs"
             variant="link"
-             color="neutral"
+            color="neutral"
           >
             <template #editorPicks="{ item }">
               <div class="flex justify-between items-center my-6">
@@ -58,7 +20,7 @@
                   label="Xem tất cả"
                   variant="link"
                   trailing-icon="i-heroicons-arrow-right"
-                   color="neutral"
+                  color="neutral"
                 />
               </div>
               <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -81,7 +43,7 @@
                   label="Xem tất cả"
                   variant="link"
                   trailing-icon="i-heroicons-arrow-right"
-                   color="neutral"
+                  color="neutral"
                 />
               </div>
               <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">

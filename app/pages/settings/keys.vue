@@ -4,6 +4,7 @@
       <UAlert
         icon="i-heroicons-light-bulb"
         title="Hướng dẫn Gemini"
+        color="neutral"
       >
         <template #description>
           Lấy API Key miễn phí từ <a
@@ -16,6 +17,7 @@
       <UAlert
         icon="i-heroicons-light-bulb"
         title="Hướng dẫn Groq"
+        color="neutral"
       >
         <template #description>
           Groq cung cấp tốc độ cực nhanh. Lấy API Key miễn phí tại <a

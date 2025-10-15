@@ -23,6 +23,7 @@
             class="p-4 border rounded-lg text-center transition-all duration-200 text-sm font-medium"
             :class="storyData.genres.includes(genre) ? 'bg-primary-500 text-white border-primary-500 ring-4 ring-primary-500/30' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
             @click="toggleGenre(genre)"
+            color="neutral"
           >
             {{ genre }}
           </button>
@@ -56,8 +57,8 @@
               <UButton
                 :variant="storyData.settings.writingStructure === 'structured' ? 'solid' : 'outline'"
                 class="flex-col h-24 text-center"
+                color="neutral"
                 @click="storyData.settings.writingStructure = 'structured'"
-                 color="neutral"
               >
                 <Icon
                   name="i-heroicons-squares-2x2"
@@ -69,8 +70,8 @@
               <UButton
                 :variant="storyData.settings.writingStructure === 'open' ? 'solid' : 'outline'"
                 class="flex-col h-24 text-center"
+                color="neutral"
                 @click="storyData.settings.writingStructure = 'open'"
-                 color="neutral"
               >
                 <Icon
                   name="i-heroicons-sparkles"
@@ -236,6 +237,7 @@
           :title="tip.title"
           :description="tip.description"
           :icon="tip.icon"
+          color="neutral"
         />
       </div>
     </aside>
@@ -249,8 +251,8 @@
           v-if="currentStep > 1 && !isGenerating"
           variant="ghost"
           icon="i-heroicons-arrow-left"
+          color="neutral"
           @click="prevStep"
-           color="neutral"
         >
           Quay lại
         </UButton>
@@ -267,8 +269,8 @@
             v-if="currentStep < wizardSteps.length"
             :disabled="!canProceed"
             trailing-icon="i-heroicons-arrow-right"
+            color="neutral"
             @click="nextStep"
-             color="neutral"
           >
             {{ currentStep === 4 && isGenerating ? 'Đang xử lý...' : 'Bước tiếp theo' }}
           </UButton>
@@ -276,7 +278,7 @@
             v-if="currentStep === wizardSteps.length"
             :loading="isLoading"
             icon="i-heroicons-rocket-launch"
-             color="neutral"
+            color="neutral"
             :to="`/author/stories/${storyData._id}`"
           >
             Hoàn tất & Đi tới Tác phẩm
