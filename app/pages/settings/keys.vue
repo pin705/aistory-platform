@@ -105,6 +105,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+              color="neutral"
             >
               Lưu Key
             </UButton>
