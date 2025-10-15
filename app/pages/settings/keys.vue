@@ -36,6 +36,7 @@
       <UButton
         icon="i-heroicons-plus"
         @click="isAddModalOpen = true"
+        color="neutral"
       >
         Thêm Key mới
       </UButton>
