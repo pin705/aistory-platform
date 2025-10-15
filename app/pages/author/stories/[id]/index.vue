@@ -2,7 +2,7 @@
   <UContainer class="py-8">
     <div class="mb-8">
       <NuxtLink
-        to="/author/dashboard"
+        to="/dashboard"
         class="text-sm text-gray-500 hover:underline"
       >‹ Tác phẩm của tôi</NuxtLink>
       <h1 class="text-3xl font-bold mt-1">
