@@ -5,7 +5,8 @@ export default defineNuxtConfig({
     'nuxt-mongoose',
     'nuxt-auth-utils',
     '@vueuse/nuxt',
-    '@vite-pwa/nuxt'
+    '@vite-pwa/nuxt',
+    '@vueuse/motion/nuxt'
   ],
 
   devtools: {

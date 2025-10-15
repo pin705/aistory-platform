@@ -5,7 +5,7 @@
   >
     <section class="text-white">
       <UContainer class="grid lg:grid-cols-2 gap-12 items-center py-20 lg:py-32">
-        <div v-motion-slide-visible-once-left>
+        <div>
           <UBadge
             variant="soft"
             color="neutral"
@@ -37,7 +37,6 @@
           </div>
         </div>
         <div
-          v-motion-slide-visible-once-right
           class="hidden lg:block"
         >
           <UCarousel

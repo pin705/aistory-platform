@@ -21,12 +21,17 @@
               :class="getStepClass(step.id)"
               @click="$emit('goToStep', step.id)"
             >
-              <Icon
-                v-if="currentStep > step.id"
-                name="i-heroicons-check"
-                class="w-5 h-5"
-              />
-              <span v-else>{{ step.id }}</span>
+              <Transition
+                name="fade"
+                mode="out-in"
+              >
+                <Icon
+                  v-if="currentStep > step.id"
+                  name="i-heroicons-check"
+                  class="w-5 h-5"
+                />
+                <span v-else>{{ step.id }}</span>
+              </Transition>
             </button>
             <div
               v-if="step.id < wizardSteps.length"
@@ -41,12 +46,14 @@
             >
               {{ step.name }}
             </h3>
-            <p
-              v-if="currentStep > step.id"
-              class="text-xs text-primary-500 mt-1"
-            >
-              {{ getStepSummary(step.id) }}
-            </p>
+            <Transition name="slide-fade">
+              <p
+                v-if="currentStep > step.id"
+                class="text-xs text-primary-500 mt-1"
+              >
+                {{ getStepSummary(step.id) }}
+              </p>
+            </Transition>
           </div>
         </div>
       </div>
@@ -64,3 +71,28 @@ const props = defineProps<{
 }>()
 defineEmits(['goToStep', 'reset'])
 </script>
+
+<style scoped>
+/* Hiệu ứng mờ dần (fade) cho số và dấu tick */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Hiệu ứng trượt và mờ dần cho phần tóm tắt */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+}
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+</style>

@@ -1,6 +1,7 @@
 <template>
   <div class="grid grid-cols-12 bg-gray-50 dark:bg-gray-900/50">
     <StoryWizardTimeline
+      v-motion-slide-visible-once-left
       :wizard-steps="wizardSteps"
       :current-step="currentStep"
       :highest-step="highestStep"
@@ -20,9 +21,12 @@
           <button
             v-for="genre in genresFromAPI"
             :key="genre"
-            class="p-2 border rounded-lg text-center transition-all duration-200 text-sm font-medium"
+            v-motion
+            class="p-2 border  text-center  text-sm font-medium border rounded-lg text-left transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
             :class="storyData.genres.includes(genre) ? 'bg-primary-500 border-gray-500 dark:border-primary-500 ring-1' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
             color="neutral"
+            :initial="{ opacity: 0, y: 20 }"
+            :enter="{ opacity: 1, y: 0, transition: { delay: 50 * index } }"
             @click="toggleGenre(genre)"
           >
             {{ genre }}
@@ -250,10 +254,13 @@
         <UAlert
           v-for="(tip, index) in tips[currentStep - 1].content"
           :key="index"
+          v-motion
           :title="tip.title"
           :description="tip.description"
           :icon="tip.icon"
           color="neutral"
+          :initial="{ opacity: 0, x: 50 }"
+          :enter="{ opacity: 1, x: 0, transition: { delay: 100 * (index + 1) } }"
         />
       </div>
     </aside>
