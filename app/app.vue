@@ -58,8 +58,6 @@ useSeoMeta({
 <template>
   <UApp>
     <AppLoading />
-    <!-- <NuxtLoadingIndicator /> -->
-    <Navbar />
     <UMain>
       <VitePwaManifest />
       <NuxtLayout>

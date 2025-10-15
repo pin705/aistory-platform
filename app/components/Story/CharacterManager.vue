@@ -37,6 +37,7 @@
         v-model="page"
         :page-count="limit"
         :total="characterData.total"
+        color="neutral"
       />
     </div>
   </div>

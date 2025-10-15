@@ -8,8 +8,8 @@
         <UButton
           icon="i-heroicons-plus-circle"
           :loading="isCreating"
+          color="neutral"
           @click="createNewChapter"
-           color="neutral"
         >
           Viết chương mới
         </UButton>
@@ -26,6 +26,9 @@
       :pagination-options="{
         getPaginationRowModel: getPaginationRowModel()
       }"
+      @select="(row) => {
+        navigateTo(`/author/stories/${storyId}/chapters/${row.original._id}`)
+      }"
     />
 
     <template #footer>
@@ -36,6 +39,7 @@
           :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
           :items-per-page="table?.tableApi?.getState().pagination.pageSize"
           :total="table?.tableApi?.getFilteredRowModel().rows.length"
+          color="neutral"
           @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
         />
       </div>
