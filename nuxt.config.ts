@@ -26,10 +26,10 @@ export default defineNuxtConfig({
     //   }
     // }
   },
-  // routeRules: {
-  //   '/dashboard/**': { ssr: false },
-  //   '/author/**': { ssr: false }
-  // },
+  routeRules: {
+    '/dashboard/**': { ssr: false },
+    '/author/**': { ssr: false }
+  },
 
   compatibilityDate: '2025-01-15',
 
