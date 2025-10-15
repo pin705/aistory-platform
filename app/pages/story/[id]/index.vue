@@ -238,7 +238,7 @@
                   <div v-else>
                     <p class="text-sm text-gray-500">
                       Vui lòng <NuxtLink
-                        to="/login"
+                        to="/dang-nhap"
                         class="text-primary font-medium"
                       >đăng nhập</NuxtLink> để để lại đánh giá.
                     </p>

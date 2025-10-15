@@ -1,114 +1,84 @@
 <template>
-  <div v-if="homeData">
-    <UContainer>
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div class="lg:col-span-3">
-          <UTabs
-            :items="mainTabs"
-            variant="link"
-            color="neutral"
+  <div
+    v-if="homeData"
+    class="bg-white dark:bg-gray-900"
+  >
+    <section class="bg-gray-900 text-white">
+      <UContainer class="grid lg:grid-cols-2 gap-12 items-center py-20 lg:py-32">
+        <div v-motion-slide-visible-once-left>
+          <UBadge variant="subtle">
+            Nền tảng Sáng tác truyện bằng AI
+          </UBadge>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-4">
+            Sáng tác tiểu thuyết của bạn, vận hành bởi AI.
+          </h1>
+          <p class="mt-4 text-lg text-gray-300">
+            Từ ý tưởng đến chương cuối, Sáng Tác Truyện là người bạn đồng hành sáng tạo, giúp bạn xây dựng thế giới, phát triển nhân vật và vượt qua mọi rào cản của việc viết lách.
+          </p>
+          <div class="mt-8 flex gap-3">
+            <UButton
+              to="/author/stories/new"
+              size="xl"
+              icon="i-heroicons-pencil-square-20-solid"
+              color="neutral"
+            >
+              Bắt đầu Sáng tác
+            </UButton>
+            <UButton
+              to="/kham-pha"
+              size="xl"
+              variant="ghost"
+              trailing-icon="i-heroicons-arrow-right"
+            >
+              Khám phá Truyện
+            </UButton>
+          </div>
+        </div>
+        <div
+          v-motion-slide-visible-once-right
+          class="hidden lg:block"
+        >
+          <UCarousel
+            v-slot="{ item }"
+            :items="homeData.featuredStories"
+            :ui="{ item: 'basis-full' }"
+            loop
+            autoplay
+            class="rounded-lg shadow-2xl"
+            :arrows="false"
+            :indicators="false"
           >
-            <template #editorPicks="{ item }">
-              <div class="flex justify-between items-center my-6">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
-                  <UIcon
-                    name="i-heroicons-star-20-solid"
-                    class="text-yellow-500"
-                  /> {{ item.label }}
-                </h2>
-                <UButton
-                  label="Xem tất cả"
-                  variant="link"
-                  trailing-icon="i-heroicons-arrow-right"
-                  color="neutral"
-                />
-              </div>
-              <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                <StoryCard
-                  v-for="story in homeData.editorPicks"
-                  :key="story._id"
-                  :story="story"
-                />
-              </div>
-            </template>
-            <template #newlyCompleted="{ item }">
-              <div class="flex justify-between items-center my-6">
-                <h2 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-2">
-                  <UIcon
-                    name="i-heroicons-check-badge-20-solid"
-                    class="text-green-500"
-                  /> {{ item.label }}
-                </h2>
-                <UButton
-                  label="Xem tất cả"
-                  variant="link"
-                  trailing-icon="i-heroicons-arrow-right"
-                  color="neutral"
-                />
-              </div>
-              <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                <StoryCard
-                  v-for="story in homeData.newlyCompleted"
-                  :key="story._id"
-                  :story="story"
-                />
-              </div>
-            </template>
-          </UTabs>
+            <img
+              :src="item.coverImage"
+              class="aspect-[4/3] w-full object-cover"
+              draggable="false"
+            >
+          </UCarousel>
         </div>
-
-        <div class="lg:col-span-1 space-y-8">
-          <div>
-            <h3 class="text-lg lg:text-xl font-bold mb-4 border-b-2 border-primary pb-2">
-              Bảng Xếp Hạng Truyện
-            </h3>
-            <div class="space-y-1">
-              <NuxtLink
-                v-for="(story, index) in homeData.storyPowerRankings"
-                :key="story._id"
-                :to="`/story/${story.slug}`"
-                class="flex items-start gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <span
-                  class="text-xl md:text-2xl font-bold w-6 text-center"
-                  :class="getRankColor(index + 1)"
-                >{{ index + 1 }}</span>
-                <div class="flex-1 overflow-hidden">
-                  <p class="font-semibold line-clamp-1">{{ story.title }}</p>
-                  <p class="text-xs text-gray-500 flex items-center gap-2">
-                    <span>{{ story.author.username }}</span>
-                    <span class="flex items-center gap-1"><UIcon name="i-heroicons-eye" /> {{ story.views }}</span>
-                  </p>
-                </div>
-              </NuxtLink>
-            </div>
-          </div>
-
-          <div>
-            <h3 class="text-lg lg:text-xl font-bold mb-4 border-b-2 border-primary pb-2">
-              Tác Giả Nổi Bật
-            </h3>
-            <div class="space-y-2">
-              <NuxtLink
-                v-for="author in homeData.featuredAuthors"
-                :key="author._id"
-                :to="`/author/${author.slug}`"
-                class="flex items-center gap-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <UAvatar
-                  :src="author.avatar"
-                  :alt="author.username"
-                />
-                <div class="flex-1 overflow-hidden">
-                  <p class="font-semibold truncate">{{ author.username }}</p>
-                  <p class="text-xs text-gray-500">{{ author.storyCount }} tác phẩm</p>
-                </div>
-              </NuxtLink>
-            </div>
-          </div>
+      </UContainer>
+    </section>
+    <section class="bg-gray-50 dark:bg-gray-900/50 py-20 lg:py-24">
+      <UContainer>
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-3xl font-bold">
+            Tác phẩm Mới nhất
+          </h2>
+          <UButton
+            label="Xem tất cả"
+            variant="link"
+            trailing-icon="i-heroicons-arrow-right"
+            to="/kham-pha"
+          />
         </div>
-      </div>
-    </UContainer>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+          <StoryCard
+            v-for="story in homeData.editorPicks"
+            :key="story._id"
+            :story="story"
+          />
+        </div>
+      </UContainer>
+    </section>
   </div>
   <div
     v-else
@@ -119,19 +89,15 @@
 </template>
 
 <script setup lang="ts">
-const { data: homeData, pending } = useFetch('/api/home-data')
+const { data: homeData } = useFetch('/api/home-data')
 
-const mainTabs = [
-  { slot: 'editorPicks', label: 'Biên tập viên đề cử' },
-  { slot: 'newlyCompleted', label: 'Mới hoàn thành' }
+// Dữ liệu cho khu vực Features
+const features = [
+  { icon: 'i-lucide-wand-2', title: 'AI Sáng thế', description: 'Từ một ý tưởng, AI tự động phác thảo tên truyện, mô tả, nhân vật và cả thế giới cho bạn.', delay: 1 },
+  { icon: 'i-lucide-bot', title: 'Trợ lý Soạn thảo', description: 'AI đồng hành cùng bạn trong từng chương, giúp tạo dàn ý, viết tiếp và gỡ bí ý tưởng.', delay: 2 },
+  { icon: 'i-lucide-library', title: 'Lorebook Thông minh', description: 'Quản lý mọi chi tiết về nhân vật, địa danh, thế lực... một cách trực quan và nhất quán.', delay: 3 }
 ]
 
-function getRankColor(rank: number) {
-  if (rank === 1) return 'text-red-500'
-  if (rank === 2) return 'text-orange-500'
-  if (rank === 3) return 'text-yellow-500'
-  return 'text-gray-400'
-}
-
-useHead({ title: 'Trang chủ - Sáng tác truyện' })
+// SEO cho trang chủ
+useHead({ title: 'Nhà văn sách & tiểu thuyết AI - Viết tiểu thuyết AI miễn phí | Sáng tác truyện' })
 </script>

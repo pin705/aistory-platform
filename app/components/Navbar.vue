@@ -11,12 +11,17 @@ const items = [
     {
       label: 'Sáng tác',
       // icon: 'i-heroicons-squares-2x2',
-      to: !loggedIn.value ? '/login' : '/dashboard'
+      to: !loggedIn.value ? '/dang-nhap' : '/dashboard'
+    },
+    {
+      label: 'Khám phá',
+      // icon: 'i-heroicons-compass-20-solid',
+      to: '/kham-pha'
     },
     {
       label: 'Đăng nhập',
       icon: 'i-heroicons-arrow-right-on-rectangle',
-      to: '/login',
+      to: '/dang-nhap',
       class: loggedIn.value ? 'hidden' : ''
     },
     {
@@ -40,7 +45,7 @@ const items = [
         {
           label: 'Đăng xuất',
           icon: 'i-heroicons-arrow-left-on-rectangle',
-          to: '/login'
+          to: '/dang-nhap'
         }
       ]
     }
@@ -52,10 +57,10 @@ const items = [
   <UHeader>
     <template #left>
       <NuxtLink to="/">
-        <AppLogo class="w-auto h-6 shrink-0" />
+        <AppLogo />
       </NuxtLink>
 
-      <TemplateMenu />
+      <!-- <TemplateMenu /> -->
     </template>
 
     <template #right>

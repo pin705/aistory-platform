@@ -54,21 +54,20 @@
     <div class="flex items-center justify-center p-4 bg-white dark:bg-gray-900">
       <UCard
         class="w-full max-w-sm"
-        :ui="{ ring: 'ring-0', shadow: 'shadow-none' }"
       >
         <template #header>
           <h1
             v-motion-slide-bottom
             class="text-3xl font-bold"
           >
-            Bắt đầu Hành trình
+            Chào mừng trở lại!
           </h1>
           <p
             v-motion-slide-bottom
             :delay="100"
             class="text-sm text-gray-500 dark:text-gray-400 mt-1"
           >
-            Tạo tài khoản và giải phóng trí tưởng tượng của bạn.
+            Đăng nhập để tiếp tục hành trình sáng tác.
           </p>
         </template>
 
@@ -85,24 +84,24 @@
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
           >
-            Tiếp tục với Google
+            Đăng nhập với Google
           </UButton>
           <UButton
             block
             icon="i-simple-icons-github"
              color="neutral"
-            @click="() => {
+             @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
           >
-            Tiếp tục với Github
+            Đăng nhập với Github
           </UButton>
         </div>
 
         <USeparator
           v-motion-slide-bottom
           :delay="300"
-          label="HOẶC ĐĂNG KÝ BẰNG EMAIL"
+          label="HOẶC"
           class="my-6"
         />
 
@@ -115,19 +114,6 @@
           <UFormField
             v-motion-slide-bottom
             :delay="400"
-            label="Tên Tác giả (Username)"
-            name="username"
-          >
-            <UInput
-              v-model="state.username"
-              placeholder="Bút danh của bạn"
-              icon="i-heroicons-user"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField
-            v-motion-slide-bottom
-            :delay="500"
             label="Email"
             name="email"
           >
@@ -140,7 +126,7 @@
           </UFormField>
           <UFormField
             v-motion-slide-bottom
-            :delay="600"
+            :delay="500"
             label="Mật khẩu"
             name="password"
           >
@@ -152,44 +138,30 @@
               class="w-full"
             />
           </UFormField>
-          <UFormField
-            v-motion-slide-bottom
-            :delay="700"
-            label="Xác nhận mật khẩu"
-            name="passwordConfirm"
-          >
-            <UInput
-              v-model="state.passwordConfirm"
-              type="password"
-              placeholder="********"
-              icon="i-heroicons-lock-closed"
-              class="w-full"
-            />
-          </UFormField>
           <UButton
             v-motion-slide-bottom
-            :delay="800"
+            :delay="600"
             type="submit"
             block
             :loading="isLoading"
              color="neutral"
           >
-            Tạo tài khoản
+            Đăng nhập
           </UButton>
         </UForm>
 
         <template #footer>
           <div
             v-motion-slide-bottom
-            :delay="900"
+            :delay="700"
             class="text-center"
           >
             <p class="text-sm text-gray-500">
-              Đã có tài khoản?
+              Chưa có tài khoản?
               <NuxtLink
-                to="/login"
+                to="/dang-ky"
                 class="text-primary font-medium"
-              >Đăng nhập ngay</NuxtLink>
+              >Đăng ký ngay</NuxtLink>
             </p>
           </div>
         </template>
@@ -206,44 +178,47 @@ definePageMeta({
   layout: 'auth'
 })
 
+const { fetch } = useUserSession()
 const toast = useToast()
 const isLoading = ref(false)
 
+// Định nghĩa schema validation bằng Zod
 const schema = z.object({
-  username: z.string().min(3, 'Tên người dùng phải có ít nhất 3 ký tự'),
   email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-  passwordConfirm: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
-}).refine(data => data.password === data.passwordConfirm, {
-  message: 'Mật khẩu không khớp',
-  path: ['passwordConfirm'] // Hiển thị lỗi ở trường xác nhận mật khẩu
+  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự')
 })
 
 type Schema = z.output<typeof schema>
 
 const state = reactive({
-  username: '',
   email: '',
-  password: '',
-  passwordConfirm: ''
+  password: ''
 })
 
+// Hàm xử lý khi submit form
 async function submit(event: FormSubmitEvent<Schema>) {
   isLoading.value = true
   try {
-    await $fetch('/api/user/register', {
+    await $fetch('/api/user/login', {
       method: 'POST',
       body: {
-        username: event.data.username,
         email: event.data.email,
         password: event.data.password
       }
     })
 
-    toast.add({ title: 'Đăng ký thành công!', description: 'Bây giờ bạn có thể đăng nhập.', color: 'success' })
-    await navigateTo('/login')
-  } catch (error: any) {
-    toast.add({ title: 'Lỗi!', description: error.data?.statusMessage || 'Đã có lỗi xảy ra', color: 'error' })
+    await fetch()
+
+    toast.add({ title: 'Đăng nhập thành công!', color: 'success' })
+
+    // Chuyển hướng về trang chủ sau khi đăng nhập thành công
+    await navigateTo('/')
+  } catch (error) {
+    toast.add({
+      title: 'Lỗi!',
+      description: 'Email hoặc mật khẩu không đúng.',
+      color: 'error'
+    })
   } finally {
     isLoading.value = false
   }
