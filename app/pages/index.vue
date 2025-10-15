@@ -1,24 +1,23 @@
 <template>
   <div
     v-if="homeData"
-    class="bg-white dark:bg-gray-900"
+    class=""
   >
-    <section class="bg-gray-900 text-white">
+    <section class="text-white">
       <UContainer class="grid lg:grid-cols-2 gap-12 items-center py-20 lg:py-32">
         <div v-motion-slide-visible-once-left>
-          <UBadge variant="subtle">
+          <UBadge variant="subtle" color="neutral">
             Nền tảng Sáng tác truyện bằng AI
           </UBadge>
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-4">
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-4 dark:text-white text-black">
             Sáng tác tiểu thuyết của bạn, vận hành bởi AI.
           </h1>
-          <p class="mt-4 text-lg text-gray-300">
+          <p class="mt-4 text-lg dark:text-white/40 text-black/30">
             Từ ý tưởng đến chương cuối, Sáng Tác Truyện là người bạn đồng hành sáng tạo, giúp bạn xây dựng thế giới, phát triển nhân vật và vượt qua mọi rào cản của việc viết lách.
           </p>
           <div class="mt-8 flex gap-3">
             <UButton
               to="/author/stories/new"
-              size="xl"
               icon="i-heroicons-pencil-square-20-solid"
               color="neutral"
             >
@@ -26,9 +25,9 @@
             </UButton>
             <UButton
               to="/kham-pha"
-              size="xl"
               variant="ghost"
               trailing-icon="i-heroicons-arrow-right"
+              color="neutral"
             >
               Khám phá Truyện
             </UButton>
@@ -57,7 +56,7 @@
         </div>
       </UContainer>
     </section>
-    <section class="bg-gray-50 dark:bg-gray-900/50 py-20 lg:py-24">
+    <section class="py-20 lg:py-24">
       <UContainer>
         <div class="flex justify-between items-center mb-8">
           <h2 class="text-3xl font-bold">

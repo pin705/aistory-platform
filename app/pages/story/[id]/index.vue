@@ -1,166 +1,165 @@
 <template>
-  <div v-if="story">
-    <section
-      class="relative border-b border-gray-200 dark:border-gray-800 py-10 overflow-hidden"
-    >
-      <div class="absolute inset-0">
-        <img
-          :src="story.coverImage || '/placeholder-cover.jpg'"
-          :alt="story.title"
-          class="w-full h-full object-cover filter blur-2xl brightness-50"
-        >
-      </div>
-      <UContainer
-        class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center"
+  <UContainer>
+    <div v-if="story">
+      <section
+        class="relative border-b border-gray-200 dark:border-gray-800 py-10 overflow-hidden"
       >
-        <div class="md:col-span-3">
+        <div class="absolute inset-0">
           <img
             :src="story.coverImage || '/placeholder-cover.jpg'"
             :alt="story.title"
-            class="rounded-lg shadow-2xl aspect-[2/3] object-cover w-full mx-auto md:mx-0 max-w-[250px]"
+            class="w-full h-full object-cover filter blur-2xl brightness-50"
           >
         </div>
-
-        <div class="md:col-span-9 flex flex-col justify-center text-white">
-          <h1 class="text-3xl lg:text-5xl font-bold tracking-tight">
-            {{ story.title }}
-          </h1>
-          <div class="mt-4 flex items-center gap-4 text-sm text-gray-300">
-            <div
-              class="flex items-center gap-1.5 hover:text-white transition-colors"
+        <UContainer
+          class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center"
+        >
+          <div class="md:col-span-3">
+            <img
+              :src="story.coverImage || '/placeholder-cover.jpg'"
+              :alt="story.title"
+              class="rounded-lg shadow-2xl aspect-[2/3] object-cover w-full mx-auto md:mx-0 max-w-[250px]"
             >
-              <UIcon name="i-heroicons-user-circle" />
-              <span>{{ story.author.username }}</span>
+          </div>
+
+          <div class="md:col-span-9 flex flex-col justify-center text-white">
+            <h1 class="text-3xl lg:text-5xl font-bold tracking-tight">
+              {{ story.title }}
+            </h1>
+            <div class="mt-4 flex items-center gap-4 text-sm text-gray-300">
+              <div
+                class="flex items-center gap-1.5 hover:text-white transition-colors"
+              >
+                <UIcon name="i-heroicons-user-circle" />
+                <span>{{ story.author.username }}</span>
+              </div>
+              <span>|</span>
+              <UBadge
+                :color="statusColors[story.status]"
+                variant="subtle"
+                size="lg"
+              >
+                {{ statusLabels[story.status] }}
+              </UBadge>
             </div>
-            <span>|</span>
-            <UBadge
-              :color="statusColors[story.status]"
-              variant="subtle"
-              size="lg"
-            >
-              {{ statusLabels[story.status] }}
-            </UBadge>
-          </div>
-          <div class="mt-4 flex flex-wrap gap-2">
-            <UBadge
-              v-for="genre in story.genres"
-              :key="genre"
-              variant="outline"
-            >
-              {{ genre }}
-            </UBadge>
-          </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <UBadge
+                v-for="genre in story.genres"
+                :key="genre"
+                variant="outline"
+              >
+                {{ genre }}
+              </UBadge>
+            </div>
 
-          <div class="mt-8 flex items-center gap-3">
-            <UButton
-              :to="firstChapterLink"
-              icon="i-heroicons-book-open"
-              class="flex-1 sm:flex-none justify-center"
+            <div class="mt-8 flex items-center gap-3">
+              <UButton
+                :to="firstChapterLink"
+                icon="i-heroicons-book-open"
+                class="flex-1 sm:flex-none justify-center"
+                color="neutral"
+              >
+                Đọc từ đầu
+              </UButton>
+              <UButton
+                :to="latestChapterLink"
+                icon="i-heroicons-sparkles"
+                class="flex-1 sm:flex-none justify-center"
+                variant="ghost"
+              >
+                Chương mới nhất
+              </UButton>
+              <UButton
+                :loading="isAddingToLibrary"
+                :icon="
+                  isInLibrary
+                    ? 'i-heroicons-check-circle'
+                    : 'i-heroicons-plus-circle'
+                "
+                size="xl"
+                variant="ghost"
+                class="hidden sm:inline-flex"
+                @click="addToLibrary"
+              />
+            </div>
+          </div>
+        </UContainer>
+      </section>
+
+      <section class="bg-gray-50 dark:bg-gray-800/50">
+        <UContainer
+          class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center py-6"
+        >
+          <div>
+            <p class="font-bold text-2xl">
+              {{ chapters?.length || 0 }}
+            </p>
+            <p class="text-sm text-gray-500">
+              Chương
+            </p>
+          </div>
+          <div>
+            <p class="font-bold text-2xl">
+              {{ story.views || 0 }}
+            </p>
+            <p class="text-sm text-gray-500">
+              Lượt xem
+            </p>
+          </div>
+          <div>
+            <div
+              class="font-bold text-2xl flex items-center justify-center gap-1"
+            >
+              <UIcon
+                name="i-heroicons-star-solid"
+                class="text-yellow-400"
+              />
+              <span>{{
+                story.averageRating ? story.averageRating.toFixed(1) : "–"
+              }}</span>
+            </div>
+            <p class="text-sm text-gray-500">
+              / {{ story.reviewCount || 0 }} đánh giá
+            </p>
+          </div>
+          <div>
+            <p class="font-bold text-lg">
+              {{
+                formatDistanceToNow(new Date(story.updatedAt), {
+                  addSuffix: true,
+                  locale: vi
+                })
+              }}
+            </p>
+            <p class="text-sm text-gray-500">
+              Cập nhật
+            </p>
+          </div>
+        </UContainer>
+      </section>
+
+      <div class="py-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div class="lg:col-span-8">
+            <UTabs
+              :items="tabs"
+              class="w-full"
+              variant="link"
               color="neutral"
             >
-              Đọc từ đầu
-            </UButton>
-            <UButton
-              :to="latestChapterLink"
-              icon="i-heroicons-sparkles"
-              class="flex-1 sm:flex-none justify-center"
-              variant="ghost"
-            >
-              Chương mới nhất
-            </UButton>
-            <UButton
-              :loading="isAddingToLibrary"
-              :icon="
-                isInLibrary
-                  ? 'i-heroicons-check-circle'
-                  : 'i-heroicons-plus-circle'
-              "
-              size="xl"
-              variant="ghost"
-              class="hidden sm:inline-flex"
-              @click="addToLibrary"
-            />
-          </div>
-        </div>
-      </UContainer>
-    </section>
-
-    <section class="bg-gray-50 dark:bg-gray-800/50">
-      <UContainer
-        class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center py-6"
-      >
-        <div>
-          <p class="font-bold text-2xl">
-            {{ chapters?.length || 0 }}
-          </p>
-          <p class="text-sm text-gray-500">
-            Chương
-          </p>
-        </div>
-        <div>
-          <p class="font-bold text-2xl">
-            {{ story.views || 0 }}
-          </p>
-          <p class="text-sm text-gray-500">
-            Lượt xem
-          </p>
-        </div>
-        <div>
-          <div
-            class="font-bold text-2xl flex items-center justify-center gap-1"
-          >
-            <UIcon
-              name="i-heroicons-star-solid"
-              class="text-yellow-400"
-            />
-            <span>{{
-              story.averageRating ? story.averageRating.toFixed(1) : "–"
-            }}</span>
-          </div>
-          <p class="text-sm text-gray-500">
-            / {{ story.reviewCount || 0 }} đánh giá
-          </p>
-        </div>
-        <div>
-          <p class="font-bold text-lg">
-            {{
-              formatDistanceToNow(new Date(story.updatedAt), {
-                addSuffix: true,
-                locale: vi
-              })
-            }}
-          </p>
-          <p class="text-sm text-gray-500">
-            Cập nhật
-          </p>
-        </div>
-      </UContainer>
-    </section>
-
-    <div class="py-10">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div class="lg:col-span-8">
-          <UTabs
-            :items="tabs"
-            class="w-full"
-             color="neutral"
-          >
-            <template #description="{ item }">
-              <UCard>
-                <template #header>
+              <template #description="{ item }">
+                <div class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4">
                   <h2 class="text-xl font-semibold">
                     {{ item.label }}
                   </h2>
-                </template>
-                <p class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-7">
-                  {{ story.description }}
-                </p>
-              </UCard>
-            </template>
+                  <p class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-7">
+                    {{ story.description }}
+                  </p>
+                </div>
+              </template>
 
-            <template #chapters="{ item }">
-              <UCard>
-                <template #header>
+              <template #chapters="{ item }">
+                <div class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4">
                   <div class="flex justify-between items-center">
                     <h2 class="text-xl font-semibold">
                       {{ item.label }}
@@ -180,200 +179,199 @@
                       />
                     </div>
                   </div>
-                </template>
-                <div class="max-h-[80vh] overflow-y-auto space-y-1 -m-3">
-                  <NuxtLink
-                    v-for="chapter in filteredChapters"
-                    :key="chapter._id"
-                    :to="`/story/${story._id}/chapters/${chapter.chapterNumber}`"
-                    class="flex justify-between items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    <span>Chương {{ chapter.chapterNumber }}: {{ chapter.title }}</span>
-                    <span class="text-xs text-gray-400 flex-shrink-0 ml-4">{{ formatDistanceToNow(new Date(chapter.updatedAt), { addSuffix: true, locale: vi }) }}</span>
-                  </NuxtLink>
+                  <div class="max-h-[80vh] overflow-y-auto space-y-1 -m-3">
+                    <NuxtLink
+                      v-for="chapter in filteredChapters"
+                      :key="chapter._id"
+                      :to="`/story/${story._id}/chapters/${chapter.chapterNumber}`"
+                      class="flex justify-between items-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      <span>Chương {{ chapter.chapterNumber }}: {{ chapter.title }}</span>
+                      <span class="text-xs text-gray-400 flex-shrink-0 ml-4">{{ formatDistanceToNow(new Date(chapter.updatedAt), { addSuffix: true, locale: vi }) }}</span>
+                    </NuxtLink>
+                  </div>
                 </div>
-              </UCard>
-            </template>
+              </template>
 
-            <template #reviews="{ item }">
-              <h2 class="text-2xl font-bold mb-6">
-                {{ item.label }} ({{ reviews.length }})
-              </h2>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="md:col-span-1">
-                  <h3 class="font-semibold mb-4">
-                    Viết đánh giá của bạn
-                  </h3>
-                  <div v-if="loggedIn">
-                    <UForm
-                      :state="newReviewState"
-                      :schema="reviewSchema"
-                      @submit="submitReview"
-                    >
-                      <UFormField
-                        label="Đánh giá của bạn"
-                        name="rating"
-                        class="mb-4"
+              <template #reviews="{ item }">
+                <div class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4">
+                  <h2 class="text-xl font-semibold">
+                    {{ item.label }} ({{ reviews.length }})
+                  </h2>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-1">
+                      <h3 class="font-semibold mb-4">
+                        Viết đánh giá của bạn
+                      </h3>
+                      <div v-if="loggedIn">
+                        <UForm
+                          :state="newReviewState"
+                          :schema="reviewSchema"
+                          @submit="submitReview"
+                        >
+                          <UFormField
+                            label="Đánh giá của bạn"
+                            name="rating"
+                            class="mb-4"
+                          >
+                            <StarInput v-model="newReviewState.rating" />
+                          </UFormField>
+                          <UFormField
+                            label="Bình luận"
+                            name="comment"
+                          >
+                            <UTextarea
+                              v-model="newReviewState.comment"
+                              placeholder="Chia sẻ cảm nhận của bạn về câu truyện..."
+                            />
+                          </UFormField>
+                          <UButton
+                            type="submit"
+                            :loading="isSubmittingReview"
+                            class="mt-4"
+                          >
+                            Gửi đánh giá
+                          </UButton>
+                        </UForm>
+                      </div>
+                      <div v-else>
+                        <p class="text-sm text-gray-500">
+                          Vui lòng <NuxtLink
+                            to="/dang-nhap"
+                            class="text-primary font-medium"
+                          >đăng nhập</NuxtLink> để để lại đánh giá.
+                        </p>
+                      </div>
+                    </div>
+                    <div class="md:col-span-2">
+                      <div
+                        v-if="reviews.length > 0"
+                        class="space-y-6"
                       >
-                        <StarInput v-model="newReviewState.rating" />
-                      </UFormField>
-                      <UFormField
-                        label="Bình luận"
-                        name="comment"
-                      >
-                        <UTextarea
-                          v-model="newReviewState.comment"
-                          placeholder="Chia sẻ cảm nhận của bạn về câu truyện..."
-                        />
-                      </UFormField>
-                      <UButton
-                        type="submit"
-                        :loading="isSubmittingReview"
-                        class="mt-4"
-                      >
-                        Gửi đánh giá
-                      </UButton>
-                    </UForm>
-                  </div>
-                  <div v-else>
-                    <p class="text-sm text-gray-500">
-                      Vui lòng <NuxtLink
-                        to="/dang-nhap"
-                        class="text-primary font-medium"
-                      >đăng nhập</NuxtLink> để để lại đánh giá.
-                    </p>
-                  </div>
-                </div>
-                <div class="md:col-span-2">
-                  <div
-                    v-if="reviews.length > 0"
-                    class="space-y-6"
-                  >
-                    <div
-                      v-for="review in reviews"
-                      :key="review._id"
-                    >
-                      <div class="flex items-center gap-3">
-                        <UAvatar
-                          :src="review.userId.avatar"
-                          :alt="review.userId.username"
-                        />
-                        <div>
-                          <p class="font-semibold">
-                            {{ review.userId.username }}
+                        <div
+                          v-for="review in reviews"
+                          :key="review._id"
+                        >
+                          <div class="flex items-center gap-3">
+                            <UAvatar
+                              :src="review.userId.avatar"
+                              :alt="review.userId.username"
+                            />
+                            <div>
+                              <p class="font-semibold">
+                                {{ review.userId.username }}
+                              </p>
+                              <StarRating :rating="review.rating" />
+                            </div>
+                          </div>
+                          <p class="mt-3 text-gray-700 dark:text-gray-300">
+                            {{ review.comment }}
                           </p>
-                          <StarRating :rating="review.rating" />
+                          <p class="text-xs text-gray-400 mt-2">
+                            {{ formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: vi }) }}
+                          </p>
                         </div>
                       </div>
-                      <p class="mt-3 text-gray-700 dark:text-gray-300">
-                        {{ review.comment }}
-                      </p>
-                      <p class="text-xs text-gray-400 mt-2">
-                        {{ formatDistanceToNow(new Date(review.createdAt), { addSuffix: true, locale: vi }) }}
-                      </p>
+                      <div
+                        v-else
+                        class="text-center py-10"
+                      >
+                        <p>Chưa có đánh giá nào cho truyện này.</p>
+                      </div>
                     </div>
                   </div>
-                  <div
-                    v-else
-                    class="text-center py-10"
-                  >
-                    <p>Chưa có đánh giá nào cho truyện này.</p>
-                  </div>
                 </div>
-              </div>
-            </template>
-          </UTabs>
-        </div>
+              </template>
+            </UTabs>
+          </div>
 
-        <div class="lg:col-span-4 space-y-8">
-          <UCard>
-            <template #header>
+          <div class="lg:col-span-4 space-y-8">
+            <div class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4">
               <h3 class="font-semibold">
                 Về tác giả
               </h3>
-            </template>
-            <div class="flex items-center gap-4">
-              <UAvatar
-                :src="story.author.avatar"
-                :alt="story.author.username"
-                size="xl"
-              />
-              <div class="flex-1">
-                <NuxtLink
-                  :to="`/author/${story.author.slug}`"
-                  class="font-bold text-lg hover:text-primary"
-                >{{ story.author.username }}</NuxtLink>
-                <p class="text-sm text-gray-500">
-                  {{ story.author.followerCount }} người theo dõi
-                </p>
+              <div class="flex items-center gap-4">
+                <UAvatar
+                  :src="story.author.avatar"
+                  :alt="story.author.username"
+                  size="xl"
+                />
+                <div class="flex-1">
+                  <NuxtLink
+                    :to="`/author/${story.author.slug}`"
+                    class="font-bold text-lg hover:text-primary"
+                  >{{ story.author.username }}</NuxtLink>
+                  <p class="text-sm text-gray-500">
+                    {{ story.author.followerCount }} người theo dõi
+                  </p>
+                </div>
+                <UButton
+                  :variant="isFollowing ? 'soft' : 'solid'"
+                  icon="i-heroicons-user-plus"
+                  @click="toggleFollow"
+                >
+                  {{ isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
+                </UButton>
               </div>
-              <UButton
-                :variant="isFollowing ? 'soft' : 'solid'"
-                icon="i-heroicons-user-plus"
-                @click="toggleFollow"
-              >
-                {{ isFollowing ? 'Đang theo dõi' : 'Theo dõi' }}
-              </UButton>
             </div>
-          </UCard>
 
-          <UCard>
-            <template #header>
+            <div class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4">
               <h3 class="font-semibold">
                 Tags
               </h3>
-            </template>
-            <div class="flex flex-wrap gap-2">
-              <UButton
-                v-for="tag in story.tags"
-                :key="tag"
-                :label="`#${tag}`"
-                variant="outline"
-                size="xs"
-              />
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-for="tag in story.tags"
+                  :key="tag"
+                  :label="`#${tag}`"
+                  variant="outline"
+                  size="xs"
+                />
+              </div>
             </div>
-          </UCard>
 
-          <UCard v-if="latestReviews.length">
-            <template #header>
+            <div
+              v-if="latestReviews.length"
+              class="shadow-md p-4 bg-white dark:bg-primary-900 rounded-lg space-y-4"
+            >
               <h3 class="font-semibold">
                 Đánh giá mới nhất
               </h3>
-            </template>
-            <div class="space-y-6">
-              <div
-                v-for="review in latestReviews"
-                :key="review._id"
-              >
-                <div class="flex items-center gap-3">
-                  <UAvatar
-                    :src="review.userId.avatar"
-                    :alt="review.userId.username"
-                    size="md"
-                  />
-                  <div>
-                    <p class="font-semibold">
-                      {{ review.userId.username }}
-                    </p>
-                    <StarRating :rating="review.rating" />
+              <div class="space-y-6">
+                <div
+                  v-for="review in latestReviews"
+                  :key="review._id"
+                >
+                  <div class="flex items-center gap-3">
+                    <UAvatar
+                      :src="review.userId.avatar"
+                      :alt="review.userId.username"
+                      size="md"
+                    />
+                    <div>
+                      <p class="font-semibold">
+                        {{ review.userId.username }}
+                      </p>
+                      <StarRating :rating="review.rating" />
+                    </div>
                   </div>
+                  <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+                    {{ review.comment }}
+                  </p>
                 </div>
-                <p class="mt-2 text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
-                  {{ review.comment }}
-                </p>
               </div>
             </div>
-          </UCard>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div
-    v-else
-    class="text-center py-20"
-  >
-    <p>Đang tải thông tin truyện...</p>
-  </div>
+    <div
+      v-else
+      class="text-center py-20"
+    >
+      <p>Đang tải thông tin truyện...</p>
+    </div>
+  </UContainer>
 </template>
 
 <script setup lang="ts">
