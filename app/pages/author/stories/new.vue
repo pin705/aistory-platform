@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen grid grid-cols-12 bg-gray-50 dark:bg-gray-900/50">
+  <div class="grid grid-cols-12 bg-gray-50 dark:bg-gray-900/50">
     <StoryWizardTimeline
       :wizard-steps="wizardSteps"
       :current-step="currentStep"
@@ -16,7 +16,7 @@
         title="Chọn Thể loại"
         description="Hãy chọn những thể loại phù hợp nhất với câu chuyện của bạn."
       >
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           <button
             v-for="genre in genresFromAPI"
             :key="genre"
@@ -28,6 +28,22 @@
             {{ genre }}
           </button>
         </div>
+
+        <!-- <USeparator
+          label="HOẶC"
+          class="my-6"
+        />
+        <div class="flex items-center gap-2">
+          <UInput
+            v-model="newGenreInput"
+            placeholder="Thêm thể loại khác (vd: Cổ đại)"
+            class="flex-1"
+            @keyup.enter="handleAddNewGenre"
+          />
+          <UButton @click="handleAddNewGenre" color="neutral">
+            Thêm
+          </UButton> -->
+        <!-- </div> -->
       </StoryWizardStepCard>
 
       <StoryWizardStepCard
@@ -290,8 +306,7 @@
 </template>
 
 <script setup lang="ts">
-const { data: genresFromAPI } = await useFetch<string[]>('/api/genres', { default: () => [] })
-const { isLoading, isGenerating, currentStep, highestStep, storyData, canProceed, resetWizard, nextStep, prevStep } = useStoryWizard()
+const { isLoading, isGenerating, currentStep, highestStep, storyData, canProceed, resetWizard, nextStep, prevStep, addCustomGenre, toggleGenre, genresFromAPI } = useStoryWizard()
 
 const wizardSteps = [
   { id: 1, name: 'Thể loại' },
@@ -308,9 +323,16 @@ const tips = [
   { content: [{ icon: 'i-heroicons-paint-brush', title: 'Dấu ấn cá nhân', description: 'Rà soát và "thêm mắm thêm muối" để các chi tiết mang đậm dấu ấn của bạn.' }, { icon: 'i-heroicons-book-open', title: 'Bước tiếp theo', description: 'Sau khi khởi tạo, bạn sẽ quản lý chi tiết Lorebook và bắt đầu viết chương đầu tiên.' }] }
 ]
 const promptPlaceholder = `Ví dụ:\n- Thể loại: Huyền huyễn, Phiêu lưu, Hài hước.\n\n- Nhân vật chính: Tên là Vĩ, một thanh niên làm nghề "shipper" cổ vật, lanh lợi, mồm mép, và có nguyên tắc sống là "không bao giờ dính vào rắc rối"...`
+const newGenreInput = ref('')
 
+function handleAddNewGenre() {
+  if (newGenreInput.value) {
+    addCustomGenre(newGenreInput.value.trim())
+    newGenreInput.value = '' // Xóa ô input sau khi thêm
+  }
+}
 function getStepClass(stepId: number) {
-  if (currentStep.value === stepId) return 'bg-primary-500 text-white ring-4 ring-primary-500/30'
+  if (currentStep.value === stepId) return 'bg-gray-500 text-white ring-4 ring-primary-500/30'
   if (currentStep.value > stepId) return 'bg-green-500 text-white'
   return 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
 }
@@ -320,10 +342,5 @@ function getStepSummary(stepId: number) {
   if (stepId === 3) return storyData.settings.writingStructure === 'structured' ? 'Có cấu trúc' : 'Mở'
   if (stepId === 4) return 'Phác thảo thành công'
   return ''
-}
-function toggleGenre(genre: string) {
-  const index = storyData.genres.indexOf(genre)
-  if (index > -1) storyData.genres.splice(index, 1)
-  else storyData.genres.push(genre)
 }
 </script>

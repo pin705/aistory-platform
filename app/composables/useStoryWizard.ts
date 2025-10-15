@@ -25,6 +25,8 @@ export const useStoryWizard = () => {
   const currentStep = ref(1)
   const highestStep = ref(1)
 
+  const { data: genresFromAPI, refresh: refreshGenres } = useFetch<string[]>('/api/genres', { default: () => [] })
+
   const storyData = reactive<StoryData>({
     _id: undefined,
     genres: [],
@@ -128,37 +130,32 @@ export const useStoryWizard = () => {
 
   function prevStep() { if (currentStep.value > 1) currentStep.value-- }
 
-  async function handleSubmit() {
-    isLoading.value = true
-    try {
-      const newStory = await $fetch('/api/stories', {
-        method: 'POST',
-        body: {
-          storyDetails: {
-            title: storyData.title,
-            description: storyData.description,
-            tags: storyData.tags.split(',').map(t => t.trim()).filter(Boolean),
-            genres: storyData.genres,
-            prompt: storyData.prompt
-          },
-          settings: storyData.settings,
-          characters: storyData.characters,
-          factions: storyData.factions,
-          realms: storyData.realms
-        }
-      })
-      toast.add({ title: 'Khởi tạo tác phẩm thành công!', color: 'success' })
-      await router.push(`/author/stories/${newStory.slug}`)
-    } catch (e: any) {
-      toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
-    } finally {
-      isLoading.value = false
+  function toggleGenre(genre: string) {
+    const index = storyData.genres.indexOf(genre)
+    if (index > -1) {
+      storyData.genres.splice(index, 1)
+    } else {
+      storyData.genres.push(genre)
     }
   }
 
+  // (MỚI) Hàm thêm thể loại mới
+  async function addCustomGenre(newGenre: string) {
+    if (!newGenre || genresFromAPI.value.includes(newGenre)) {
+      return // Bỏ qua nếu rỗng hoặc đã tồn tại
+    }
+    // Thêm vào danh sách tạm thời ở client
+    genresFromAPI.value.push(newGenre)
+    // Tự động chọn thể loại vừa thêm
+    storyData.genres.push(newGenre)
+
+    // TODO: Bạn có thể tạo một API `POST /api/genres` để lưu thể loại mới này
+    // vào database cho những lần tạo truyện sau.
+  }
+
   return {
-    isLoading, isGenerating, currentStep, highestStep,
+    isLoading, isGenerating, currentStep, highestStep, genresFromAPI,
     storyData, canProceed,
-    resetWizard, nextStep, prevStep, handleSubmit
+    resetWizard, nextStep, prevStep, addCustomGenre, toggleGenre
   }
 }

@@ -31,7 +31,7 @@
             <div
               v-if="step.id < wizardSteps.length"
               class="w-px h-15 mt-1"
-              :class="currentStep > step.id ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-700'"
+              :class="currentStep > step.id ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-700'"
             />
           </div>
           <div>
