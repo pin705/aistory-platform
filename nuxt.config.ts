@@ -6,7 +6,9 @@ export default defineNuxtConfig({
     'nuxt-auth-utils',
     '@vueuse/nuxt',
     '@vite-pwa/nuxt',
-    '@vueuse/motion/nuxt'
+    '@vueuse/motion/nuxt',
+    '@nuxtjs/sitemap',
+    '@nuxtjs/robots'
   ],
 
   devtools: {
@@ -18,7 +20,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // Thay thế bằng URL của website bạn khi deploy
-      baseURL: process.env.NUXT_SEO_BASE_URL || 'http://localhost:3000'
+      baseURL: process.env.NUXT_SITE_URL || 'http://localhost:3000'
     }
     // session: {
     //   cookie: {
