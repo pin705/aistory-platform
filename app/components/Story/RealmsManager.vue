@@ -8,7 +8,6 @@
           </h3>
           <UButton
             icon="i-heroicons-plus-circle"
-            color="neutral"
             @click="openModal(null)"
           >
             Thêm Cảnh giới
@@ -57,7 +56,7 @@
               <UButton
                 icon="i-heroicons-trash"
                 size="sm"
-                color="red"
+                color="error"
                 variant="soft"
                 @click="deleteRealm(realm._id)"
               />
@@ -106,7 +105,7 @@
                 <h3 class="font-semibold mb-2 flex items-center gap-2">
                   <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
                 </h3>
-                <UFieldGroup
+                <UFormField
                   label="Nhập ý tưởng của bạn"
                   name="ai_prompt"
                 >
@@ -116,7 +115,7 @@
                     placeholder="Ví dụ: Cảnh giới ngưng tụ linh khí thành thể rắn..."
                     class="w-full"
                   />
-                </UFieldGroup>
+                </UFormField>
                 <UButton
                   variant="soft"
                   :loading="isGenerating"
@@ -183,13 +182,12 @@
           <div class="flex justify-end gap-3 mt-8 border-t border-gray-200 dark:border-gray-800 pt-4">
             <UButton
               variant="ghost"
-              color="gray"
+              color="error"
               @click="isModalOpen = false"
             >
               Hủy
             </UButton>
             <UButton
-              color="neutral"
               type="submit"
               :loading="isLoading"
             >

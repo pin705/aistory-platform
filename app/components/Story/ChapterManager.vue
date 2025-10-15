@@ -8,7 +8,6 @@
         <UButton
           icon="i-heroicons-plus-circle"
           :loading="isCreating"
-          color="neutral"
           @click="createNewChapter"
         >
           Viết chương mới
@@ -96,12 +95,15 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
   {
     accessorKey: 'status',
     header: 'Trạng thái',
-    cell: ({ row }) => h(USelect, {
-      'modelValue': row.original.status,
-      'options': chapterStatusOptions,
-      // Khi giá trị thay đổi, `update:modelValue` sẽ trả về `value` (chuỗi)
-      'onUpdate:modelValue': (newStatus: string) => handleChapterStatusChange(row.original._id, newStatus)
-    })
+    // (CẬP NHẬT) Sửa lại hàm cell để render UBadge
+    cell: ({ row }) => {
+      const status = row.original.status
+      return h(UBadge, {
+        color: statusColors[status] || 'gray', // Lấy màu từ object, fallback về màu xám
+        variant: 'soft',
+        label: statusLabels[status] || status // Lấy nhãn từ object, fallback về giá trị gốc
+      })
+    }
   },
   { accessorKey: 'updatedAt', header: 'Cập nhật', cell: ({ row }) => new Date(row.original.updatedAt).toLocaleDateString('vi-VN') },
   {
@@ -109,7 +111,7 @@ const chapterColumns: TableColumn<ChapterRow>[] = [
     header: '',
     cell: ({ row }) => h('div', { class: 'text-right' }, h(UDropdownMenu,
       { items: getActionItems(row), content: { align: 'end' } },
-      () => h(UButton, { icon: 'i-heroicons-ellipsis-horizontal-20-solid', color: 'gray', variant: 'ghost' })
+      () => h(UButton, { icon: 'i-heroicons-ellipsis-horizontal-20-solid', variant: 'ghost' })
     ))
   }
 ]

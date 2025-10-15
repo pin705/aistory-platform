@@ -158,7 +158,6 @@
           <UButton
             type="submit"
             :loading="isLoading"
-            color="neutral"
           >
             {{ isEditing ? 'Lưu thay đổi' : 'Thêm nhân vật' }}
           </UButton>

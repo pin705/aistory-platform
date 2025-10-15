@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
       - backstory: Một đoạn tiểu sử ngắn gọn về quá khứ, nguồn gốc của nhân vật (3-4 câu).
       - abilities: Liệt kê 2-3 năng lực, kỹ năng hoặc công pháp đặc trưng.
     `
-    const rawText = await generateContent({
+    const { rawText } = await generateContent({
       userId: session.user.id,
       prompt: metaPrompt,
       jobType: 'generate_character_details'

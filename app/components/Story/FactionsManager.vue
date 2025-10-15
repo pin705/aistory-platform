@@ -8,7 +8,6 @@
           </h3>
           <UButton
             icon="i-heroicons-plus-circle"
-            color="neutral"
             @click="openModal(null)"
           >
             Thêm Thế lực
@@ -51,8 +50,8 @@
               <UButton
                 icon="i-heroicons-trash"
                 size="sm"
-                color="red"
                 variant="soft"
+                color="error"
                 @click="deleteFaction(faction._id)"
               />
             </UTooltip>
@@ -98,7 +97,7 @@
                 <h3 class="font-semibold mb-2 flex items-center gap-2">
                   <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
                 </h3>
-                <UFieldGroup
+                <UFormField
                   label="Nhập ý tưởng của bạn"
                   name="ai_prompt"
                 >
@@ -108,7 +107,7 @@
                     placeholder="Ví dụ: Một tổ chức sát thủ bí ẩn, chỉ hoạt động về đêm, thờ phụng một vị thần bóng tối cổ xưa."
                       class="w-full"
                   />
-                </UFieldGroup>
+                </UFormField>
                 <UButton
                   variant="soft"
                   :loading="isGenerating"
@@ -160,13 +159,13 @@
             <UButton
               variant="ghost"
               @click="isModalOpen = false"
+              color="error"
             >
               Hủy
             </UButton>
             <UButton
               type="submit"
               :loading="isLoading"
-              color="neutral"
             >
               {{ isEditing ? 'Lưu thay đổi' : 'Thêm Thế lực' }}
             </UButton>

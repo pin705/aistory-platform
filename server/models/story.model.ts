@@ -16,4 +16,10 @@ export const Story = defineMongooseModel('Story', {
   tags: [{ type: String, index: true }],
   views: { type: Number, default: 0 },
   likes: { type: Number, default: 0 },
+  modelUsed: { type: String },
+  settings: {
+    writingStructure: { type: String, default: 'structured' },
+    chapterCount: { type: Number, default: 50 },
+    memoryDepth: { type: Number, default: 5 }
+  }
 }, { timestamps: true })

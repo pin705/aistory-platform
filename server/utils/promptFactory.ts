@@ -1,10 +1,18 @@
 import { convert } from 'html-to-text'
 
-// Hàm tạo prompt cho việc gợi ý thông tin truyện
 async function createStoryDetailsPrompt(job): Promise<string> {
+  const { genres, settings } = job.context
+
   const metaPrompt = `
       QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
-      Bạn là một tác giả và chuyên gia xây dựng thế giới truyện (world-building expert). Dựa trên ý tưởng cốt lõi của người dùng, hãy phác thảo toàn bộ nền móng cho một câu chuyện mới.
+      Bạn là một tác giả và chuyên gia xây dựng thế giới truyện (world-building expert). Dựa trên ý tưởng cốt lõi và các cài đặt của người dùng, hãy phác thảo toàn bộ nền móng cho một câu chuyện mới.
+
+      **Thông số kỹ thuật do người dùng cung cấp:**
+      - Thể loại: ${genres.join(', ')}
+      - Cấu trúc viết: ${settings.writingStructure}
+      - Quy mô dự kiến: ${settings.chapterCount} chương
+      - Số từ trên mỗi chương (ước tính): ${settings.wordsPerChapter}
+      - Độ sâu bộ nhớ (tham khảo): ${settings.memoryDepth}/10
 
       **Ý tưởng cốt lõi của người dùng:**
       "${job.prompt}"
@@ -12,15 +20,11 @@ async function createStoryDetailsPrompt(job): Promise<string> {
       **Nhiệm vụ:**
       Hãy tạo ra một cấu trúc JSON duy nhất, hợp lệ (không có markdown) chứa tất cả các thông tin sau:
 
-      1. "story": một object chứa "title" (tên truyện), "description" (mô tả), "tags" (mảng 3-5 tag), và "genres" (mảng 2-3 thể loại).
-
-      2. "characters": một mảng chứa 3-5 nhân vật quan trọng (chính, phản diện, phụ), mỗi nhân vật là một object có "name", "role", "description", "backstory", và "abilities" (mảng các chuỗi).
-
+      1. "story": một object chứa "title", "description", "tags" (mảng), "genres" (mảng).
+      2. "characters": một mảng chứa 3-5 nhân vật quan trọng (chính, phản diện, phụ), mỗi nhân vật là object có "name", "role", "description", "backstory", và "abilities" (mảng các chuỗi).
       3. "factions": một mảng chứa 2-3 thế lực/môn phái chính, mỗi thế lực là một object có "name", "ideology", và "description".
-
       4. "realms": một mảng chứa 5-7 cảnh giới tu luyện đầu tiên, mỗi cảnh giới là một object có "name", "level" (BẮT BUỘC LÀ MỘT CON SỐ - NUMBER), và "description".
-
-      5. "locations": một mảng chứa 2-3 địa danh quan trọng, mỗi địa danh là một object có "name", "description", và "keyFeatures" (các đặc điểm nổi bật).
+      5. "locations": một mảng chứa 2-3 địa danh quan trọng, mỗi địa danh là một object có "name", "description", và "keyFeatures (Phải là string nối nhau dấu ,)".
     `
 
   return metaPrompt

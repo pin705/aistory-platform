@@ -121,7 +121,6 @@
             <UButton
               :loading="isSaving && autoSaveStatus !== 'saving'"
               icon="i-heroicons-check"
-              color="neutral"
               @click="saveChapter(false)"
             >
               Lưu
@@ -263,7 +262,6 @@
           :default-index="selectedAiTabIndex"
           :items="aiTabs"
           class="flex-1 flex flex-col"
-          color="neutral"
         >
           <template #outline="{ item }">
             <div class="p-4 space-y-4 flex-1 overflow-y-auto">
@@ -284,7 +282,6 @@
               <UButton
                 block
                 :loading="isOutlining"
-                color="neutral"
                 @click="generateOutline"
               >
                 Tạo Dàn ý

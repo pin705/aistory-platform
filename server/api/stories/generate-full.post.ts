@@ -1,13 +1,17 @@
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
-  const { prompt } = await readBody(event)
+  const { prompt, settings, genres } = await readBody(event)
 
   // 1. Tạo một job mới trong DB
   const newJob = await AiJob.create({
     userId: session.user.id,
     jobType: 'generate_story_details',
     status: 'pending',
-    prompt
+    prompt,
+    context: {
+      settings,
+      genres
+    }
   })
 
   // 2. Kích hoạt job ở chế độ "fire-and-forget" (không cần await)

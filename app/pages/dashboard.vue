@@ -6,8 +6,7 @@
       </h1>
       <UButton
         icon="i-heroicons-plus-circle"
-        color="neutral"
-        @click="openStoryModal(null)"
+        to="/author/stories/new"
       >
         Sáng tác truyện mới
       </UButton>
@@ -35,7 +34,6 @@
       </p>
       <UButton
         class="mt-4"
-        color="neutral"
         @click="openStoryModal(null)"
       >
         Bắt đầu sáng tác ngay
@@ -71,7 +69,6 @@
             <div class="md:col-span-2">
               <UTabs
                 :items="isEditing ? editTabs : addTabs"
-                color="neutral"
               >
                 <template #prompt>
                   <div class="space-y-4 pt-4">
@@ -190,7 +187,6 @@
         <UButton
           type="submit"
           :loading="isLoading"
-          color="neutral"
           @click="storyFormRef?.submit()"
         >
           {{ isEditing ? 'Cập nhật Tác phẩm' : 'Khởi tạo Tác phẩm' }}
@@ -222,7 +218,7 @@ const isEditing = ref(false)
 const addTabs = [{ slot: 'prompt', label: 'Ý tưởng' }, { slot: 'basic', label: 'Thông tin' }, { slot: 'classification', label: 'Phân loại' }]
 const editTabs = [{ slot: 'basic', label: 'Cơ bản' }, { slot: 'classification', label: 'Phân loại' }, { slot: 'advanced', label: 'Nâng cao' }]
 const statusOptionsForSelect = [{ value: 'draft', label: 'Bản nháp' }, { value: 'published', label: 'Đã xuất bản' }, { value: 'on-hold', label: 'Tạm ngưng' }, { value: 'finished', label: 'Hoàn thành' }]
-const statusColors: Record<string, any> = { 'draft': 'orange', 'published': 'green', 'on-hold': 'gray', 'finished': 'blue' }
+const statusColors: Record<string, any> = { 'draft': 'warning', 'published': 'primary', 'on-hold': 'neutral', 'finished': 'blue' }
 const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
 const promptPlaceholder = `Ví dụ:
 - **Thể loại:** Huyền huyễn, Phiêu lưu, Hài hước.

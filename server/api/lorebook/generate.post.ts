@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
       ${PROMPT_TEMPLATES[loreType]}
     `
 
-    const rawText = await generateContent({
+    const { rawText } = await generateContent({
       userId: session.user.id,
       prompt: metaPrompt,
       jobType: 'generate_post_details'

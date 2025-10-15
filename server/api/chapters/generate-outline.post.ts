@@ -1,4 +1,4 @@
-import { generateContent } from "~~/server/services/ai"
+import { generateContent } from '~~/server/services/ai'
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
       - "ending": Một câu mô tả cảnh kết thúc, có thể tạo sự tò mò cho chương sau.
     `
 
-    const rawText = await generateContent({
+    const { rawText } = await generateContent({
       userId: session.user.id,
       prompt: metaPrompt,
       jobType: 'generate_outline'

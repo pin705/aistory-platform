@@ -45,7 +45,6 @@
             <UBadge
               v-for="genre in story.genres"
               :key="genre"
-              color="neutral"
               variant="outline"
             >
               {{ genre }}
@@ -57,7 +56,6 @@
               :to="firstChapterLink"
               icon="i-heroicons-book-open"
               class="flex-1 sm:flex-none justify-center"
-              color="neutral"
             >
               Đọc từ đầu
             </UButton>
@@ -145,7 +143,6 @@
           <UTabs
             :items="tabs"
             class="w-full"
-            color="neutral"
           >
             <template #description="{ item }">
               <UCard>
@@ -212,14 +209,14 @@
                       :schema="reviewSchema"
                       @submit="submitReview"
                     >
-                      <UFieldGroup
+                      <UFormField
                         label="Đánh giá của bạn"
                         name="rating"
                         class="mb-4"
                       >
                         <StarInput v-model="newReviewState.rating" />
-                      </UFieldGroup>
-                      <UFieldGroup
+                      </UFormField>
+                      <UFormField
                         label="Bình luận"
                         name="comment"
                       >
@@ -227,7 +224,7 @@
                           v-model="newReviewState.comment"
                           placeholder="Chia sẻ cảm nhận của bạn về câu truyện..."
                         />
-                      </UFieldGroup>
+                      </UFormField>
                       <UButton
                         type="submit"
                         :loading="isSubmittingReview"

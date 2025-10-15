@@ -1,5 +1,5 @@
 import { getMetaPrompt } from './promptFactory' // Chúng ta vẫn dùng promptFactory để quản lý prompt tập trung
-import { generateContent } from '../services/ai';
+import { generateContent } from '../services/ai'
 
 export async function runAiGenerationFullPostJob(jobId: string) {
   const job = await AiJob.findById(jobId)
@@ -10,12 +10,13 @@ export async function runAiGenerationFullPostJob(jobId: string) {
     await job.save()
 
     const metaPrompt = await getMetaPrompt(job)
-    const rawText = await generateContent({
+    const { rawText, model } = await generateContent({
       userId: job.userId.toString(),
       prompt: metaPrompt,
       jobType: 'generate_story_details'
     })
 
+    console.log('AI Raw Response:', rawText) // Ghi log phản hồi thô để kiểm tra
     const jsonMatch = rawText?.match(/{[\s\S]*}/)
     if (!jsonMatch) throw new Error('AI trả về dữ liệu không đúng định dạng.')
 
@@ -27,7 +28,9 @@ export async function runAiGenerationFullPostJob(jobId: string) {
       prompt: job.prompt,
       author: job.userId,
       status: 'draft',
-      summary: generatedData.story.description || job.prompt.substring(0, 200) + '...'
+      summary: generatedData.story.description || job.prompt.substring(0, 200) + '...',
+      modelUsed: model,
+      settings: job?.context?.settings || {}
     })
     const storyId = newStory._id
     await Promise.all([
@@ -39,7 +42,7 @@ export async function runAiGenerationFullPostJob(jobId: string) {
 
     job.status = 'completed'
     // Chỉ lưu ID của truyện mới tạo vào kết quả
-    job.result = { newStoryId: newStory._id, newStoryTitle: newStory.title }
+    job.result = { generatedData: generatedData }
     job.completedAt = new Date()
     await job.save()
   } catch (error: any) {
@@ -64,8 +67,7 @@ export async function runSceneGenerationJob(jobId: string) {
 
     const metaPrompt = await getMetaPrompt(job)
 
-    console.log('metaPrompt', metaPrompt)
-    const rawText = await generateContent({
+    const { rawText } = await generateContent({
       userId: job.userId,
       prompt: metaPrompt,
       jobType: 'generate_scene'

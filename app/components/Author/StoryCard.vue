@@ -15,7 +15,6 @@
       </UBadge>
       <UBadge
         v-if="isNew"
-        color="neutral"
         variant="solid"
         size="xs"
         class="shadow-md"
@@ -40,7 +39,6 @@
       <div class="mt-2 flex items-center justify-between">
         <UBadge
           :color="statusColors[story.status]"
-          variant="soft"
           size="xs"
         >
           {{ statusLabels[story.status] }}
@@ -61,9 +59,8 @@
           >
             <UButton
               :icon="action.icon"
-              :color="action.label === 'Xoá truyện' ? 'error' : 'neutral'"
+              :color="action.label === 'Xoá truyện' ? 'error' : 'primary'"
               variant="ghost"
-              size="lg"
               class="bg-white/10 hover:bg-white/20 text-white rounded-full"
               @click="action.click"
             />

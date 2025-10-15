@@ -14,7 +14,10 @@ interface GenerateContentOptions {
  * Hàm trung tâm để giao tiếp với các dịch vụ AI.
  * Nó tự động lấy và giải mã API key, sau đó gọi đến provider tương ứng.
  */
-export async function generateContent(options: GenerateContentOptions): Promise<string> {
+export async function generateContent(options: GenerateContentOptions): Promise<{
+  rawText: string
+  model: string
+}> {
   const { userId, prompt, modelName, jobType } = options
 
   // 1. Lấy và giải mã API key
@@ -52,7 +55,10 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           })
         }
 
-        return result.text || ''
+        return {
+          rawText: result.text || '',
+          model: modelName || apiKeyRecord.apiModel?.toString() || 'gemini-2.5-flash'
+        }
       } catch (error) {
         // Ném lỗi cụ thể hơn để dễ debug
         throw new Error(`Lỗi từ Gemini API: ${error.message}`)
@@ -72,7 +78,7 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           ],
           model: modelName || apiKeyRecord.apiModel?.toString() || 'llama-3.1-8b-instant',
           temperature: 1,
-          max_completion_tokens: 1024,
+          // max_completion_tokens: 1024,
           top_p: 1,
           stream: false,
           stop: null
@@ -91,7 +97,10 @@ export async function generateContent(options: GenerateContentOptions): Promise<
           })
         }
 
-        return chatCompletion.choices[0].message.content || ''
+        return {
+          rawText: chatCompletion.choices[0]?.message?.content || '',
+          model: modelName || apiKeyRecord.apiModel?.toString() || 'llama-3.1-8b-instant'
+        }
       } catch (error) {
         throw new Error(`Lỗi từ Groq API: ${error.message}`)
       }

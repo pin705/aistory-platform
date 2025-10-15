@@ -33,7 +33,6 @@
         <UButton
           icon="i-heroicons-trash"
           size="lg"
-          color="red"
           variant="ghost"
           @click="emit('delete', character._id)"
         />

@@ -8,7 +8,6 @@
           </h3>
           <UButton
             icon="i-heroicons-plus-circle"
-            color="neutral"
             @click="openModal(null)"
           >
             Thêm Địa danh
@@ -49,6 +48,7 @@
                 icon="i-heroicons-trash"
                 size="sm"
                 variant="soft"
+                color="error"
                 @click="deleteLocation(location._id)"
               />
             </UTooltip>
@@ -96,7 +96,7 @@
                 <h3 class="font-semibold mb-2 flex items-center gap-2">
                   <Icon name="i-heroicons-sparkles" /> Khởi tạo bằng AI
                 </h3>
-                <UFieldGroup
+                <UFormField
                   label="Nhập ý tưởng của bạn"
                   name="ai_prompt"
                 >
@@ -106,7 +106,7 @@
                     placeholder="Ví dụ: Một thành phố bay trên mây..."
                     class="w-full"
                   />
-                </UFieldGroup>
+                </UFormField>
                 <UButton
                   variant="soft"
                   :loading="isGenerating"
@@ -161,13 +161,13 @@
             <UButton
               variant="ghost"
               @click="isModalOpen = false"
+              color="error"
             >
               Hủy
             </UButton>
             <UButton
               type="submit"
               :loading="isLoading"
-              color="neutral"
             >
               Lưu
             </UButton>

@@ -7,9 +7,7 @@
     </div>
     <UButton
       icon="i-heroicons-plus-circle"
-      size="lg"
       @click="openModal(null)"
-      color="neutral"
     >
       Thêm Nhân vật
     </UButton>

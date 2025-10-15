@@ -4,7 +4,6 @@
       <UAlert
         icon="i-heroicons-light-bulb"
         title="Hướng dẫn Gemini"
-        color="neutral"
       >
         <template #description>
           Lấy API Key miễn phí từ <a
@@ -17,7 +16,6 @@
       <UAlert
         icon="i-heroicons-light-bulb"
         title="Hướng dẫn Groq"
-        color="neutral"
       >
         <template #description>
           Groq cung cấp tốc độ cực nhanh. Lấy API Key miễn phí tại <a
@@ -35,7 +33,6 @@
       </h1>
       <UButton
         icon="i-heroicons-plus"
-        color="neutral"
         @click="isAddModalOpen = true"
       >
         Thêm Key mới
@@ -105,7 +102,6 @@
             <UButton
               type="submit"
               :loading="isLoading"
-              color="neutral"
             >
               Lưu Key
             </UButton>
@@ -182,7 +178,6 @@
             <UButton
               type="submit"
               :loading="isLoading"
-              color="neutral"
             >
               Lưu thay đổi
             </UButton>
