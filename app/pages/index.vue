@@ -6,7 +6,10 @@
     <section class="text-white">
       <UContainer class="grid lg:grid-cols-2 gap-12 items-center py-20 lg:py-32">
         <div v-motion-slide-visible-once-left>
-          <UBadge variant="subtle" color="neutral">
+          <UBadge
+            variant="soft"
+            color="neutral"
+          >
             Nền tảng Sáng tác truyện bằng AI
           </UBadge>
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-4 dark:text-white text-black">
@@ -40,17 +43,17 @@
           <UCarousel
             v-slot="{ item }"
             :items="homeData.featuredStories"
-            :ui="{ item: 'basis-full' }"
             loop
             autoplay
-            class="rounded-lg shadow-2xl"
+            class="w-full max-w-xs mx-auto"
             :arrows="false"
             :indicators="false"
           >
             <img
               :src="item.coverImage"
-              class="aspect-[4/3] w-full object-cover"
               draggable="false"
+              width="320" height="320"
+              class="rounded-lg shadow-lg"
             >
           </UCarousel>
         </div>
