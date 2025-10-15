@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
         updatedAt: 1,
         coverImage: 1,
         chapterCount: 1,
+        modelUsed: 1
       }
     }
   ])

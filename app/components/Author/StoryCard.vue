@@ -26,6 +26,24 @@
       </UBadge>
     </div>
 
+    <div
+      v-if="story.modelUsed"
+      class="absolute top-2 right-2 z-10"
+    >
+      <UTooltip text="Model AI được sử dụng để sáng tác">
+        <UBadge
+          variant="solid"
+          size="xs"
+        >
+          <UIcon
+            name="i-heroicons-cpu-chip"
+            class="mr-1"
+          />
+          {{ story.modelUsed }}
+        </UBadge>
+      </UTooltip>
+    </div>
+
     <img
       :src="story.coverImage || '/placeholder-cover.jpg'"
       :alt="story.title"
