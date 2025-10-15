@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
   await Chapter.deleteMany({ storyId: storyId })
   await Character.deleteMany({ storyId: storyId })
   await Chunk.deleteMany({ storyId: storyId })
-
+  await Faction.deleteMany({ storyId: storyId })
+  await Location.deleteMany({ storyId: storyId })
+  await CultivationRealm.deleteMany({ storyId: storyId })
+  await Location.deleteMany({ storyId: storyId })
   // 3. Xóa truyện gốc
   await Story.findByIdAndDelete(storyId)
 

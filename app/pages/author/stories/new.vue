@@ -21,9 +21,9 @@
             v-for="genre in genresFromAPI"
             :key="genre"
             class="p-4 border rounded-lg text-center transition-all duration-200 text-sm font-medium"
-            :class="storyData.genres.includes(genre) ? 'bg-primary-500 text-white border-primary-500 ring-4 ring-primary-500/30' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
-            @click="toggleGenre(genre)"
+            :class="storyData.genres.includes(genre) ? 'bg-primary-500 border-gray-500 dark:border-primary-500 ring-1' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
             color="neutral"
+            @click="toggleGenre(genre)"
           >
             {{ genre }}
           </button>
@@ -291,7 +291,7 @@
 
 <script setup lang="ts">
 const { data: genresFromAPI } = await useFetch<string[]>('/api/genres', { default: () => [] })
-const { isLoading, isGenerating, currentStep, highestStep, storyData, canProceed, resetWizard, nextStep, prevStep, handleSubmit } = useStoryWizard()
+const { isLoading, isGenerating, currentStep, highestStep, storyData, canProceed, resetWizard, nextStep, prevStep } = useStoryWizard()
 
 const wizardSteps = [
   { id: 1, name: 'Thể loại' },
