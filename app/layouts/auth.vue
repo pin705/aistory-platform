@@ -1,4 +1,3 @@
-// file: layouts/auth.vue
 <template>
   <div>
     <slot />

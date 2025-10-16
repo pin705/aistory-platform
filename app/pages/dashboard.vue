@@ -7,7 +7,7 @@
       <UButton
         icon="i-heroicons-plus-circle"
         to="/author/stories/new"
-         color="neutral"
+        color="neutral"
       >
         Sáng tác truyện mới
       </UButton>
@@ -35,8 +35,8 @@
       </p>
       <UButton
         class="mt-4"
+        color="neutral"
         @click="openStoryModal(null)"
-         color="neutral"
       >
         Bắt đầu sáng tác ngay
       </UButton>
@@ -71,7 +71,7 @@
             <div class="md:col-span-2">
               <UTabs
                 :items="isEditing ? editTabs : addTabs"
-                 color="neutral"
+                color="neutral"
               >
                 <template #prompt>
                   <div class="space-y-4 pt-4">
@@ -92,8 +92,8 @@
                         variant="soft"
                         icon="i-heroicons-sparkles"
                         :loading="isGenerating"
+                        color="neutral"
                         @click="callAIGenerate"
-                         color="neutral"
                       >
                         AI Phác thảo
                       </UButton>
@@ -160,6 +160,88 @@
                     </UFormField>
                   </div>
                 </template>
+                <template #settings>
+                  <div class="space-y-6 pt-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <UFormField :label="`Số từ trên mỗi chương: ${formState.settings.wordsPerChapter}`">
+                      <USlider
+                        v-model="formState.settings.wordsPerChapter"
+                        :min="500"
+                        :max="5000"
+                        :step="100"
+                      />
+                    </UFormField>
+                    <UFormField
+                      :label="`Độ sâu bộ nhớ AI: ${formState.settings.memoryDepth}`"
+                      help="Mức độ AI ghi nhớ các chi tiết từ chương trước."
+                    >
+                      <USlider
+                        v-model="formState.settings.memoryDepth"
+                        :min="1"
+                        :max="10"
+                      />
+                    </UFormField>
+                    <UFormField
+                      label="Phong cách viết"
+                      help="Chọn một lối tắt hoặc tự điền vào ô bên dưới."
+                    >
+                      <div class="flex flex-wrap gap-2 mb-3">
+                        <UTooltip
+                          v-for="preset in authorStylePresets"
+                          :key="preset.name"
+                          :text="preset.description"
+                        >
+                          <UButton
+                            size="xs"
+                            color="neutral"
+                            :variant="formState.settings.writingStyle === preset.value ? 'solid' : 'outline'"
+                            @click="formState.settings.writingStyle = preset.value"
+                          >
+                            {{ preset.name }}
+                          </UButton>
+                        </UTooltip>
+                      </div>
+                      <UInput
+                        v-model="formState.settings.writingStyle"
+                        placeholder="VD: Tả thực, Hành động nhanh, Nội tâm sâu sắc"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField label="Giọng điệu (Tone)">
+                      <USelectMenu
+                        v-model="formState.settings.tone"
+                        :items="toneOptions"
+                        placeholder="Chọn giọng điệu"
+                        class="w-full"
+                      />
+                    </UFormField>
+                    <UFormField label="Yếu tố cảm xúc cần nhấn mạnh">
+                      <div class="flex flex-wrap gap-2">
+                        <UButton
+                          v-for="item in emotionalElementOptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :variant="formState.settings.emotionalElements.includes(item.value) ? 'solid' : 'outline'"
+                          color="neutral"
+                          size="sm"
+                          @click="toggleArrayItem(formState.settings.emotionalElements, item.value)"
+                        />
+                      </div>
+                    </UFormField>
+                    <UFormField label="Yếu tố hài hước (nếu có)">
+                      <div class="flex flex-wrap gap-2">
+                        <UButton
+                          v-for="item in humorElementOptions"
+                          :key="item.value"
+                          :label="item.label"
+                          :variant="formState.settings.humorElements.includes(item.value) ? 'solid' : 'outline'"
+                          color="neutral"
+                          size="sm"
+                          @click="toggleArrayItem(formState.settings.humorElements, item.value)"
+                        />
+                      </div>
+                    </UFormField>
+                  </div>
+                </template>
                 <template #advanced>
                   <div class="space-y-4 pt-4">
                     <UFormField
@@ -191,8 +273,8 @@
         <UButton
           type="submit"
           :loading="isLoading"
+          color="neutral"
           @click="storyFormRef?.submit()"
-           color="neutral"
         >
           {{ isEditing ? 'Cập nhật Tác phẩm' : 'Khởi tạo Tác phẩm' }}
         </UButton>
@@ -221,7 +303,7 @@ const isModalOpen = ref(false)
 const isEditing = ref(false)
 
 const addTabs = [{ slot: 'prompt', label: 'Ý tưởng' }, { slot: 'basic', label: 'Thông tin' }, { slot: 'classification', label: 'Phân loại' }]
-const editTabs = [{ slot: 'basic', label: 'Cơ bản' }, { slot: 'classification', label: 'Phân loại' }, { slot: 'advanced', label: 'Nâng cao' }]
+const editTabs = [{ slot: 'basic', label: 'Cơ bản' }, { slot: 'classification', label: 'Phân loại' }, { slot: 'settings', label: 'Cài đặt AI' }, { slot: 'advanced', label: 'Nâng cao' }]
 const statusOptionsForSelect = [{ value: 'draft', label: 'Bản nháp' }, { value: 'published', label: 'Đã xuất bản' }, { value: 'on-hold', label: 'Tạm ngưng' }, { value: 'finished', label: 'Hoàn thành' }]
 const statusColors: Record<string, any> = { 'draft': 'warning', 'published': 'primary', 'on-hold': 'neutral', 'finished': 'blue' }
 const statusLabels: Record<string, string> = { 'draft': 'Bản nháp', 'published': 'Đã xuất bản', 'on-hold': 'Tạm ngưng', 'finished': 'Hoàn thành' }
@@ -296,7 +378,8 @@ async function openStoryModal(story: any | null) {
   }
 }
 
-async function handleSubmit(event: any) {
+async function handleSubmit(event) {
+  console.log('Form submitted with:', event.data)
   isLoading.value = true
   try {
     const tagsArray = event.data.tags ? (event.data.tags as string).split(',').map(tag => tag.trim()).filter(Boolean) : []

@@ -55,19 +55,6 @@ const tabsManager = [
 
 const selectedTab = ref(0)
 
-// (MỚI) State để theo dõi tab đang được chọn
-// `useRoute().query.tab` cho phép chia sẻ link với tab đã chọn
-// const selectedTab = computed(() => {
-//   const tabQuery = route.query.tab as string
-//   return tabsManager.find(t => t.slot === tabQuery) || tabsManager[0]
-// })
-
-// Cập nhật URL khi đổi tab (tốt cho UX và bookmark)
-// watch(selectedTab, (newTab) => {
-//   const router = useRouter()
-//   router.replace({ query: { ...route.query, tab: newTab.slot } })
-// })
-
 const { data: story } = await useFetch(`/api/stories/${storyId}`)
 useHead({ title: () => `Quản lý: ${story.value?.title || 'Truyện'}` })
 </script>

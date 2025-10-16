@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
         tags: body.tags,
         prompt: body.prompt,
         coverImage: body.coverImage || '',
-        status: body.status || 'draft'
+        status: body.status || 'draft',
+        settings: body?.settings || {}
       }
     },
     { new: true } // Trả về document sau khi đã cập nhật

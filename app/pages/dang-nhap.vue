@@ -5,13 +5,13 @@
 
       <div class="relative z-10 w-full max-w-md">
         <h1
-          v-motion-slide-bottom
+
           class="text-5xl font-bold tracking-tighter"
         >
           Sáng Tác Truyện
         </h1>
         <p
-          v-motion-slide-bottom
+
           :delay="200"
           class="mt-4 text-lg text-gray-300"
         >
@@ -19,7 +19,7 @@
         </p>
 
         <div
-          v-motion-slide-bottom
+
           :delay="400"
           class="mt-10 space-y-6 border-l-2 border-primary-500 pl-6"
         >
@@ -57,13 +57,13 @@
       >
         <template #header>
           <h1
-            v-motion-slide-bottom
+
             class="text-3xl font-bold"
           >
             Chào mừng trở lại!
           </h1>
           <p
-            v-motion-slide-bottom
+
             :delay="100"
             class="text-sm text-gray-500 dark:text-gray-400 mt-1"
           >
@@ -72,14 +72,14 @@
         </template>
 
         <div
-          v-motion-slide-bottom
+
           :delay="200"
           class="space-y-3"
         >
           <UButton
             block
             icon="i-simple-icons-google"
-             color="neutral"
+            color="neutral"
             @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
@@ -89,8 +89,8 @@
           <UButton
             block
             icon="i-simple-icons-github"
-             color="neutral"
-             @click="() => {
+            color="neutral"
+            @click="() => {
               toast.add({ title: 'Chức năng đang phát triển...', color: 'info' })
             }"
           >
@@ -99,7 +99,7 @@
         </div>
 
         <USeparator
-          v-motion-slide-bottom
+
           :delay="300"
           label="HOẶC"
           class="my-6"
@@ -112,7 +112,7 @@
           @submit="submit"
         >
           <UFormField
-            v-motion-slide-bottom
+
             :delay="400"
             label="Email"
             name="email"
@@ -125,7 +125,7 @@
             />
           </UFormField>
           <UFormField
-            v-motion-slide-bottom
+
             :delay="500"
             label="Mật khẩu"
             name="password"
@@ -139,12 +139,11 @@
             />
           </UFormField>
           <UButton
-            v-motion-slide-bottom
             :delay="600"
             type="submit"
             block
             :loading="isLoading"
-             color="neutral"
+            color="neutral"
           >
             Đăng nhập
           </UButton>
@@ -152,7 +151,7 @@
 
         <template #footer>
           <div
-            v-motion-slide-bottom
+
             :delay="700"
             class="text-center"
           >

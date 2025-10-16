@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Thiếu thông tin truyện hoặc yêu cầu.' })
   }
 
+  const story = await Story.findById(storyId).select('settings')
   // 1. Tạo Job mới trong DB
   const job = await AiJob.create({
     userId: session.user.id,
@@ -13,7 +14,8 @@ export default defineEventHandler(async (event) => {
     prompt: userPrompt,
     context: {
       storyId,
-      currentContent
+      currentContent,
+      settings: story?.settings || {}
     },
     status: 'pending'
   })

@@ -10,6 +10,12 @@ interface StoryData {
     chapterCount: number
     memoryDepth: number
     wordsPerChapter: number
+    writingStyle: string
+    tone: string
+    languageComplexity: 'simple' | 'moderate' | 'complex'
+    targetAgeGroup: '12+' | '16+' | '18+'
+    emotionalElements: string[]
+    humorElements: string[]
   }
   characters: any[]
   factions: any[]
@@ -38,7 +44,13 @@ export const useStoryWizard = () => {
       writingStructure: 'structured',
       chapterCount: 50,
       memoryDepth: 5,
-      wordsPerChapter: 300
+      wordsPerChapter: 300,
+      writingStyle: 'Tả thực, Tập trung vào nội tâm',
+      tone: 'Trung tính',
+      languageComplexity: 'moderate',
+      targetAgeGroup: '16+',
+      emotionalElements: [],
+      humorElements: []
     },
     characters: [],
     factions: [],
@@ -50,7 +62,12 @@ export const useStoryWizard = () => {
     highestStep.value = 1
     Object.assign(storyData, {
       genres: [], prompt: '', title: '', description: '', tags: '',
-      settings: { writingStructure: 'structured', chapterCount: 50, memoryDepth: 5 },
+      settings: { writingStructure: 'structured', chapterCount: 50, memoryDepth: 5, writingStyle: 'Tả thực, Tập trung vào nội tâm',
+        tone: 'Trung tính',
+        languageComplexity: 'moderate',
+        targetAgeGroup: '16+',
+        emotionalElements: [],
+        humorElements: [] },
       characters: [], factions: [], realms: []
     })
   }

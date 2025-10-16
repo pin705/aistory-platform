@@ -21,12 +21,9 @@
           <button
             v-for="genre in genresFromAPI"
             :key="genre"
-            v-motion
             class="p-2 border  text-center  text-sm font-medium border rounded-lg text-left transform transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
             :class="storyData.genres.includes(genre) ? 'bg-primary-500 border-gray-500 dark:border-primary-500 ring-1' : 'hover:border-primary-500 hover:text-primary-500 dark:border-gray-700'"
             color="neutral"
-            :initial="{ opacity: 0, y: 20 }"
-            :enter="{ opacity: 1, y: 0, transition: { delay: 50 * index } }"
             @click="toggleGenre(genre)"
           >
             {{ genre }}
@@ -102,6 +99,134 @@
               </UButton>
             </div>
           </UFormField>
+
+          <UFormField
+            label="Phong cách viết"
+            help="AI sẽ ưu tiên văn phong này. Chọn một lối tắt hoặc tự điền vào ô bên dưới."
+          >
+            <div class="flex flex-wrap gap-2 mb-3">
+              <UTooltip
+                v-for="preset in authorStylePresets"
+                :key="preset.name"
+                :text="preset.description"
+                :popper="{ placement: 'top' }"
+              >
+                <UButton
+                  size="xs"
+                  color="neutral"
+                  :variant="storyData.settings.writingStyle === preset.value ? 'solid' : 'outline'"
+                  @click="storyData.settings.writingStyle = preset.value"
+                >
+                  {{ preset.name }}
+                </UButton>
+              </UTooltip>
+            </div>
+            <UInput
+              v-model="storyData.settings.writingStyle"
+              class="w-full"
+              placeholder="VD: Tả thực, Hành động nhanh, Nội tâm sâu sắc"
+            />
+          </UFormField>
+
+          <UFormField
+            label="Giọng điệu (Tone)"
+            help="Sắc thái chủ đạo của câu chuyện."
+          >
+            <USelectMenu
+              v-model="storyData.settings.tone"
+              :items="toneOptions"
+              placeholder="Chọn giọng điệu"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField label="Độ phức tạp ngôn ngữ">
+            <div class="grid grid-cols-3 gap-4">
+              <UButton
+                :variant="storyData.settings.languageComplexity === 'simple' ? 'solid' : 'outline'"
+                class="flex-col h-20 text-center"
+                color="neutral"
+                @click="storyData.settings.languageComplexity = 'simple'"
+              >
+                <span class="text-sm">Đơn giản</span>
+                <span class="text-xs font-normal opacity-70">Dễ đọc, phổ thông</span>
+              </UButton>
+              <UButton
+                :variant="storyData.settings.languageComplexity === 'moderate' ? 'solid' : 'outline'"
+                class="flex-col h-20 text-center"
+                color="neutral"
+                @click="storyData.settings.languageComplexity = 'moderate'"
+              >
+                <span class="text-sm">Vừa phải</span>
+                <span class="text-xs font-normal opacity-70">Cân bằng, phổ biến</span>
+              </UButton>
+              <UButton
+                :variant="storyData.settings.languageComplexity === 'complex' ? 'solid' : 'outline'"
+                class="flex-col h-20 text-center"
+                color="neutral"
+                @click="storyData.settings.languageComplexity = 'complex'"
+              >
+                <span class="text-sm">Phức tạp</span>
+                <span class="text-xs font-normal opacity-70">Hàn lâm, nhiều thuật ngữ</span>
+              </UButton>
+            </div>
+          </UFormField>
+
+          <UFormField label="Độ tuổi độc giả mục tiêu">
+            <div class="flex items-center gap-4">
+              <UButton
+                :variant="storyData.settings.targetAgeGroup === '12+' ? 'solid' : 'outline'"
+                color="neutral"
+                @click="storyData.settings.targetAgeGroup = '12+'"
+              >
+                12+
+              </UButton>
+              <UButton
+                :variant="storyData.settings.targetAgeGroup === '16+' ? 'solid' : 'outline'"
+                color="neutral"
+                @click="storyData.settings.targetAgeGroup = '16+'"
+              >
+                16+
+              </UButton>
+              <UButton
+                :variant="storyData.settings.targetAgeGroup === '18+' ? 'solid' : 'outline'"
+                color="neutral"
+                @click="storyData.settings.targetAgeGroup = '18+'"
+              >
+                18+
+              </UButton>
+            </div>
+          </UFormField>
+
+          <UFormField label="Yếu tố cảm xúc cần nhấn mạnh">
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="item in emotionalElementOptions"
+                :key="item.value"
+                :label="item.label"
+                :variant="storyData.settings.emotionalElements.includes(item.value) ? 'solid' : 'outline'"
+                color="neutral"
+                size="sm"
+                @click="toggleArrayItem(storyData.settings.emotionalElements, item.value)"
+              />
+            </div>
+          </UFormField>
+
+          <UFormField label="Yếu tố hài hước (nếu có)">
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="item in humorElementOptions"
+                :key="item.value"
+                :label="item.label"
+                :variant="storyData.settings.humorElements.includes(item.value) ? 'solid' : 'outline'"
+                color="neutral"
+                size="sm"
+                @click="toggleArrayItem(storyData.settings.humorElements, item.value)"
+              />
+            </div>
+          </UFormField>
+
+          <USeparator class="my-4" />
           <UFormField :label="`Số lượng chương: ${storyData.settings.chapterCount}`">
             <USlider
               v-model="storyData.settings.chapterCount"
@@ -128,6 +253,8 @@
               :max="10"
             />
           </UFormField>
+
+          <USeparator class="my-4" />
         </UForm>
       </StoryWizardStepCard>
 
@@ -254,13 +381,10 @@
         <UAlert
           v-for="(tip, index) in tips[currentStep - 1].content"
           :key="index"
-          v-motion
           :title="tip.title"
           :description="tip.description"
           :icon="tip.icon"
           color="neutral"
-          :initial="{ opacity: 0, x: 50 }"
-          :enter="{ opacity: 1, x: 0, transition: { delay: 100 * (index + 1) } }"
         />
       </div>
     </aside>
@@ -313,6 +437,8 @@
 </template>
 
 <script setup lang="ts">
+import { select } from '#build/ui'
+
 const { isLoading, isGenerating, currentStep, highestStep, storyData, canProceed, resetWizard, nextStep, prevStep, addCustomGenre, toggleGenre, genresFromAPI } = useStoryWizard()
 
 const wizardSteps = [
@@ -330,14 +456,6 @@ const tips = [
   { content: [{ icon: 'i-heroicons-paint-brush', title: 'Dấu ấn cá nhân', description: 'Rà soát và "thêm mắm thêm muối" để các chi tiết mang đậm dấu ấn của bạn.' }, { icon: 'i-heroicons-book-open', title: 'Bước tiếp theo', description: 'Sau khi khởi tạo, bạn sẽ quản lý chi tiết Lorebook và bắt đầu viết chương đầu tiên.' }] }
 ]
 const promptPlaceholder = `Ví dụ:\n- Thể loại: Huyền huyễn, Phiêu lưu, Hài hước.\n\n- Nhân vật chính: Tên là Vĩ, một thanh niên làm nghề "shipper" cổ vật, lanh lợi, mồm mép, và có nguyên tắc sống là "không bao giờ dính vào rắc rối"...`
-const newGenreInput = ref('')
-
-function handleAddNewGenre() {
-  if (newGenreInput.value) {
-    addCustomGenre(newGenreInput.value.trim())
-    newGenreInput.value = '' // Xóa ô input sau khi thêm
-  }
-}
 function getStepClass(stepId: number) {
   if (currentStep.value === stepId) return 'bg-gray-500 text-white ring-4 ring-primary-500/30'
   if (currentStep.value > stepId) return 'bg-green-500 text-white'

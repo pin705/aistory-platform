@@ -10,6 +10,7 @@ interface StoryFormState {
   genres: string[]
   tags: string
   status: string
+  settings: Record<string, unknown>
 }
 
 export const useStoryForm = () => {
@@ -29,7 +30,19 @@ export const useStoryForm = () => {
     description: '',
     genres: [],
     tags: '',
-    status: 'draft'
+    status: 'draft',
+    settings: {
+      writingStructure: 'structured',
+      chapterCount: 50,
+      memoryDepth: 5,
+      wordsPerChapter: 300,
+      writingStyle: 'Tả thực, Tập trung vào nội tâm',
+      tone: 'Trung tính',
+      languageComplexity: 'moderate',
+      targetAgeGroup: '16+',
+      emotionalElements: [],
+      humorElements: []
+    }
   })
 
   // Schema validation
@@ -40,12 +53,24 @@ export const useStoryForm = () => {
     genres: z.array(z.string()).optional(),
     tags: z.string().optional(),
     coverImage: z.string().optional(),
-    status: z.string().optional()
+    status: z.string().optional(),
+    settings: z.any().optional()
   })
 
   // Hàm reset form về trạng thái ban đầu
   const resetForm = () => {
-    Object.assign(formState, { _id: undefined, coverImage: '', prompt: '', title: '', description: '', genres: [], tags: '', status: 'draft' })
+    Object.assign(formState, { _id: undefined, coverImage: '', prompt: '', title: '', description: '', genres: [], tags: '', status: 'draft', settings: {
+      writingStructure: 'structured',
+      chapterCount: 50,
+      memoryDepth: 5,
+      wordsPerChapter: 300,
+      writingStyle: 'Tả thực, Tập trung vào nội tâm',
+      tone: 'Trung tính',
+      languageComplexity: 'moderate',
+      targetAgeGroup: '16+',
+      emotionalElements: [],
+      humorElements: []
+    } })
   }
 
   // Hàm lấy dữ liệu chi tiết cho chế độ sửa
@@ -62,6 +87,7 @@ export const useStoryForm = () => {
         formState.genres = fullStoryData.genres || []
         formState.tags = (fullStoryData.tags || []).join(', ')
         formState.status = fullStoryData.status
+        formState.settings = fullStoryData.settings || {}
         return true // Báo hiệu thành công
       }
     } catch (e) {
@@ -72,49 +98,6 @@ export const useStoryForm = () => {
     }
     return false
   }
-
-  // Hàm gọi AI phác thảo
-  // async function handleGenerateDetails() {
-  //   if (formState.prompt.length < 50) {
-  //     return toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
-  //   }
-  //   isGenerating.value = true
-  //   try {
-  //     const result = await $fetch('/api/stories/generate-details', { method: 'POST', body: { prompt: formState.prompt } })
-  //     formState.title = result.title
-  //     formState.description = result.description
-  //     formState.tags = result.tags.join(', ')
-  //     formState.genres = result.genres
-  //     toast.add({ title: 'AI đã phác thảo thành công!', icon: 'i-heroicons-sparkles' })
-  //   } catch (e) {
-  //     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
-  //   } finally {
-  //     isGenerating.value = false
-  //   }
-  // }
-
-  // async function handleGenerateDetails() {
-  //   if (formState.prompt.length < 50) {
-  //     toast.add({ title: 'Lỗi', description: 'Vui lòng nhập ý tưởng chi tiết hơn.', color: 'warning' })
-  //     return null // Trả về null nếu thất bại
-  //   }
-  //   isGenerating.value = true
-  //   toast.add({ title: 'AI đang sáng thế...', description: 'Quá trình này có thể mất một lúc, vui lòng chờ.', icon: 'i-heroicons-globe-alt', timeout: 5000 })
-  //   try {
-  //     // Gọi API mới và trả về truyện đã được tạo
-  //     const newStory = await $fetch('/api/stories/generate-full', {
-  //       method: 'POST',
-  //       body: { prompt: formState.prompt }
-  //     })
-  //     toast.add({ title: 'AI đã sáng thế thành công!', icon: 'i-heroicons-sparkles' })
-  //     return newStory // Trả về truyện mới
-  //   } catch (e: any) {
-  //     toast.add({ title: 'Lỗi!', description: e.data?.statusMessage, color: 'error' })
-  //     return null // Trả về null nếu thất bại
-  //   } finally {
-  //     isGenerating.value = false
-  //   }
-  // }
 
   async function handleGenerateDetails() {
     if (formState.prompt.length < 50) {
