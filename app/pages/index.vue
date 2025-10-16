@@ -20,11 +20,20 @@
           </p>
           <div class="mt-8 flex gap-3">
             <UButton
+            v-if="loggedIn"
               to="/author/stories/new"
               icon="i-heroicons-pencil-square-20-solid"
               color="neutral"
             >
               Bắt đầu Sáng tác
+            </UButton>
+            <UButton
+              v-else
+              to="/dang-nhap"
+              icon="i-heroicons-pencil-square-20-solid"
+              color="neutral"
+            >
+              Đăng nhập để Sáng tác
             </UButton>
             <UButton
               to="/kham-pha"
@@ -90,6 +99,8 @@
 </template>
 
 <script setup lang="ts">
+const { loggedIn } = useUserSession()
+
 const { data: homeData } = useFetch('/api/home-data')
 
 // Dữ liệu cho khu vực Features
