@@ -342,6 +342,7 @@
                   class="w-full"
                   icon="i-heroicons-pencil-square"
                   @click="generateNextScene"
+                  color="neutral"
                 >
                   Tạo nội dung
                 </UButton>

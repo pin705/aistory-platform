@@ -328,7 +328,6 @@
             label="Xem lại Lorebook do AI tạo"
             class="my-6"
           />
-          {{ storyData }}
           <UAccordion :items="[{ label: 'Nhân vật', defaultOpen: true }, { label: 'Thế lực' }, { label: 'Cảnh giới' }]">
             <template #item="{ item }">
               <div
