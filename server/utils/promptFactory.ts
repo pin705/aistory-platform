@@ -5,17 +5,15 @@ async function createStoryDetailsPrompt(job): Promise<string> {
 
   const metaPrompt = `
       QUAN TRỌNG: HÃY VIẾT CÂU TRẢ LỜI HOÀN TOÀN BẰNG TIẾNG VIỆT.
-      Bạn là một tác giả và chuyên gia xây dựng thế giới truyện (world-building expert). Dựa trên ý tưởng cốt lõi và các cài đặt của người dùng, hãy phác thảo toàn bộ nền móng cho một câu chuyện mới.
+      Tôi muốn bạn đóng vai trò là một tiểu thuyết gia. Bạn sẽ viết nên những câu chuyện sáng tạo và hấp dẫn, có thể thu hút độc giả trong thời gian dài.
+      Bạn có thể chọn bất kỳ thể loại nào, chẳng hạn như ${genres.join(', ')} - nhưng mục tiêu là viết nên một tác phẩm có cốt truyện xuất sắc, nhân vật lôi cuốn và những cao trào bất ngờ.
+      Yêu cầu đầu tiên của tôi là: "${job.prompt}"
 
       **Thông số kỹ thuật do người dùng cung cấp:**
-      - Thể loại: ${genres.join(', ')}
       - Cấu trúc viết: ${settings.writingStructure}
       - Quy mô dự kiến: ${settings.chapterCount} chương
       - Số từ trên mỗi chương (ước tính): ${settings.wordsPerChapter}
       - Độ sâu bộ nhớ (tham khảo): ${settings.memoryDepth}/10
-
-      **Ý tưởng cốt lõi của người dùng:**
-      "${job.prompt}"
 
       **Nhiệm vụ:**
       Hãy tạo ra một cấu trúc JSON duy nhất, hợp lệ (không có markdown) chứa tất cả các thông tin sau:
