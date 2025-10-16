@@ -68,7 +68,7 @@
           >
             <USelectMenu
               v-model="addState.provider"
-              :items="['gemini', 'groq']"
+              :items="['gemini', 'groq', 'openai']"
             />
           </UFormField>
           <UFormField
@@ -212,7 +212,7 @@ const selectedKey = ref<any | null>(null)
 // --- DANH SÁCH MODEL ---
 const geminiModels = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite']
 const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'meta-llama/llama-4-maverick-17b-128e-instruct', 'meta-llama/llama-4-scout-17b-16e-instruct']
-
+const openaiModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-5', 'gpt-5-mini'] // Thêm model của OpenAI
 // --- LẤY DỮ LIỆU ---
 const { data: apiKeys, refresh } = await useFetch<any[]>('/api/keys', { default: () => [] })
 
@@ -271,12 +271,30 @@ const addState = reactive({ provider: 'gemini', apiKey: '', apiModel: geminiMode
 // Computed để chọn danh sách model động
 const availableModels = computed(() => {
   const currentProvider = isEditModalOpen.value ? editState.provider : addState.provider
-  return currentProvider === 'gemini' ? geminiModels : groqModels
+  switch (currentProvider) {
+    case 'groq':
+      return groqModels
+    case 'openai': // Thêm case cho openai
+      return openaiModels
+    case 'gemini':
+    default:
+      return geminiModels
+  }
 })
 
 // Watcher để tự động đổi model khi provider thay đổi trong form THÊM MỚI
 watch(() => addState.provider, (newProvider) => {
-  addState.apiModel = newProvider === 'gemini' ? geminiModels[0] : groqModels[0]
+  switch (newProvider) {
+    case 'groq':
+      addState.apiModel = groqModels[0]
+      break
+    case 'openai': // Thêm case cho openai
+      addState.apiModel = openaiModels[0]
+      break
+    default: // gemini
+      addState.apiModel = geminiModels[0]
+      break
+  }
 })
 
 async function submitAddKey(event: FormSubmitEvent<AddSchema>) {

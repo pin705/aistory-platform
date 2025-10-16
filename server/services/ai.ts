@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js'
 import { GoogleGenAI } from '@google/genai'
 import { Groq } from 'groq-sdk'
-
+import OpenAI from 'openai' // --- (MỚI) Import thư viện OpenAI ---
 // Định nghĩa kiểu dữ liệu cho options
 interface GenerateContentOptions {
   userId: string
@@ -103,6 +103,45 @@ export async function generateContent(options: GenerateContentOptions): Promise<
         }
       } catch (error) {
         throw new Error(`Lỗi từ Groq API: ${error.message}`)
+      }
+      case 'openai':
+      try {
+        const openai = new OpenAI({
+          apiKey: decryptedKey
+        })
+
+        const model = modelName || apiKeyRecord.apiModel?.toString() || 'gpt-4o'
+
+        const chatCompletion = await openai.chat.completions.create({
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          model,
+          temperature: 0.7 // Nhiệt độ hợp lý hơn cho sáng tạo
+        })
+
+        const usageMetadata = chatCompletion.usage
+        if (usageMetadata) {
+          logTokenUsage({
+            userId,
+            jobType,
+            provider,
+            modelName: model,
+            promptTokenCount: usageMetadata.prompt_tokens,
+            candidatesTokenCount: usageMetadata.completion_tokens,
+            totalTokenCount: usageMetadata.total_tokens
+          })
+        }
+
+        return {
+          rawText: chatCompletion.choices[0]?.message?.content || '',
+          model
+        }
+      } catch (error: any) {
+        throw new Error(`Lỗi từ OpenAI API: ${error.message}`)
       }
     default:
       throw new Error(`Nhà cung cấp không được hỗ trợ: ${provider}`)
