@@ -55,13 +55,6 @@ async function createSceneGenerationPrompt(job): Promise<string> {
       **NHIỆM VỤ:**
       Dựa vào TOÀN BỘ thông tin bối cảnh được cung cấp, hãy viết phần tiếp theo cho câu chuyện.
 
-      **QUY TẮC ĐỊNH DẠNG BẮT BUỘC:**
-      1.  Chỉ sử dụng thẻ <p> để bọc các đoạn văn.
-      2.  Mỗi đoạn văn PHẢI nằm trong một cặp thẻ <p>...</p> riêng biệt.
-      3.  KHÔNG được sử dụng các thẻ <html>, <body>, <div>, <span> hay bất kỳ thẻ HTML nào khác.
-      4.  KHÔNG được thêm bất kỳ định dạng Markdown nào (ví dụ: dấu *, _, #).
-      5.  Giữ cho các đoạn văn có độ dài hợp lý, không xuống dòng tùy tiện.
-      ---
       **BỐI CẢNH ĐỂ BẠN SÁNG TÁC:**
 
       **1. Tóm tắt cốt truyện chính (Kim chỉ nam):**

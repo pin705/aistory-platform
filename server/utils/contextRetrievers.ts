@@ -74,7 +74,7 @@ export async function retrieveLorebookContext(storyId: string, userPrompt: strin
   if (mentionedLocations.length > 0) {
     const locationContext = mentionedLocations.map((location) => {
       const shortDesc = location.description ? location.description.substring(0, 150) + '...' : 'Không có mô tả.'
-      return `- Địa điểm: ${location.name}.\n  - Mô tả: ${shortDesc}\n  - Đặc điểm chính: ${location.keyFeatures.join('; ')}.`
+      return `- Địa điểm: ${location.name}.\n  - Mô tả: ${shortDesc}\n  - Đặc điểm chính: ${location.keyFeatures}.`
     }).join('\n')
     contextParts.push(`### Địa điểm được nhắc đến:\n${locationContext}`)
   }
