@@ -107,6 +107,14 @@
             </p>
           </div>
           <div>
+            <p class="font-bold text-lg leading-tight truncate">
+              {{ modelUsed }}
+            </p>
+            <p class="text-sm text-gray-500">
+              Model AI
+            </p>
+          </div>
+          <div>
             <div
               class="font-bold text-2xl flex items-center justify-center gap-1"
             >
@@ -123,14 +131,13 @@
             </p>
           </div>
           <div>
-            <p class="font-bold text-lg">
+            <ClientOnly>
+              <p class="font-bold text-lg">
               {{
-                formatDistanceToNow(new Date(story.updatedAt), {
-                  addSuffix: true,
-                  locale: vi
-                })
+                formatDistanceToNow(new Date(story.updatedAt), { addSuffix: true, locale: vi })
               }}
             </p>
+            </ClientOnly>
             <p class="text-sm text-gray-500">
               Cập nhật
             </p>
@@ -403,6 +410,7 @@ if (error.value) {
 // Gán data vào các biến computed để dễ dùng
 const story = computed(() => storyData.value?.story)
 const chapters = computed(() => storyData.value?.chapters)
+const modelUsed = computed(() => story.value?.modelUsed || 'Chưa rõ')
 
 const tabs = [
   { slot: 'description', label: 'Giới thiệu' },

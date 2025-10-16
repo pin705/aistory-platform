@@ -53,3 +53,26 @@ export function toggleArrayItem(array: string[], value: string) {
     array.splice(index, 1)
   }
 }
+
+export function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000)
+  if (seconds < 30) return 'vài giây trước'
+
+  const intervals: { [key: string]: number } = {
+    năm: 31536000,
+    tháng: 2592000,
+    tuần: 604800,
+    ngày: 86400,
+    tiếng: 3600,
+    phút: 60
+  }
+
+  for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+    const value = Math.floor(seconds / secondsInUnit)
+    if (value >= 1) {
+      return `${value} ${unit} trước`
+    }
+  }
+
+  return `${Math.floor(seconds)} giây trước`
+}
