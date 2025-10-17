@@ -212,7 +212,7 @@ const selectedKey = ref<any | null>(null)
 
 // --- DANH SÁCH MODEL ---
 const geminiModels = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.5-flash-lite']
-const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'meta-llama/llama-4-maverick-17b-128e-instruct', 'meta-llama/llama-4-scout-17b-16e-instruct']
+const groqModels = ['grok-3-mini', 'grok-3', 'llama-3.1-8b-instant']
 const openaiModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-5', 'gpt-5-mini'] // Thêm model của OpenAI
 // --- LẤY DỮ LIỆU ---
 const { data: apiKeys, refresh } = await useFetch<any[]>('/api/keys', { default: () => [] })
