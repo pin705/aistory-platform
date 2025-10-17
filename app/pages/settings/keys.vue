@@ -167,7 +167,7 @@
               name="isActive"
               class="flex flex-col items-start mt-1"
             >
-              <USwitch v-model="editState.isActive" />
+              <USwitch color="neutral" v-model="editState.isActive" />
               <span class="text-xs mt-1">{{ editState.isActive ? 'Đang hoạt động' : 'Vô hiệu hóa' }}</span>
             </UFormField>
           </div>
@@ -182,6 +182,7 @@
             <UButton
               type="submit"
               :loading="isLoading"
+              color="neutral"
             >
               Lưu thay đổi
             </UButton>
